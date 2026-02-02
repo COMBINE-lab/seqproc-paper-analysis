@@ -1,0 +1,142 @@
+{
+  "splitseq_pe_raw": {
+    "name": "SPLiT-seq PE (Raw)",
+    "total_reads": 1000000,
+    "tools": {
+      "seqproc": {
+        "mean_runtime": 1.0600805282592773,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 28.6875,
+        "mean_reads_out": 813208,
+        "recovery_rate": 81.3208
+      },
+      "matchbox": {
+        "mean_runtime": 97.28039479255676,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 331.41015625,
+        "mean_reads_out": 817520,
+        "recovery_rate": 81.75200000000001
+      }
+    }
+  },
+  "splitseq_pe_replacement": {
+    "name": "SPLiT-seq PE (Replacement)",
+    "total_reads": 1000000,
+    "tools": {
+      "seqproc": {
+        "mean_runtime": 2.0662648677825928,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 36.1875,
+        "mean_reads_out": 813208,
+        "recovery_rate": 81.3208
+      },
+      "matchbox": {
+        "mean_runtime": 97.33119177818298,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 331.578125,
+        "mean_reads_out": 817520,
+        "recovery_rate": 81.75200000000001
+      }
+    }
+  },
+  "splitseq_se_raw": {
+    "name": "SPLiT-seq Long Read",
+    "total_reads": 1000000,
+    "tools": {
+      "seqproc": {
+        "mean_runtime": 1.6315631866455078,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 24.19140625,
+        "mean_reads_out": 210924,
+        "recovery_rate": 21.0924
+      },
+      "matchbox": {
+        "mean_runtime": 3.074965476989746,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 151.8125,
+        "mean_reads_out": 240065,
+        "recovery_rate": 24.0065
+      }
+    }
+  },
+  "10x_short": {
+    "name": "10x Chromium v2 Short Read",
+    "total_reads": 1000000,
+    "tools": {
+      "seqproc": {
+        "mean_runtime": 0.5563843250274658,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 23.3203125,
+        "mean_reads_out": 1000000,
+        "recovery_rate": 100.0
+      },
+      "matchbox": {
+        "mean_runtime": 2.013868808746338,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 323.8046875,
+        "mean_reads_out": 1000000,
+        "recovery_rate": 100.0
+      }
+    }
+  },
+  "sciseq": {
+    "name": "Sci-Seq 3",
+    "total_reads": 1000000,
+    "tools": {
+      "seqproc": {
+        "mean_runtime": 0.650639533996582,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 22.9375,
+        "mean_reads_out": 897202,
+        "recovery_rate": 89.7202
+      },
+      "matchbox": {
+        "mean_runtime": 7.227959871292114,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 173.46875,
+        "mean_reads_out": 897666,
+        "recovery_rate": 89.7666
+      }
+    }
+  },
+  "10x_gridion": {
+    "name": "10x GridION Long-Read",
+    "total_reads": 1000000,
+    "tools": {
+      "seqproc": {
+        "mean_runtime": 4.294663190841675,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 33.17578125,
+        "mean_reads_out": 927102,
+        "recovery_rate": 92.7102
+      },
+      "matchbox": {
+        "mean_runtime": 7.363651752471924,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 355.0625,
+        "mean_reads_out": 927054,
+        "recovery_rate": 92.7054
+      }
+    }
+  },
+  "10x_promethion": {
+    "name": "10x PromethION Long-Read",
+    "total_reads": 1000000,
+    "tools": {
+      "seqproc": {
+        "mean_runtime": 4.198822975158691,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 32.12109375,
+        "mean_reads_out": 913518,
+        "recovery_rate": 91.35180000000001
+      },
+      "matchbox": {
+        "mean_runtime": 7.18059515953064,
+        "std_runtime": 0.0,
+        "mean_memory_mb": 352.4453125,
+        "mean_reads_out": 915465,
+        "recovery_rate": 91.5465
+      }
+    }
+  }
+}

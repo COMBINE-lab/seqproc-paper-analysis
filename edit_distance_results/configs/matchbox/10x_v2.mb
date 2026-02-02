@@ -1,0 +1,8 @@
+# 10x Chromium v2 Short Read Config
+# R1 structure: [Barcode:16][UMI:10] (Exact length 26)
+
+if read matches {
+    [b:|16| u:|10|] => {
+        '{read.id}\t{b.seq}\t{u.seq}'.stdout!()
+    }
+}

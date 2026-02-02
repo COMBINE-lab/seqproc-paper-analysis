@@ -1,0 +1,21 @@
+# definitions
+primer = CAGAGC
+
+if read.r1 matches {
+  [ bc1:|9| primer~0.17 umi:|8| bc2:|10| _] => {
+    bc1
+      .concat(bc2
+                .concat(umi)
+              ).out!('mb_r1.fq')
+
+    read.r2.out!('mb_r2.fq')
+  }
+  [ bc1:|10| primer~0.17 umi:|8| bc2:|10| _] => {
+    bc1
+      .concat(bc2
+                .concat(umi)
+              ).out!('mb_r1.fq')
+
+    read.r2.out!('mb_r2.fq')
+  }
+}

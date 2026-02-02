@@ -1,0 +1,382 @@
+{
+  "splitseq_pe_raw": {
+    "seqproc": [
+      {
+        "runtime": 1.143148422241211,
+        "memory_mb": 27.02734375,
+        "reads_out": 741006,
+        "reads_valid": 688864,
+        "replicate": 1
+      },
+      {
+        "runtime": 1.170456886291504,
+        "memory_mb": 27.1015625,
+        "reads_out": 741006,
+        "reads_valid": 688864,
+        "replicate": 2
+      },
+      {
+        "runtime": 1.1169748306274414,
+        "memory_mb": 27.27734375,
+        "reads_out": 741006,
+        "reads_valid": 688864,
+        "replicate": 3
+      }
+    ],
+    "matchbox": [
+      {
+        "runtime": 281.9162724018097,
+        "memory_mb": 4287.1171875,
+        "reads_out": 795503,
+        "reads_valid": 661471,
+        "replicate": 1
+      },
+      {
+        "runtime": 276.99472212791443,
+        "memory_mb": 4287.39453125,
+        "reads_out": 795503,
+        "reads_valid": 661471,
+        "replicate": 2
+      },
+      {
+        "runtime": 276.86184215545654,
+        "memory_mb": 4287.15625,
+        "reads_out": 795503,
+        "reads_valid": 661471,
+        "replicate": 3
+      }
+    ]
+  },
+  "splitseq_pe_replacement": {
+    "seqproc": [
+      {
+        "runtime": 1.7801971435546875,
+        "memory_mb": 41.4765625,
+        "reads_out": 741005,
+        "reads_valid": 688864,
+        "replicate": 1
+      },
+      {
+        "runtime": 1.760761022567749,
+        "memory_mb": 41.30078125,
+        "reads_out": 741005,
+        "reads_valid": 688864,
+        "replicate": 2
+      },
+      {
+        "runtime": 1.7849256992340088,
+        "memory_mb": 41.28515625,
+        "reads_out": 741005,
+        "reads_valid": 688864,
+        "replicate": 3
+      }
+    ],
+    "splitcode": [
+      {
+        "runtime": 2.969398021697998,
+        "memory_mb": 108.265625,
+        "reads_out": 911217,
+        "reads_valid": 700077,
+        "replicate": 1
+      },
+      {
+        "runtime": 2.9352188110351562,
+        "memory_mb": 108.1953125,
+        "reads_out": 911217,
+        "reads_valid": 700077,
+        "replicate": 2
+      },
+      {
+        "runtime": 2.9559171199798584,
+        "memory_mb": 108.296875,
+        "reads_out": 911217,
+        "reads_valid": 700077,
+        "replicate": 3
+      }
+    ],
+    "matchbox": [
+      {
+        "runtime": 274.88681077957153,
+        "memory_mb": 4287.26953125,
+        "reads_out": 795503,
+        "reads_valid": 661471,
+        "replicate": 1
+      },
+      {
+        "runtime": 272.5175070762634,
+        "memory_mb": 4287.19921875,
+        "reads_out": 795503,
+        "reads_valid": 661471,
+        "replicate": 2
+      },
+      {
+        "runtime": 272.65012216567993,
+        "memory_mb": 4287.12109375,
+        "reads_out": 795503,
+        "reads_valid": 661471,
+        "replicate": 3
+      }
+    ]
+  },
+  "splitseq_se_raw": {
+    "seqproc": [
+      {
+        "runtime": 3.93438982963562,
+        "memory_mb": 24.26953125,
+        "reads_out": 241771,
+        "reads_valid": 5904,
+        "replicate": 1
+      },
+      {
+        "runtime": 4.000891923904419,
+        "memory_mb": 23.96484375,
+        "reads_out": 241771,
+        "reads_valid": 5904,
+        "replicate": 2
+      },
+      {
+        "runtime": 3.9322214126586914,
+        "memory_mb": 24.09765625,
+        "reads_out": 241771,
+        "reads_valid": 5904,
+        "replicate": 3
+      }
+    ],
+    "matchbox": [
+      {
+        "runtime": 3.0563948154449463,
+        "memory_mb": 157.7578125,
+        "reads_out": 253348,
+        "reads_valid": 5889,
+        "replicate": 1
+      },
+      {
+        "runtime": 2.91412091255188,
+        "memory_mb": 157.56640625,
+        "reads_out": 253348,
+        "reads_valid": 5889,
+        "replicate": 2
+      },
+      {
+        "runtime": 2.8629708290100098,
+        "memory_mb": 157.7734375,
+        "reads_out": 253348,
+        "reads_valid": 5889,
+        "replicate": 3
+      }
+    ],
+    "splitcode": [
+      {
+        "runtime": 29.053220748901367,
+        "memory_mb": 150.8828125,
+        "reads_out": 279699,
+        "reads_valid": 5904,
+        "replicate": 1
+      },
+      {
+        "runtime": 28.21753168106079,
+        "memory_mb": 150.9453125,
+        "reads_out": 279699,
+        "reads_valid": 5904,
+        "replicate": 2
+      },
+      {
+        "runtime": 28.303298711776733,
+        "memory_mb": 150.80078125,
+        "reads_out": 279699,
+        "reads_valid": 5904,
+        "replicate": 3
+      }
+    ]
+  },
+  "10x_short": {
+    "seqproc": [
+      {
+        "runtime": 1.1873607635498047,
+        "memory_mb": 23.14453125,
+        "reads_out": 1000000,
+        "reads_valid": 1000000,
+        "replicate": 1
+      },
+      {
+        "runtime": 0.5069189071655273,
+        "memory_mb": 23.20703125,
+        "reads_out": 1000000,
+        "reads_valid": 1000000,
+        "replicate": 2
+      },
+      {
+        "runtime": 0.617530107498169,
+        "memory_mb": 23.34765625,
+        "reads_out": 1000000,
+        "reads_valid": 1000000,
+        "replicate": 3
+      }
+    ],
+    "matchbox": [
+      {
+        "runtime": 1.9978108406066895,
+        "memory_mb": 323.9375,
+        "reads_out": 1000000,
+        "reads_valid": 1000000,
+        "replicate": 1
+      },
+      {
+        "runtime": 2.039997100830078,
+        "memory_mb": 323.953125,
+        "reads_out": 1000000,
+        "reads_valid": 1000000,
+        "replicate": 2
+      },
+      {
+        "runtime": 2.0490221977233887,
+        "memory_mb": 323.703125,
+        "reads_out": 1000000,
+        "reads_valid": 1000000,
+        "replicate": 3
+      }
+    ]
+  },
+  "10x_promethion": {
+    "seqproc": [
+      {
+        "runtime": 7.30110502243042,
+        "memory_mb": 25.26953125,
+        "reads_out": 662797,
+        "reads_valid": 634993,
+        "replicate": 1
+      },
+      {
+        "runtime": 7.316210746765137,
+        "memory_mb": 25.2734375,
+        "reads_out": 662797,
+        "reads_valid": 634993,
+        "replicate": 2
+      },
+      {
+        "runtime": 7.2924864292144775,
+        "memory_mb": 25.3359375,
+        "reads_out": 662797,
+        "reads_valid": 634993,
+        "replicate": 3
+      }
+    ],
+    "matchbox": [
+      {
+        "runtime": 6.826188087463379,
+        "memory_mb": 205.72265625,
+        "reads_out": 854679,
+        "reads_valid": 634992,
+        "replicate": 1
+      },
+      {
+        "runtime": 6.8543407917022705,
+        "memory_mb": 205.66015625,
+        "reads_out": 854679,
+        "reads_valid": 634992,
+        "replicate": 2
+      },
+      {
+        "runtime": 6.839745998382568,
+        "memory_mb": 205.71875,
+        "reads_out": 854679,
+        "reads_valid": 634992,
+        "replicate": 3
+      }
+    ],
+    "splitcode": [
+      {
+        "runtime": 17.887399435043335,
+        "memory_mb": 88.3828125,
+        "reads_out": 662802,
+        "reads_valid": 634998,
+        "replicate": 1
+      },
+      {
+        "runtime": 18.849758625030518,
+        "memory_mb": 88.4296875,
+        "reads_out": 662802,
+        "reads_valid": 634998,
+        "replicate": 2
+      },
+      {
+        "runtime": 19.06283187866211,
+        "memory_mb": 88.35546875,
+        "reads_out": 662802,
+        "reads_valid": 634998,
+        "replicate": 3
+      }
+    ]
+  },
+  "sciseq": {
+    "seqproc": [
+      {
+        "runtime": 1.1157639026641846,
+        "memory_mb": 22.65234375,
+        "reads_out": 884318,
+        "reads_valid": 884318,
+        "replicate": 1
+      },
+      {
+        "runtime": 0.6409428119659424,
+        "memory_mb": 22.53515625,
+        "reads_out": 884318,
+        "reads_valid": 884318,
+        "replicate": 2
+      },
+      {
+        "runtime": 0.6680538654327393,
+        "memory_mb": 22.63671875,
+        "reads_out": 884318,
+        "reads_valid": 884318,
+        "replicate": 3
+      }
+    ],
+    "matchbox": [
+      {
+        "runtime": 7.720751523971558,
+        "memory_mb": 173.6015625,
+        "reads_out": 897666,
+        "reads_valid": 894236,
+        "replicate": 1
+      },
+      {
+        "runtime": 7.712656736373901,
+        "memory_mb": 173.39453125,
+        "reads_out": 897666,
+        "reads_valid": 894236,
+        "replicate": 2
+      },
+      {
+        "runtime": 7.877995252609253,
+        "memory_mb": 173.44140625,
+        "reads_out": 897666,
+        "reads_valid": 894236,
+        "replicate": 3
+      }
+    ],
+    "splitcode": [
+      {
+        "runtime": 1.472987413406372,
+        "memory_mb": 177.37109375,
+        "reads_out": 884318,
+        "reads_valid": 884318,
+        "replicate": 1
+      },
+      {
+        "runtime": 1.4946649074554443,
+        "memory_mb": 177.3828125,
+        "reads_out": 884318,
+        "reads_valid": 884318,
+        "replicate": 2
+      },
+      {
+        "runtime": 1.4719455242156982,
+        "memory_mb": 177.23046875,
+        "reads_out": 884318,
+        "reads_valid": 884318,
+        "replicate": 3
+      }
+    ]
+  }
+}

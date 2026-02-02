@@ -1,0 +1,24 @@
+l1 = GTGGCCGCTGTTTCGCATCGGCGTACGACT
+l2 = ATCCACGTGCTTGAGA
+bcs1 = csv('configs/matchbox/rt.csv')
+bcs2 = csv('configs/matchbox/r2_r3.txt')
+bcs3 = csv('configs/matchbox/r2_r3.txt')
+
+if read.r2 matches {
+    [_ umi:|8| bc3.round_23~0.13 l1~0.2 bc2.round_23~0.13 l2~0.2 bc1.rand~0.13 _]
+        for bc1 in bcs1, bc2 in bcs2, bc3 in bcs3 => {
+            read.r2.tag('bc1={bc1.oligodt}')
+                .tag('bc2={bc2.round_23}')
+                .tag('bc3={bc3.round_23}')
+                .tag('umi={umi.seq}')
+                .out!('mb_r2.fq')
+        }
+    [_ umi:|8| bc3.round_23~0.13 l1~0.2 bc2.round_23~0.13 l2~0.2 bc1:|8| _]
+        for bc2 in bcs2, bc3 in bcs3 => {
+            read.r2.tag('bc1={bc1.seq}')
+                .tag('bc2={bc2.round_23}')
+                .tag('bc3={bc3.round_23}')
+                .tag('umi={umi.seq}')
+                .out!('mb_r2.fq')
+        }
+}

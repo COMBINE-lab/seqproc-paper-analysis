@@ -1,0 +1,13 @@
+# Matchbox SPLiT-seq barcode extraction script
+# Structure: [skip:2][UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:16][BC1:8][rest]
+#
+# Linker sequences (GCT variant for SRR6750041):
+#   Linker1: GTGGCCGCTGTTTCGCATCGGCGTACGACT (30bp)
+#   Linker2: ATCCACGTGCTTGAGA (16bp)
+
+linker1 = GTGGCCGCTGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGA
+
+if read matches [_:|2| umi:|10| bc3:|8| linker1 bc2:|8| linker2 bc1:|8| _] => {
+    '{read.id}\t{bc1.seq}\t{bc2.seq}\t{bc3.seq}\t{umi.seq}'.stdout!()
+}
