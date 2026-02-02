@@ -1,4 +1,4 @@
-primer = anchor_relative(hamming(f[CTACACGACGCTCTTCCGATCT], 3))
+primer = anchor_relative(edit(f[CTACACGACGCTCTTCCGATCT], 4))
 bc = b[16]
 umi = u[12]
 rest = r:
