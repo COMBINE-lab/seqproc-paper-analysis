@@ -1,0 +1,16 @@
+# Matchbox SPLiT-seq barcode extraction script (SINGLE-END REVERSE COMPLEMENT)
+# Dataset: SRR13948564 (Reverse Complement Search)
+# Original Structure: [UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:22][BC1:8][rest]
+# RC Structure:       [rest][RC_BC1:8][RC_Linker2:22][RC_BC2:8][RC_Linker1:30][RC_BC3:8][RC_UMI:10]
+#
+# Since matchbox searches forward, we define:
+# [bc1_rc:8][linker2_rc][bc2_rc:8][linker1_rc][bc3_rc:8][umi_rc:10]
+
+linker1_rc = AGTCGTACGCCGATGCGAAACATCGGCCAC
+linker2_rc = CCACAGTCTCAAGCACGTGGAT
+
+# We look for the pattern in the read (with wildcards for flanking sequences)
+if read matches [_ bc1_rc:|8| linker2_rc bc2_rc:|8| linker1_rc bc3_rc:|8| umi_rc:|10| _] => {
+    # Outputting read ID is sufficient for validity counting
+    '{read.id}'.stdout!()
+}

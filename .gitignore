@@ -24,3 +24,4 @@ results/*/
 data/10x/
 *.sra
 *.fastq
+data/

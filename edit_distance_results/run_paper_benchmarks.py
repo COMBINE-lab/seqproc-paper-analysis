@@ -86,7 +86,6 @@ DATASETS = {
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc1_seq2seq.tsv',
         ],
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_replacement.mb',
-        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_paper.config',
         'reads': 1_000_000,
         'tools': ['seqproc', 'matchbox'],
     },
@@ -101,7 +100,6 @@ DATASETS = {
         'mode': 'single',
         'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_singleend_primer_edit.geom',
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_singleend.mb',
-        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_singleend.config',
         'reads': reads,
         'tools': ['seqproc', 'matchbox'],
     },
@@ -129,7 +127,6 @@ DATASETS = {
         'mode': 'paired',
         'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/sciseq3_edit.geom',
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/sciseq3.mb',
-        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/sciseq3.config',
         'reads': reads,
         'tools': ['seqproc', 'matchbox'],
     },
@@ -145,7 +142,6 @@ DATASETS = {
         'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/10x_longread_fwd_edit.geom',
         'seqproc_geom_rev': PROJECT_ROOT / 'configs/seqproc/10x_longread_rev_edit.geom',
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/10x_longread.mb',
-        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/10x_longread.config',
         'reads': reads,
         'tools': ['seqproc', 'matchbox'],
     },
@@ -161,7 +157,6 @@ DATASETS = {
         'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/10x_longread_fwd_edit.geom',
         'seqproc_geom_rev': PROJECT_ROOT / 'configs/seqproc/10x_longread_rev_edit.geom',
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/10x_longread.mb',
-        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/10x_longread.config',
         'reads': reads,
         'tools': ['seqproc', 'matchbox'],
     },
@@ -569,11 +564,15 @@ def run_seqproc(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, float,
         
         # Run forward pass (single output)
         cmd_fwd = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom']} --file1 {dataset['r1']} --out1 {out1_fwd} --threads {threads}"
-        rt1, mem1, rc1, _ = run_with_memory(cmd_fwd, PROJECT_ROOT)
+        rt1, mem1, rc1, stderr1 = run_with_memory(cmd_fwd, PROJECT_ROOT)
+        if rc1 != 0:
+            print(f"\n[ERROR] Seqproc fwd pass failed with rc={rc1}:\n{stderr1}")
         
         # Run reverse pass (single output)
         cmd_rev = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom_rev']} --file1 {dataset['r1']} --out1 {out1_rev} --threads {threads}"
-        rt2, mem2, rc2, _ = run_with_memory(cmd_rev, PROJECT_ROOT)
+        rt2, mem2, rc2, stderr2 = run_with_memory(cmd_rev, PROJECT_ROOT)
+        if rc2 != 0:
+            print(f"\n[ERROR] Seqproc rev pass failed with rc={rc2}:\n{stderr2}")
         
         # Merge outputs
         if os.path.exists(out1_fwd) or os.path.exists(out1_rev):
@@ -779,9 +778,8 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                         if not h: break
                                         f.readline(); f.readline(); f.readline()
                                         output_ids.add(h.strip().split()[0].replace('@', ''))
-                                        
+
                         elif tool == 'splitcode':
-                            # Splitcode logic
                             if dataset['mode'] == 'paired':
                                 out_file = f"{tmpdir}/splitcode_R2.fq"
                             else:
@@ -794,14 +792,11 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                         if not h: break
                                         f.readline(); f.readline(); f.readline()
                                         output_ids.add(h.strip().split()[0].replace('@', ''))
-                                        
+
                         elif tool == 'matchbox':
-                            # Check for FASTQ outputs first
                             mb_fq_files = [f for f in [f"{tmpdir}/mb_r1.fq", f"{tmpdir}/mb_r2.fq"] if os.path.exists(f)]
                             
                             if mb_fq_files:
-                                # Read IDs from the output FASTQ
-                                # Use the first available one
                                 with open(mb_fq_files[0]) as f:
                                     while True:
                                         h = f.readline()
@@ -809,7 +804,6 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                         f.readline(); f.readline(); f.readline()
                                         output_ids.add(h.strip().split()[0].replace('@', ''))
                             else:
-                                # Fallback to TSV
                                 out_file = f"{tmpdir}/matchbox_out.tsv"
                                 if os.path.exists(out_file):
                                     with open(out_file) as f:
@@ -817,7 +811,7 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                             parts = line.strip().split('\t')
                                             if parts:
                                                 output_ids.add(parts[0])
-                        
+
                         reads_valid = len(output_ids.intersection(validity_analyzer.valid_ids))
                         print(f"{runtime:.2f}s, {memory:.1f}MB, {reads:,} reads ({reads_valid:,} valid)")
                     else:

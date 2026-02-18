@@ -73,7 +73,7 @@ python3 edit_distance_results/run_paper_benchmarks.py --threads 4 --replicates 3
 
 ### Output
 
-Results will be saved to `edit_distance_results/results/`:
+Results will be saved to `results/paper_figures/` (relative to repository root):
 - `benchmark_results.json`: Raw results in JSON format
 - `fig1_performance_distribution.png`: Performance distribution plot
 - `fig2_recovery_table.png`: Recovery rate comparison table
@@ -102,8 +102,8 @@ The following datasets were added to the benchmark:
 ### 3. Whitelist Files
 
 Whitelist files are included in `configs/`:
-- `whitelist_v1.txt`: Combined BC2 and BC3 whitelists
-- `bc1_whitelist.txt`: BC1 whitelist (6bp barcodes)
+- `splitseq_bc23_whitelist.txt`: Combined BC2 and BC3 whitelists (8bp barcodes)
+- `splitseq_bc1_whitelist.txt`: BC1 whitelist (8bp barcodes)
 
 ## Expected Results
 
@@ -128,7 +128,8 @@ Key observations:
 Check that:
 - The SEQPROC_BIN environment variable is set correctly
 - The binary is executable and at the correct path
-- Whitelist files exist at `/home/ubuntu/whitelist_v1.txt` and `/home/ubuntu/bc1_whitelist.txt`
+- Whitelist files exist at `configs/seqproc/splitseq_bc23_whitelist.txt` and `configs/seqproc/splitseq_bc1_whitelist.txt`
+- Run `./edit_distance_results/install_whitelists.sh` from the repo root to generate them
 
 ### 2. Permission errors
 

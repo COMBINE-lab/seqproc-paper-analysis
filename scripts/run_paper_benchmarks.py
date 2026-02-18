@@ -37,7 +37,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 RESULTS_DIR = PROJECT_ROOT / "results" / "paper_figures"
 
 # Tool binaries
-SEQPROC_BIN = os.environ.get("SEQPROC_BIN", str(PROJECT_ROOT.parent / "seqproc/target/release/seqproc"))
+SEQPROC_BIN = os.environ.get("SEQPROC_BIN", str(PROJECT_ROOT.parent / "combine-lab/seqproc/target/release/seqproc"))
 MATCHBOX_BIN = os.environ.get("MATCHBOX_BIN", str(PROJECT_ROOT.parent / "matchbox/target/release/matchbox"))
 SPLITCODE_BIN = os.environ.get("SPLITCODE_BIN", str(PROJECT_ROOT.parent / "splitcode/build/src/splitcode"))
 
@@ -60,7 +60,7 @@ DATASETS = {
         'r1': PROJECT_ROOT / 'data/SRR6750041_1M_R1.fastq',
         'r2': PROJECT_ROOT / 'data/SRR6750041_1M_R2.fastq',
         'mode': 'paired',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_filter.geom',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_filter_edit.geom',
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_replacement.mb',
         'seqproc_maps': [
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc3_seq2seq.tsv',
@@ -79,16 +79,15 @@ DATASETS = {
         'r1': PROJECT_ROOT / 'data/SRR6750041_1M_R1.fastq',
         'r2': PROJECT_ROOT / 'data/SRR6750041_1M_R2.fastq',
         'mode': 'paired',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_replacement.geom',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_replacement_edit.geom',
         'seqproc_maps': [
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc3_seq2seq.tsv',
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc2_seq2seq.tsv',
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc1_seq2seq.tsv',
         ],
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_replacement.mb',
-        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_paper.config',
         'reads': 1_000_000,
-        'tools': ['seqproc', 'splitcode', 'matchbox'],
+        'tools': ['seqproc', 'matchbox'],
     },
     
     # SPLiT-seq Long-Read
@@ -99,9 +98,8 @@ DATASETS = {
         'r1': PROJECT_ROOT / 'data/SRR13948564_1M.fastq',
         'r2': None,
         'mode': 'single',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_singleend_primer.geom',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_singleend_primer_edit.geom',
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_singleend.mb',
-        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_singleend.config',
         'reads': reads,
         'tools': ['seqproc', 'matchbox'],
     },
@@ -115,6 +113,50 @@ DATASETS = {
         'mode': 'paired', # While geom only uses R1, we provide both for consistency
         'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/10x_v2.geom',
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/10x_v2.mb',
+        'reads': reads,
+        'tools': ['seqproc', 'matchbox'],
+    },
+    
+    # Sci-Seq 3
+    'sciseq': {
+        'name': 'Sci-Seq 3',
+        'short_name': 'Sci-Seq 3',
+        'category': 'raw',
+        'r1': PROJECT_ROOT / 'data/SRR7827254_1M_1.fastq',
+        'r2': PROJECT_ROOT / 'data/SRR7827254_1M_2.fastq',
+        'mode': 'paired',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/sciseq3_edit.geom',
+        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/sciseq3.mb',
+        'reads': reads,
+        'tools': ['seqproc', 'matchbox'],
+    },
+    
+    # 10x GridION Long-Read
+    '10x_gridion': {
+        'name': '10x GridION Long-Read',
+        'short_name': '10x GridION',
+        'category': 'raw',
+        'r1': PROJECT_ROOT / 'data/10x/ERR9958134_1M.fastq',
+        'r2': None,
+        'mode': 'single',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/10x_longread_fwd_edit.geom',
+        'seqproc_geom_rev': PROJECT_ROOT / 'configs/seqproc/10x_longread_rev_edit.geom',
+        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/10x_longread.mb',
+        'reads': reads,
+        'tools': ['seqproc', 'matchbox'],
+    },
+    
+    # 10x PromethION Long-Read
+    '10x_promethion': {
+        'name': '10x PromethION Long-Read',
+        'short_name': '10x PromethION',
+        'category': 'raw',
+        'r1': PROJECT_ROOT / 'data/10x/ERR9958135_1M.fastq',
+        'r2': None,
+        'mode': 'single',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/10x_longread_fwd_edit.geom',
+        'seqproc_geom_rev': PROJECT_ROOT / 'configs/seqproc/10x_longread_rev_edit.geom',
+        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/10x_longread.mb',
         'reads': reads,
         'tools': ['seqproc', 'matchbox'],
     },
@@ -519,33 +561,26 @@ def run_seqproc(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, float,
     if 'seqproc_geom_rev' in dataset:
         out1_fwd = f"{tmpdir}/seqproc_R1_fwd.fq"
         out1_rev = f"{tmpdir}/seqproc_R1_rev.fq"
-        out2_fwd = f"{tmpdir}/seqproc_R2_fwd.fq"
-        out2_rev = f"{tmpdir}/seqproc_R2_rev.fq"
         
-        # Run forward pass (Generate R1 and R2)
-        cmd_fwd = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom']} --file1 {dataset['r1']} --out1 {out1_fwd} --out2 {out2_fwd} --threads {threads}"
-        rt1, mem1, rc1, _ = run_with_memory(cmd_fwd, PROJECT_ROOT)
+        # Run forward pass (single output)
+        cmd_fwd = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom']} --file1 {dataset['r1']} --out1 {out1_fwd} --threads {threads}"
+        rt1, mem1, rc1, stderr1 = run_with_memory(cmd_fwd, PROJECT_ROOT)
+        if rc1 != 0:
+            print(f"\n[ERROR] Seqproc fwd pass failed with rc={rc1}:\n{stderr1}")
         
-        # Run reverse pass (Generate R1 and R2)
-        cmd_rev = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom_rev']} --file1 {dataset['r1']} --out1 {out1_rev} --out2 {out2_rev} --threads {threads}"
-        rt2, mem2, rc2, _ = run_with_memory(cmd_rev, PROJECT_ROOT)
+        # Run reverse pass (single output)
+        cmd_rev = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom_rev']} --file1 {dataset['r1']} --out1 {out1_rev} --threads {threads}"
+        rt2, mem2, rc2, stderr2 = run_with_memory(cmd_rev, PROJECT_ROOT)
+        if rc2 != 0:
+            print(f"\n[ERROR] Seqproc rev pass failed with rc={rc2}:\n{stderr2}")
         
-        # Merge outputs (R1 and R2)
-        # Concatenate R1s
+        # Merge outputs
         if os.path.exists(out1_fwd) or os.path.exists(out1_rev):
             with open(out1, 'wb') as outfile:
                 if os.path.exists(out1_fwd):
                     with open(out1_fwd, 'rb') as f: outfile.write(f.read())
                 if os.path.exists(out1_rev):
                     with open(out1_rev, 'rb') as f: outfile.write(f.read())
-        
-        # Concatenate R2s (if they exist)
-        if os.path.exists(out2_fwd) or os.path.exists(out2_rev):
-            with open(out2, 'wb') as outfile:
-                if os.path.exists(out2_fwd):
-                    with open(out2_fwd, 'rb') as f: outfile.write(f.read())
-                if os.path.exists(out2_rev):
-                    with open(out2_rev, 'rb') as f: outfile.write(f.read())
             
         runtime = rt1 + rt2
         memory_mb = max(mem1, mem2)
@@ -563,7 +598,10 @@ def run_seqproc(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, float,
         for map_file in dataset['seqproc_maps']:
             cmd += f" -a {map_file}"
     
-    runtime, memory_mb, rc, _ = run_with_memory(cmd, PROJECT_ROOT)
+    runtime, memory_mb, rc, stderr = run_with_memory(cmd, PROJECT_ROOT)
+    
+    if rc != 0:
+        print(f"\n[ERROR] Seqproc failed with rc={rc}:\n{stderr}")
     
     output_file = out2 if dataset['mode'] == 'paired' else out1
     reads = count_fastq_reads(output_file)
@@ -740,9 +778,8 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                         if not h: break
                                         f.readline(); f.readline(); f.readline()
                                         output_ids.add(h.strip().split()[0].replace('@', ''))
-                                        
+
                         elif tool == 'splitcode':
-                            # Splitcode logic
                             if dataset['mode'] == 'paired':
                                 out_file = f"{tmpdir}/splitcode_R2.fq"
                             else:
@@ -755,14 +792,11 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                         if not h: break
                                         f.readline(); f.readline(); f.readline()
                                         output_ids.add(h.strip().split()[0].replace('@', ''))
-                                        
+
                         elif tool == 'matchbox':
-                            # Check for FASTQ outputs first
                             mb_fq_files = [f for f in [f"{tmpdir}/mb_r1.fq", f"{tmpdir}/mb_r2.fq"] if os.path.exists(f)]
                             
                             if mb_fq_files:
-                                # Read IDs from the output FASTQ
-                                # Use the first available one
                                 with open(mb_fq_files[0]) as f:
                                     while True:
                                         h = f.readline()
@@ -770,7 +804,6 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                         f.readline(); f.readline(); f.readline()
                                         output_ids.add(h.strip().split()[0].replace('@', ''))
                             else:
-                                # Fallback to TSV
                                 out_file = f"{tmpdir}/matchbox_out.tsv"
                                 if os.path.exists(out_file):
                                     with open(out_file) as f:
@@ -778,7 +811,7 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                             parts = line.strip().split('\t')
                                             if parts:
                                                 output_ids.add(parts[0])
-                        
+
                         reads_valid = len(output_ids.intersection(validity_analyzer.valid_ids))
                         print(f"{runtime:.2f}s, {memory:.1f}MB, {reads:,} reads ({reads_valid:,} valid)")
                     else:
