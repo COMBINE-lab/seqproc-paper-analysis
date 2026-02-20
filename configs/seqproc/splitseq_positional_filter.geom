@@ -6,19 +6,19 @@ skip2 = x[2]
 umi = u[10]
 
 # BC3: 8bp, filter against whitelist (dist 1)
-bc3 = filter_within_dist(b[8], "/home/ubuntu/whitelist_v1.txt", 1)
+bc3 = filter_within_dist(b[8], "configs/seqproc/splitseq_bc23_whitelist.txt", 1)
 
 # Linker1 - 30bp - Skip (Positional assumption)
 skip_l1 = x[30]
 
 # BC2: 8bp, filter against whitelist (dist 1)
-bc2 = filter_within_dist(b[8], "/home/ubuntu/whitelist_v1.txt", 1)
+bc2 = filter_within_dist(b[8], "configs/seqproc/splitseq_bc23_whitelist.txt", 1)
 
 # Linker2 - 30bp - Skip (Positional assumption)
 skip_l2 = x[30]
 
 # BC1: 6bp (truncated), filter against whitelist (dist 1)
-bc1 = filter_within_dist(b[6], "/home/ubuntu/whitelist_v1_6bp.txt", 1)
+bc1 = filter_within_dist(b[6], "configs/seqproc/splitseq_bc1_whitelist_6bp.txt", 1)
 rest = r:
 
 1{<read1>}

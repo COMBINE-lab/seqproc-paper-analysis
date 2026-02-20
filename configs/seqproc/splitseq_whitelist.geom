@@ -1,7 +1,7 @@
 # SPLiT-seq with WHITELIST-BASED barcode matching (like splitcode)
 # Uses search_whitelist to find and REPLACE barcodes with canonical sequences
 #
-# Structure on R2: [NN:2][UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:16][BC1:8][rest]
+# Structure on R2: [NN:2][UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:30][BC1:6][rest]
 #
 # Whitelist files contain one barcode per line
 # search_whitelist(b[n], file, hamming_dist) searches for barcode from file
@@ -20,11 +20,11 @@ l1 = anchor_relative(hamming(f[GTGGCCGCTGTTTCGCATCGGCGTACGACT], 9))
 # BC2 with whitelist matching
 bc2 = search_whitelist(b[8], "configs/seqproc/splitseq_bc_whitelist.txt", 2)
 
-# Linker2 - 16bp anchor  
-l2 = anchor_relative(hamming(f[ATCCACGTGCTTGAGA], 5))
+# Linker2 - 30bp anchor
+l2 = anchor_relative(hamming(f[ATCCACGTGCTTGAGAGGCCAGAGCATTCG], 5))
 
-# BC1 with whitelist matching
-bc1 = search_whitelist(b[8], "configs/seqproc/splitseq_bc_whitelist.txt", 2)
+# BC1 with whitelist matching (6bp truncated in 94bp read with 10bp UMI)
+bc1 = search_whitelist(b[6], "configs/seqproc/splitseq_bc_whitelist.txt", 2)
 
 rest = r:
 

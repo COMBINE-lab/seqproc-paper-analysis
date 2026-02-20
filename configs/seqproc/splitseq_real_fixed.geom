@@ -1,5 +1,5 @@
 # SPLiT-seq Round 2 geometry for REAL data (SRR6750041) - FIXED for 30bp L2
-# Structure on R2: [NN:2][UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:30][BC1:8][rest]
+# Structure on R2: [NN:2][UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:30][BC1:6][rest]
 
 read1 = r:
 skip2 = x[2]
