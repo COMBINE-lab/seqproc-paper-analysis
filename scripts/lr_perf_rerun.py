@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Phase 5 Pre-requisite: Re-run LR-SPLiT-seq performance benchmarks.
+Re-run LR-SPLiT-seq performance benchmarks.
 
-Sprint 4 used a forward-only seqproc config for LR-SPLiT-seq (23.8% recovery,
-~2.1s). The annotation+edit config (49.9% recovery, ~5.1s single run) is the
-correct config for the paper. This script runs 3 replicates for all tools
-to get proper mean/std for Table 2.
+The initial benchmark used a forward-only seqproc config for LR-SPLiT-seq
+(23.8% recovery, ~2.1s). The annotation+edit config (49.9% recovery, ~5.1s
+single run) is the correct config for the paper. This script runs 3 replicates
+for all tools to get proper mean/std for Table 2.
 
 Usage:
-    python3 scripts/phase5_lr_perf_rerun.py --threads 4 --reps 3
+    python3 scripts/lr_perf_rerun.py --threads 4 --reps 3
 """
 
 import json
@@ -22,7 +22,7 @@ from typing import Tuple
 
 PROJECT_ROOT = Path(__file__).parent.parent
 CONFIGS = PROJECT_ROOT / "configs"
-RESULTS_DIR = PROJECT_ROOT / "results" / "phase5_lr_perf"
+RESULTS_DIR = PROJECT_ROOT / "results" / "lr_perf"
 
 SEQPROC_BIN = os.environ.get(
     "SEQPROC_BIN",
@@ -76,7 +76,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 70)
-    print("PHASE 5 PRE-REQ: LR-SPLiT-seq Performance Re-run")
+    print("LR-SPLiT-seq Performance Re-run")
     print(f"  Replicates: {args.reps}, Threads: {args.threads}")
     print("=" * 70)
 

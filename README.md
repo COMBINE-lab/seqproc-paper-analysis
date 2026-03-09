@@ -45,10 +45,10 @@ python scripts/run_paper_benchmarks.py --threads 4 --replicates 3
 Pairwise Jaccard concordance, discordant read characterization, and
 hamming vs edit distance comparison across all datasets.
 
-**Script:** `scripts/phase4_concordance.py`
+**Script:** `scripts/concordance_analysis.py`
 
 ```bash
-python scripts/phase4_concordance.py --threads 4
+python scripts/concordance_analysis.py --threads 4
 ```
 
 ### 3. Discordant Read Analysis
@@ -56,30 +56,30 @@ python scripts/phase4_concordance.py --threads 4
 Structural validation of tool-unique reads (e.g., splitcode false positive
 characterization on SPLiT-seq PE).
 
-**Script:** `scripts/phase4_discordant_analysis.py`
+**Script:** `scripts/discordant_analysis.py`
 
 ```bash
-python scripts/phase4_discordant_analysis.py
+python scripts/discordant_analysis.py
 ```
 
 ### 4. Figure Generation
 
 Generates publication figures from the concordance and benchmark results.
 
-**Script:** `scripts/phase4_figures.py`
+**Script:** `scripts/generate_figures.py`
 
 ```bash
-python scripts/phase4_figures.py
+python scripts/generate_figures.py
 ```
 
 ### 5. LR-SPLiT-seq Performance Re-run
 
 Fresh 3-replicate performance measurements for the LR-SPLiT-seq dataset.
 
-**Script:** `scripts/phase5_lr_perf_rerun.py`
+**Script:** `scripts/lr_perf_rerun.py`
 
 ```bash
-python scripts/phase5_lr_perf_rerun.py --threads 4 --reps 3
+python scripts/lr_perf_rerun.py --threads 4 --reps 3
 ```
 
 ## Configurations
@@ -134,10 +134,10 @@ configs/                    # Tool configurations (.geom, .mb, .config)
 data/                       # Input datasets (gitignored)
 results/
   paper_figures/            # Final benchmark results, figures, and JSON
-  phase4_concordance/       # Pairwise concordance analysis outputs
-  phase3_orientation/       # Orientation benchmark outputs
-  phase5_lr_perf/           # LR-SPLiT-seq performance re-run
-  phase5_splitseq_pe_perf/  # SPLiT-seq PE performance re-run
+  concordance/              # Pairwise concordance analysis outputs
+  orientation/              # Orientation benchmark outputs
+  lr_perf/                  # LR-SPLiT-seq performance re-run
+  splitseq_pe_perf/         # SPLiT-seq PE performance re-run
 scripts/                    # Analysis and figure generation scripts
 tests/                      # Pipeline regression tests
 ```

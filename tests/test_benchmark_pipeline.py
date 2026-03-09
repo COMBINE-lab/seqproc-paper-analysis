@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for Phase 4 code review bug fixes.
+Tests for benchmark pipeline bug fixes.
 
 Covers:
   - Bug 1: run_cmd exit code parsing from /usr/bin/time stderr
@@ -95,7 +95,7 @@ def test_bc_distances_initialized():
 
 def test_matchbox_paired_flag_in_datasets():
     """All datasets should have explicit matchbox_paired flag."""
-    from phase4_concordance import DATASETS
+    from concordance_analysis import DATASETS
 
     for ds_key, ds in DATASETS.items():
         assert 'matchbox_paired' in ds, (
@@ -106,7 +106,7 @@ def test_matchbox_paired_flag_in_datasets():
 
 def test_matchbox_paired_consistency():
     """matchbox_paired should match expected values for known datasets."""
-    from phase4_concordance import DATASETS
+    from concordance_analysis import DATASETS
 
     expected = {
         'splitseq_pe': True,
@@ -142,7 +142,7 @@ def test_paired_prefers_r2():
 
 def test_reverse_complement():
     """RC should correctly reverse-complement DNA sequences."""
-    from phase4_splitcode_dual import reverse_complement
+    from splitcode_dual import reverse_complement
 
     assert reverse_complement("ACGT") == "ACGT"  # palindrome
     assert reverse_complement("AAAA") == "TTTT"
@@ -156,7 +156,7 @@ def test_reverse_complement():
 
 def test_reverse_complement_idempotent():
     """RC(RC(seq)) should return original sequence."""
-    from phase4_splitcode_dual import reverse_complement
+    from splitcode_dual import reverse_complement
 
     seqs = ["ACGTACGT", "AAAAGGGG", "NNNNN", "ATCGATCG"]
     for seq in seqs:
@@ -170,7 +170,7 @@ def test_reverse_complement_idempotent():
 
 def test_jaccard():
     """Jaccard index should be correct for known sets."""
-    from phase4_splitcode_dual import jaccard
+    from splitcode_dual import jaccard
 
     assert jaccard(set(), set()) == 1.0
     assert jaccard({1, 2, 3}, {1, 2, 3}) == 1.0

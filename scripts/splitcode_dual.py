@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Phase 4 Supplementary: Splitcode Dual-Orientation Analysis for LR-SPLiT-seq
+Splitcode Dual-Orientation Analysis for LR-SPLiT-seq
 
 Splitcode does not natively support dual-orientation matching. This script
 simulates it by:
@@ -14,8 +14,8 @@ This is a SUPPLEMENTARY analysis to show what splitcode could achieve if it
 had orientation support. The runtime is effectively doubled.
 
 Usage:
-    python3 scripts/phase4_splitcode_dual.py --threads 4
-    python3 scripts/phase4_splitcode_dual.py --threads 4 --skip-rc-run
+    python3 scripts/splitcode_dual.py --threads 4
+    python3 scripts/splitcode_dual.py --threads 4 --skip-rc-run
 """
 
 import json
@@ -27,7 +27,7 @@ from pathlib import Path
 from typing import Set, Tuple
 
 PROJECT_ROOT = Path(__file__).parent.parent
-RESULTS_DIR = PROJECT_ROOT / "results" / "phase4_concordance" / "lr_splitseq"
+RESULTS_DIR = PROJECT_ROOT / "results" / "concordance" / "lr_splitseq"
 
 SPLITCODE_BIN = os.environ.get(
     "SPLITCODE_BIN",
@@ -133,11 +133,11 @@ def main():
         print(f"[ERROR] Input FASTQ not found: {LR_FASTQ}")
         return
 
-    # Step 1: Load forward splitcode IDs (from phase4_concordance.py cache)
+    # Step 1: Load forward splitcode IDs (from concordance_analysis.py cache)
     fw_ids_file = RESULTS_DIR / "splitcode_ids.txt"
     if not fw_ids_file.exists():
         print(f"[ERROR] Forward splitcode IDs not found: {fw_ids_file}")
-        print("Run: python3 scripts/phase4_concordance.py --datasets lr_splitseq")
+        print("Run: python3 scripts/concordance_analysis.py --datasets lr_splitseq")
         return
 
     fw_ids = load_id_file(fw_ids_file)

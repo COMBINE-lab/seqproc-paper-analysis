@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Phase 4.2: Discordant Read Characterization
+Discordant Read Characterization
 
 For each dataset, takes the unique-to-<tool> read ID files produced by
-phase4_concordance.py and checks whether those reads have valid structural
+concordance_analysis.py and checks whether those reads have valid structural
 features (linker positions, barcode whitelist membership).
 
 Primary question: Are splitcode's 77K+ unique SPLiT-seq PE reads structurally
@@ -18,7 +18,7 @@ from pathlib import Path
 from collections import Counter
 
 PROJECT_ROOT = Path(__file__).parent.parent
-RESULTS_DIR = PROJECT_ROOT / "results" / "phase4_concordance"
+RESULTS_DIR = PROJECT_ROOT / "results" / "concordance"
 
 
 # ============================================================================
@@ -249,7 +249,7 @@ def print_analysis(label, results, total_reads):
 
 def main():
     print("=" * 70)
-    print("PHASE 4.2: DISCORDANT READ CHARACTERIZATION")
+    print("DISCORDANT READ CHARACTERIZATION")
     print("=" * 70)
 
     # Load SPLiT-seq PE whitelists
@@ -265,7 +265,7 @@ def main():
     # Load discordant read ID sets
     ds_dir = RESULTS_DIR / "splitseq_pe"
     if not ds_dir.exists():
-        print(f"[ERROR] Run phase4_concordance.py --datasets splitseq_pe first")
+        print(f"[ERROR] Run concordance_analysis.py --datasets splitseq_pe first")
         sys.exit(1)
 
     analyses = {}
@@ -314,7 +314,7 @@ def main():
     for required_file in [sc_ids_file, sp_ids_file, mb_ids_file]:
         if not required_file.exists():
             print(f"[ERROR] Required ID file missing: {required_file}")
-            print(f"Run phase4_concordance.py --datasets splitseq_pe first.")
+            print(f"Run concordance_analysis.py --datasets splitseq_pe first.")
             sys.exit(1)
 
     with open(sc_ids_file) as f:

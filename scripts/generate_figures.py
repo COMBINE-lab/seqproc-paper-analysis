@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Phase 4: Generate all paper figures from Phase 4 concordance results
-and existing Sprint 4 performance results.
+Generate all paper figures from concordance results
+and existing performance benchmark results.
 
 Produces:
   1. Concordance heatmaps (Jaccard index per dataset)
   2. Recovery comparison bar chart (all tools, all datasets)
   3. Hamming vs Edit distance comparison
   4. Discordant read summary
-  5. Performance table (runtime + memory from Sprint 4 results)
+  5. Performance table (runtime + memory from benchmark results)
   6. Updated combined benchmark_results.json
 
 Usage:
-    python3 scripts/phase4_figures.py
+    python3 scripts/generate_figures.py
 """
 
 import json
@@ -26,9 +26,9 @@ import matplotlib.patches as mpatches
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
-PHASE4_DIR = PROJECT_ROOT / "results" / "phase4_concordance"
-SPRINT4_JSON = PROJECT_ROOT / "results" / "paper_figures" / "benchmark_results.json"
-SPRINT4_BACKUP = PROJECT_ROOT / "results" / "paper_figures" / "benchmark_results_sprint4.json"
+CONCORDANCE_DIR = PROJECT_ROOT / "results" / "concordance"
+PERF_JSON = PROJECT_ROOT / "results" / "paper_figures" / "benchmark_results.json"
+PERF_BACKUP = PROJECT_ROOT / "results" / "paper_figures" / "benchmark_results_perf.json"
 OUTPUT_DIR = PROJECT_ROOT / "results" / "paper_figures"
 
 COLORS = {
@@ -48,8 +48,8 @@ DS_LABELS = {
     'sciseq': 'sci-RNA-seq3',
 }
 
-# Map Sprint 4 keys to Phase 4 keys
-SPRINT4_TO_PHASE4 = {
+# Map performance benchmark keys to concordance keys
+PERF_TO_CONCORDANCE = {
     'splitseq_pe_raw': 'splitseq_pe',
     'splitseq_se_raw': 'lr_splitseq',
     '10x_short': '10x_short',
@@ -58,35 +58,35 @@ SPRINT4_TO_PHASE4 = {
 
 
 def load_data():
-    """Load Phase 4 concordance results and Sprint 4 performance results.
+    """Load concordance results and performance benchmark results.
 
-    Sprint 4 data is backed up on first run to prevent loss when this script
-    overwrites benchmark_results.json with merged Phase 4 output.
+    Performance data is backed up on first run to prevent loss when this script
+    overwrites benchmark_results.json with merged concordance output.
     """
-    phase4 = {}
-    phase4_path = PHASE4_DIR / "phase4_results.json"
-    if phase4_path.exists():
-        with open(phase4_path) as f:
-            phase4 = json.load(f)
+    concordance = {}
+    concordance_path = CONCORDANCE_DIR / "concordance_results.json"
+    if concordance_path.exists():
+        with open(concordance_path) as f:
+            concordance = json.load(f)
 
-    # Back up original Sprint 4 data before it gets overwritten
-    if not SPRINT4_BACKUP.exists() and SPRINT4_JSON.exists():
-        shutil.copy2(SPRINT4_JSON, SPRINT4_BACKUP)
-        print(f"Backed up Sprint 4 data to: {SPRINT4_BACKUP.name}")
+    # Back up original performance data before it gets overwritten
+    if not PERF_BACKUP.exists() and PERF_JSON.exists():
+        shutil.copy2(PERF_JSON, PERF_BACKUP)
+        print(f"Backed up performance data to: {PERF_BACKUP.name}")
 
-    # Read Sprint 4 from backup (original data), fall back to main JSON
-    sprint4 = {}
-    sprint4_source = SPRINT4_BACKUP if SPRINT4_BACKUP.exists() else SPRINT4_JSON
-    if sprint4_source.exists():
-        with open(sprint4_source) as f:
-            sprint4 = json.load(f)
+    # Read performance from backup (original data), fall back to main JSON
+    perf = {}
+    perf_source = PERF_BACKUP if PERF_BACKUP.exists() else PERF_JSON
+    if perf_source.exists():
+        with open(perf_source) as f:
+            perf = json.load(f)
 
-    return phase4, sprint4
+    return concordance, perf
 
 
-def fig_concordance_heatmaps(phase4, output_dir):
+def fig_concordance_heatmaps(concordance, output_dir):
     """Generate concordance heatmap grid (one subplot per dataset)."""
-    datasets = [k for k in DS_ORDER if k in phase4]
+    datasets = [k for k in DS_ORDER if k in concordance]
     if not datasets:
         print("  [SKIP] No concordance data")
         return
@@ -96,7 +96,7 @@ def fig_concordance_heatmaps(phase4, output_dir):
 
     for idx, ds_key in enumerate(datasets):
         ax = axes[0][idx]
-        res = phase4[ds_key]
+        res = concordance[ds_key]
         conc = res.get("concordance", {})
         pairwise = conc.get("pairwise", [])
 
@@ -135,9 +135,9 @@ def fig_concordance_heatmaps(phase4, output_dir):
     print("  Saved: fig_concordance_heatmaps.png")
 
 
-def fig_recovery_comparison(phase4, output_dir):
+def fig_recovery_comparison(concordance, output_dir):
     """Generate grouped bar chart of recovery rates across all datasets."""
-    datasets = [k for k in DS_ORDER if k in phase4]
+    datasets = [k for k in DS_ORDER if k in concordance]
     if not datasets:
         return
 
@@ -149,7 +149,7 @@ def fig_recovery_comparison(phase4, output_dir):
     for i, tool in enumerate(TOOL_ORDER):
         rates = []
         for ds_key in datasets:
-            pct = phase4[ds_key].get("recovery_pct", {}).get(tool, 0)
+            pct = concordance[ds_key].get("recovery_pct", {}).get(tool, 0)
             rates.append(pct)
         bars = ax.bar(x + i * width, rates, width, label=tool.capitalize(),
                       color=COLORS[tool], edgecolor='white', linewidth=0.5)
@@ -176,11 +176,11 @@ def fig_recovery_comparison(phase4, output_dir):
     print("  Saved: fig_recovery_comparison.png")
 
 
-def fig_hamming_vs_edit(phase4, output_dir):
+def fig_hamming_vs_edit(concordance, output_dir):
     """Generate hamming vs edit distance comparison chart."""
     datasets = []
     for ds_key in DS_ORDER:
-        if ds_key in phase4 and phase4[ds_key].get("hamming_vs_edit"):
+        if ds_key in concordance and concordance[ds_key].get("hamming_vs_edit"):
             datasets.append(ds_key)
 
     if not datasets:
@@ -194,8 +194,8 @@ def fig_hamming_vs_edit(phase4, output_dir):
     x = np.arange(len(datasets))
     width = 0.35
 
-    ham_reads = [phase4[k]["hamming_vs_edit"]["hamming_reads"] for k in datasets]
-    edit_reads = [phase4[k]["hamming_vs_edit"]["edit_reads"] for k in datasets]
+    ham_reads = [concordance[k]["hamming_vs_edit"]["hamming_reads"] for k in datasets]
+    edit_reads = [concordance[k]["hamming_vs_edit"]["edit_reads"] for k in datasets]
 
     ax.bar(x - width/2, ham_reads, width, label='Hamming', color='#95C8D8', edgecolor='white')
     ax.bar(x + width/2, edit_reads, width, label='Edit', color='#2E86AB', edgecolor='white')
@@ -214,7 +214,7 @@ def fig_hamming_vs_edit(phase4, output_dir):
 
     # Right: Edit distance gain percentage
     ax = axes[1]
-    gains = [phase4[k]["hamming_vs_edit"]["edit_gain_pct"] for k in datasets]
+    gains = [concordance[k]["hamming_vs_edit"]["edit_gain_pct"] for k in datasets]
     colors = ['#2E86AB' if g > 0 else '#E94F37' for g in gains]
 
     bars = ax.bar(x, gains, 0.5, color=colors, edgecolor='white')
@@ -237,9 +237,9 @@ def fig_hamming_vs_edit(phase4, output_dir):
     print("  Saved: fig_hamming_vs_edit.png")
 
 
-def fig_discordant_summary(phase4, output_dir):
+def fig_discordant_summary(concordance, output_dir):
     """Generate stacked bar chart showing concordance breakdown."""
-    datasets = [k for k in DS_ORDER if k in phase4]
+    datasets = [k for k in DS_ORDER if k in concordance]
     if not datasets:
         return
 
@@ -255,19 +255,19 @@ def fig_discordant_summary(phase4, output_dir):
     total_reads = []
 
     for ds_key in datasets:
-        disc = phase4[ds_key].get("discordant", {})
+        disc = concordance[ds_key].get("discordant", {})
         con = disc.get("all_tools_consensus", 0)
         union = disc.get("any_tool_union", 0)
         consensus.append(con)
         sp_only.append(disc.get("seqproc_unique", 0))
         mb_only.append(disc.get("matchbox_unique", 0))
         sc_only.append(disc.get("splitcode_unique", 0))
-        total_reads.append(phase4[ds_key].get("total_reads", 0))
+        total_reads.append(concordance[ds_key].get("total_reads", 0))
 
     # The "shared but not consensus" region
     shared_not_all = []
     for i, ds_key in enumerate(datasets):
-        union_val = phase4[ds_key].get("discordant", {}).get("any_tool_union", 0)
+        union_val = concordance[ds_key].get("discordant", {}).get("any_tool_union", 0)
         remaining = union_val - consensus[i] - sp_only[i] - mb_only[i] - sc_only[i]
         shared_not_all.append(max(0, remaining))
 
@@ -309,40 +309,40 @@ def fig_discordant_summary(phase4, output_dir):
     print("  Saved: fig_discordant_summary.png")
 
 
-def fig_performance_table(sprint4, phase4, output_dir):
-    """Generate performance summary table figure combining Sprint 4 perf + Phase 4 recovery."""
-    # Use Sprint 4 for runtime/memory (3-replicate means), Phase 4 for recovery
-    # Map Sprint 4 keys to display order
+def fig_performance_table(perf, concordance, output_dir):
+    """Generate performance summary table figure combining perf benchmarks + concordance recovery."""
+    # Use perf for runtime/memory (3-replicate means), concordance for recovery
+    # Map perf keys to display order
 
     columns = ['Dataset', 'Tool', 'Recovery %', 'Runtime (s)', 'Memory (MB)']
     cell_text = []
     row_colors = []
 
     for ds_key in DS_ORDER:
-        # Find Sprint 4 key
-        s4_key = None
-        for k, v in SPRINT4_TO_PHASE4.items():
+        # Find performance key
+        perf_key = None
+        for k, v in PERF_TO_CONCORDANCE.items():
             if v == ds_key:
-                s4_key = k
+                perf_key = k
                 break
 
         label = DS_LABELS.get(ds_key, ds_key)
 
         for tool in TOOL_ORDER:
-            # Recovery from Phase 4
-            rec_pct = phase4.get(ds_key, {}).get("recovery_pct", {}).get(tool, "N/A")
+            # Recovery from concordance
+            rec_pct = concordance.get(ds_key, {}).get("recovery_pct", {}).get(tool, "N/A")
             if isinstance(rec_pct, (int, float)):
                 rec_str = f"{rec_pct:.1f}%"
             else:
                 rec_str = str(rec_pct)
 
-            # Runtime and memory from Sprint 4 (try Sprint 4 key, then Phase 4 key)
-            s4_data = sprint4.get(s4_key, sprint4.get(ds_key, {})) if s4_key else sprint4.get(ds_key, {})
-            if tool in s4_data.get("tools", {}):
-                s4_tool = s4_data["tools"][tool]
-                rt_mean = s4_tool.get("mean_runtime", 0)
-                rt_std = s4_tool.get("std_runtime", 0)
-                mem = s4_tool.get("mean_memory_mb", 0)
+            # Runtime and memory from perf benchmarks
+            perf_data = perf.get(perf_key, perf.get(ds_key, {})) if perf_key else perf.get(ds_key, {})
+            if tool in perf_data.get("tools", {}):
+                perf_tool = perf_data["tools"][tool]
+                rt_mean = perf_tool.get("mean_runtime", 0)
+                rt_std = perf_tool.get("std_runtime", 0)
+                mem = perf_tool.get("mean_memory_mb", 0)
                 rt_str = f"{rt_mean:.1f} +/- {rt_std:.1f}"
                 mem_str = f"{mem:.0f}"
             else:
@@ -385,45 +385,45 @@ def fig_performance_table(sprint4, phase4, output_dir):
     print("  Saved: fig_performance_table.png")
 
 
-def update_benchmark_json(phase4, sprint4, output_dir):
-    """Update benchmark_results.json with Phase 4 data merged with Sprint 4 performance."""
+def update_benchmark_json(concordance, perf, output_dir):
+    """Update benchmark_results.json with concordance data merged with performance benchmarks."""
     combined = {}
 
     for ds_key in DS_ORDER:
-        s4_key = None
-        for k, v in SPRINT4_TO_PHASE4.items():
+        perf_key = None
+        for k, v in PERF_TO_CONCORDANCE.items():
             if v == ds_key:
-                s4_key = k
+                perf_key = k
                 break
 
-        p4 = phase4.get(ds_key, {})
+        conc = concordance.get(ds_key, {})
         label = DS_LABELS.get(ds_key, ds_key)
 
         entry = {
             "name": label,
-            "total_reads": p4.get("total_reads", 0),
+            "total_reads": conc.get("total_reads", 0),
             "tools": {},
-            "concordance": p4.get("concordance", {}),
-            "discordant": p4.get("discordant", {}),
-            "hamming_vs_edit": p4.get("hamming_vs_edit", {}),
+            "concordance": conc.get("concordance", {}),
+            "discordant": conc.get("discordant", {}),
+            "hamming_vs_edit": conc.get("hamming_vs_edit", {}),
         }
 
         for tool in TOOL_ORDER:
             tool_data = {}
 
-            # Phase 4 recovery
-            rec = p4.get("recovery", {}).get(tool, 0)
-            rec_pct = p4.get("recovery_pct", {}).get(tool, 0)
+            # Concordance recovery
+            rec = conc.get("recovery", {}).get(tool, 0)
+            rec_pct = conc.get("recovery_pct", {}).get(tool, 0)
             tool_data["reads_out"] = rec
             tool_data["recovery_rate"] = rec_pct
 
-            # Sprint 4 performance (try Sprint 4 key, then Phase 4 key)
-            s4_data = sprint4.get(s4_key, sprint4.get(ds_key, {})) if s4_key else sprint4.get(ds_key, {})
-            if tool in s4_data.get("tools", {}):
-                s4_tool = s4_data["tools"][tool]
-                tool_data["mean_runtime"] = s4_tool.get("mean_runtime", 0)
-                tool_data["std_runtime"] = s4_tool.get("std_runtime", 0)
-                tool_data["mean_memory_mb"] = s4_tool.get("mean_memory_mb", 0)
+            # Performance benchmarks
+            perf_data = perf.get(perf_key, perf.get(ds_key, {})) if perf_key else perf.get(ds_key, {})
+            if tool in perf_data.get("tools", {}):
+                perf_tool = perf_data["tools"][tool]
+                tool_data["mean_runtime"] = perf_tool.get("mean_runtime", 0)
+                tool_data["std_runtime"] = perf_tool.get("std_runtime", 0)
+                tool_data["mean_memory_mb"] = perf_tool.get("mean_memory_mb", 0)
 
             if tool_data:
                 entry["tools"][tool] = tool_data
@@ -440,34 +440,34 @@ def update_benchmark_json(phase4, sprint4, output_dir):
 
 def main():
     print("=" * 70)
-    print("PHASE 4: FIGURE GENERATION")
+    print("FIGURE GENERATION")
     print("=" * 70)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    phase4, sprint4 = load_data()
-    if not phase4:
-        print("[ERROR] No Phase 4 results found. Run phase4_concordance.py first.")
+    concordance, perf = load_data()
+    if not concordance:
+        print("[ERROR] No concordance results found. Run concordance_analysis.py first.")
         return
 
-    print(f"Phase 4 datasets: {list(phase4.keys())}")
-    print(f"Sprint 4 datasets: {list(sprint4.keys())}")
+    print(f"Concordance datasets: {list(concordance.keys())}")
+    print(f"Performance datasets: {list(perf.keys())}")
 
     print("\nGenerating figures...")
 
-    # NOTE: Sprint 4 LR-SPLiT-seq used forward-only config (23.8% recovery)
-    # Phase 4 uses annotation+edit (49.9% recovery) -- this is the updated number
-    # The Sprint 4 runtime for LR-SPLiT-seq is stale (forward-only was 2.1s,
-    # annotation+edit is ~5.1s). Phase 4 single-run perf is in phase4_results.json.
+    # NOTE: Initial LR-SPLiT-seq benchmark used forward-only config (23.8% recovery)
+    # Current config uses annotation+edit (49.9% recovery) -- this is the updated number
+    # The initial runtime for LR-SPLiT-seq is stale (forward-only was 2.1s,
+    # annotation+edit is ~5.1s). Current perf is in concordance_results.json.
 
-    fig_concordance_heatmaps(phase4, OUTPUT_DIR)
-    fig_recovery_comparison(phase4, OUTPUT_DIR)
-    fig_hamming_vs_edit(phase4, OUTPUT_DIR)
-    fig_discordant_summary(phase4, OUTPUT_DIR)
-    fig_performance_table(sprint4, phase4, OUTPUT_DIR)
+    fig_concordance_heatmaps(concordance, OUTPUT_DIR)
+    fig_recovery_comparison(concordance, OUTPUT_DIR)
+    fig_hamming_vs_edit(concordance, OUTPUT_DIR)
+    fig_discordant_summary(concordance, OUTPUT_DIR)
+    fig_performance_table(perf, concordance, OUTPUT_DIR)
 
     print("\nUpdating benchmark_results.json...")
-    combined = update_benchmark_json(phase4, sprint4, OUTPUT_DIR)
+    combined = update_benchmark_json(concordance, perf, OUTPUT_DIR)
 
     print(f"\n{'='*70}")
     print("ALL FIGURES GENERATED")

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Phase 4: Complete Benchmarking -- Concordance Analysis & Hamming vs Edit Comparison
+Concordance Analysis & Hamming vs Edit Comparison
 
 Runs all 3 tools on all 4 Table 2 datasets, extracts read ID sets, computes
 pairwise Jaccard indices, characterizes discordant reads, and compares
 seqproc hamming vs edit distance recovery.
 
 Usage:
-    python scripts/phase4_concordance.py --threads 4
-    python scripts/phase4_concordance.py --threads 4 --datasets splitseq_pe lr_splitseq
-    python scripts/phase4_concordance.py --threads 4 --skip-runs  # use existing outputs
+    python scripts/concordance_analysis.py --threads 4
+    python scripts/concordance_analysis.py --threads 4 --datasets splitseq_pe lr_splitseq
+    python scripts/concordance_analysis.py --threads 4 --skip-runs  # use existing outputs
 """
 
 import subprocess
@@ -25,7 +25,7 @@ from typing import Dict, Set, Tuple
 # ============================================================================
 
 PROJECT_ROOT = Path(__file__).parent.parent
-RESULTS_DIR = PROJECT_ROOT / "results" / "phase4_concordance"
+RESULTS_DIR = PROJECT_ROOT / "results" / "concordance"
 
 SEQPROC_BIN = os.environ.get(
     "SEQPROC_BIN",
@@ -417,7 +417,7 @@ def run_dataset_analysis(
         return {}
 
     # ----------------------------------------------------------------
-    # Phase 1: Run all tools with EDIT distance configs (primary)
+    # Step 1: Run all tools with EDIT distance configs (primary)
     # ----------------------------------------------------------------
     id_sets = {}
     perf = {}
@@ -469,7 +469,7 @@ def run_dataset_analysis(
         print(f"{len(ids):,} reads in {rt:.1f}s, {mem:.0f}MB")
 
     # ----------------------------------------------------------------
-    # Phase 2: Concordance
+    # Step 2: Concordance
     # ----------------------------------------------------------------
     print(f"\n  --- Concordance ---")
     concordance = compute_concordance(id_sets)
@@ -483,7 +483,7 @@ def run_dataset_analysis(
               f"{t2}-only={pair[f'{t2}_only']:,}")
 
     # ----------------------------------------------------------------
-    # Phase 3: Discordant read characterization
+    # Step 3: Discordant read characterization
     # ----------------------------------------------------------------
     print(f"\n  --- Discordant Reads ---")
     discordant = characterize_discordant(id_sets, dataset, ds_outdir)
@@ -496,7 +496,7 @@ def run_dataset_analysis(
             print(f"  Unique to {tool}: {unique_count:,}")
 
     # ----------------------------------------------------------------
-    # Phase 4: Hamming vs Edit comparison (seqproc only)
+    # Hamming vs Edit comparison (seqproc only)
     # ----------------------------------------------------------------
     hamming_edit = {}
     hamming_geom = dataset.get('seqproc_hamming_geom')
@@ -635,7 +635,7 @@ def print_summary_tables(all_results: Dict):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Phase 4: Concordance Analysis')
+    parser = argparse.ArgumentParser(description='Concordance Analysis')
     parser.add_argument('--threads', type=int, default=4)
     parser.add_argument('--datasets', type=str, nargs='+', default=None,
                         help='Dataset keys to run (default: all)')
@@ -648,7 +648,7 @@ def main():
     outdir.mkdir(parents=True, exist_ok=True)
 
     print("=" * 70)
-    print("PHASE 4: CONCORDANCE ANALYSIS & HAMMING vs EDIT COMPARISON")
+    print("CONCORDANCE ANALYSIS & HAMMING vs EDIT COMPARISON")
     print("=" * 70)
     print(f"Threads: {args.threads}")
     print(f"Output:  {outdir}")
@@ -669,7 +669,7 @@ def main():
         all_results[ds_key] = result
 
     # Save combined results
-    combined_path = outdir / "phase4_results.json"
+    combined_path = outdir / "concordance_results.json"
     with open(combined_path, 'w') as f:
         json.dump(all_results, f, indent=2)
     print(f"\nSaved combined results: {combined_path}")
@@ -678,7 +678,7 @@ def main():
     print_summary_tables(all_results)
 
     print(f"\n{'='*70}")
-    print("PHASE 4 COMPLETE")
+    print("CONCORDANCE ANALYSIS COMPLETE")
     print(f"{'='*70}")
     print(f"All results in: {outdir}")
 
