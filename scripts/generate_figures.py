@@ -26,6 +26,21 @@ import matplotlib.patches as mpatches
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
+
+# Publication-quality defaults
+plt.rcParams.update({
+    'font.size': 8,
+    'axes.titlesize': 9,
+    'axes.labelsize': 8,
+    'xtick.labelsize': 7,
+    'ytick.labelsize': 7,
+    'legend.fontsize': 7,
+    'figure.dpi': 300,
+    'savefig.dpi': 300,
+    'savefig.bbox': 'tight',
+    'pdf.fonttype': 42,
+    'ps.fonttype': 42,
+})
 CONCORDANCE_DIR = PROJECT_ROOT / "results" / "concordance"
 PERF_JSON = PROJECT_ROOT / "results" / "paper_figures" / "benchmark_results.json"
 PERF_BACKUP = PROJECT_ROOT / "results" / "paper_figures" / "benchmark_results_perf.json"
@@ -92,7 +107,7 @@ def fig_concordance_heatmaps(concordance, output_dir):
         return
 
     n = len(datasets)
-    fig, axes = plt.subplots(1, n, figsize=(4.5 * n, 4), squeeze=False)
+    fig, axes = plt.subplots(1, n, figsize=(7.0, 1.8), squeeze=False)
 
     for idx, ds_key in enumerate(datasets):
         ax = axes[0][idx]
@@ -119,15 +134,15 @@ def fig_concordance_heatmaps(concordance, output_dir):
                 val = matrix[i][j]
                 color = 'white' if val < 0.5 else 'black'
                 ax.text(j, i, f'{val:.3f}', ha='center', va='center',
-                        fontsize=11, fontweight='bold', color=color)
+                        fontsize=7, fontweight='bold', color=color)
 
         ax.set_xticks(range(3))
         ax.set_yticks(range(3))
-        ax.set_xticklabels([t.capitalize() for t in tools], fontsize=9)
-        ax.set_yticklabels([t.capitalize() for t in tools], fontsize=9)
-        ax.set_title(DS_LABELS.get(ds_key, ds_key), fontsize=11, fontweight='bold')
+        ax.set_xticklabels([t.capitalize() for t in tools])
+        ax.set_yticklabels([t.capitalize() for t in tools])
+        ax.set_title(DS_LABELS.get(ds_key, ds_key), fontweight='bold')
 
-    fig.suptitle('Pairwise Concordance (Jaccard Index)', fontsize=14, fontweight='bold', y=1.02)
+    fig.suptitle('Pairwise Concordance (Jaccard Index)', fontsize=10, fontweight='bold', y=1.02)
     plt.tight_layout()
     plt.savefig(output_dir / 'fig_concordance_heatmaps.pdf', bbox_inches='tight')
     plt.savefig(output_dir / 'fig_concordance_heatmaps.png', dpi=300, bbox_inches='tight')
@@ -141,7 +156,7 @@ def fig_recovery_comparison(concordance, output_dir):
     if not datasets:
         return
 
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(7.0, 3.0))
 
     x = np.arange(len(datasets))
     width = 0.25
@@ -157,13 +172,13 @@ def fig_recovery_comparison(concordance, output_dir):
         for bar, val in zip(bars, rates):
             if val > 0:
                 ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.8,
-                        f'{val:.1f}%', ha='center', va='bottom', fontsize=8)
+                        f'{val:.1f}%', ha='center', va='bottom', fontsize=6)
 
-    ax.set_ylabel('Recovery Rate (%)', fontsize=12)
-    ax.set_title('Read Recovery by Dataset and Tool', fontsize=14, fontweight='bold')
+    ax.set_ylabel('Recovery Rate (%)')
+    ax.set_title('Read Recovery by Dataset and Tool', fontweight='bold')
     ax.set_xticks(x + width)
-    ax.set_xticklabels([DS_LABELS.get(k, k) for k in datasets], fontsize=11)
-    ax.legend(fontsize=10)
+    ax.set_xticklabels([DS_LABELS.get(k, k) for k in datasets])
+    ax.legend()
     ax.set_ylim(0, 110)
     ax.grid(axis='y', alpha=0.3)
     ax.spines['top'].set_visible(False)
@@ -187,7 +202,7 @@ def fig_hamming_vs_edit(concordance, output_dir):
         print("  [SKIP] No hamming vs edit data")
         return
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.8))
 
     # Left: Paired bar chart (hamming vs edit reads)
     ax = axes[0]
@@ -200,11 +215,11 @@ def fig_hamming_vs_edit(concordance, output_dir):
     ax.bar(x - width/2, ham_reads, width, label='Hamming', color='#95C8D8', edgecolor='white')
     ax.bar(x + width/2, edit_reads, width, label='Edit', color='#2E86AB', edgecolor='white')
 
-    ax.set_ylabel('Recovered Reads', fontsize=11)
-    ax.set_title('seqproc: Hamming vs Edit Distance', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Recovered Reads')
+    ax.set_title('seqproc: Hamming vs Edit Distance', fontweight='bold')
     ax.set_xticks(x)
-    ax.set_xticklabels([DS_LABELS.get(k, k) for k in datasets], fontsize=10)
-    ax.legend(fontsize=10)
+    ax.set_xticklabels([DS_LABELS.get(k, k) for k in datasets])
+    ax.legend()
     ax.grid(axis='y', alpha=0.3)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -220,12 +235,12 @@ def fig_hamming_vs_edit(concordance, output_dir):
     bars = ax.bar(x, gains, 0.5, color=colors, edgecolor='white')
     for bar, val in zip(bars, gains):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3,
-                f'+{val:.1f}%', ha='center', va='bottom', fontsize=10, fontweight='bold')
+                f'+{val:.1f}%', ha='center', va='bottom', fontsize=7, fontweight='bold')
 
-    ax.set_ylabel('Edit Distance Gain (%)', fontsize=11)
-    ax.set_title('Additional Reads from Edit Distance', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Edit Distance Gain (%)')
+    ax.set_title('Additional Reads from Edit Distance', fontweight='bold')
     ax.set_xticks(x)
-    ax.set_xticklabels([DS_LABELS.get(k, k) for k in datasets], fontsize=10)
+    ax.set_xticklabels([DS_LABELS.get(k, k) for k in datasets])
     ax.grid(axis='y', alpha=0.3)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -243,7 +258,7 @@ def fig_discordant_summary(concordance, output_dir):
     if not datasets:
         return
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(7.0, 3.5))
 
     x = np.arange(len(datasets))
 
@@ -292,11 +307,11 @@ def fig_discordant_summary(concordance, output_dir):
     for i in range(len(datasets)):
         ax.axhline(y=total_reads[i], color='gray', linestyle='--', alpha=0.3, xmin=0, xmax=1)
 
-    ax.set_ylabel('Reads', fontsize=12)
-    ax.set_title('Read Recovery Breakdown by Concordance', fontsize=14, fontweight='bold')
+    ax.set_ylabel('Reads')
+    ax.set_title('Read Recovery Breakdown by Concordance', fontweight='bold')
     ax.set_xticks(x)
-    ax.set_xticklabels([DS_LABELS.get(k, k) for k in datasets], fontsize=11)
-    ax.legend(fontsize=9, loc='upper right')
+    ax.set_xticklabels([DS_LABELS.get(k, k) for k in datasets])
+    ax.legend(loc='upper right')
     ax.grid(axis='y', alpha=0.2)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
