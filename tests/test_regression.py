@@ -164,20 +164,28 @@ def test_no_banned_terms_in_tests():
 
 
 def test_no_banned_terms_in_readme():
-    """README should not contain banned development-iteration terminology."""
-    readme = PROJECT_ROOT / "README.md"
-    if not readme.exists():
-        pytest.skip("README.md not found")
-    violations = _scan_file_for_banned(readme)
+    """All markdown files (including subdirectory READMEs) must not contain
+    banned development-iteration terminology.  Previously this only checked
+    the root README.md, missing per-artifact READMEs in table2/, fig_*/."""
+    violations = []
+    for md in sorted(PROJECT_ROOT.rglob("*.md")):
+        # Skip vendored / cache directories
+        if ".venv" in md.parts or "venv" in md.parts or ".pytest_cache" in md.parts:
+            continue
+        violations.extend(_scan_file_for_banned(md))
     assert not violations, (
         f"Banned terminology found:\n" + "\n".join(violations))
 
 
 def test_no_old_filenames_in_tracked_files():
-    """No tracked file should reference the old renamed filenames."""
+    """No tracked file should reference the old renamed filenames.
+    Uses recursive glob for markdown to cover per-artifact subdirectory READMEs."""
     violations = []
-    for pattern in ["scripts/*.py", "tests/*.py", "*.md"]:
-        for fpath in PROJECT_ROOT.glob(pattern):
+    for pattern in ["scripts/*.py", "tests/*.py", "**/*.md"]:
+        for fpath in sorted(PROJECT_ROOT.glob(pattern)):
+            # Skip vendored / cache directories
+            if ".venv" in fpath.parts or "venv" in fpath.parts or ".pytest_cache" in fpath.parts:
+                continue
             with open(fpath) as f:
                 content = f.read()
             for old in _OLD_NAMES:
