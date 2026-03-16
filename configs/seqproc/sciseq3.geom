@@ -1,5 +1,5 @@
 # definitions
-anchor = hamming(f[CAGAGC], 1)
+#[hamming(1)] anchor = f[CAGAGC]
 brc1 = norm(b[9-10])
 brc2 = b[10]
 umi = u[8]

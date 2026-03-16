@@ -10,13 +10,13 @@ umi = u[10]
 bc3 = filter_within_dist(b[8], "configs/seqproc/splitseq_bc23_whitelist.txt", 1)
 
 # Linker1 - 30bp - Anchor Relative (Hamming distance 6, ~0.2 fraction)
-l1 = anchor_relative(hamming(f[GTGGCCGCTGTTTCGCATCGGCGTACGACT], 6))
+#[search(relative)] #[hamming(6)] l1 = f[GTGGCCGCTGTTTCGCATCGGCGTACGACT]
 
 # BC2: 8bp, filter against whitelist (dist 1)
 bc2 = filter_within_dist(b[8], "configs/seqproc/splitseq_bc23_whitelist.txt", 1)
 
 # Linker2 - 30bp - Anchor Relative (Hamming distance 6, ~0.2 fraction)
-l2 = anchor_relative(hamming(f[ATCCACGTGCTTGAGAGGCCAGAGCATTCG], 6))
+#[search(relative)] #[hamming(6)] l2 = f[ATCCACGTGCTTGAGAGGCCAGAGCATTCG]
 
 # BC1: 6bp (truncated in 94bp read with 10bp UMI), filter against whitelist (dist 1)
 bc1 = filter_within_dist(b[6], "configs/seqproc/splitseq_bc1_whitelist_6bp.txt", 1)

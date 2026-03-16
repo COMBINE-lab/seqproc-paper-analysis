@@ -10,13 +10,13 @@ umi = u[10]
 bc3_def = b[8]
 
 # Linker1 - 30bp with edit distance 6 (~0.2 fraction)
-l1 = anchor_relative(edit(f[GTGGCCGCTGTTTCGCATCGGCGTACGACT], 6))
+#[search(relative)] #[edit(6)] l1 = f[GTGGCCGCTGTTTCGCATCGGCGTACGACT]
 
 # BC2 with whitelist replacement
 bc2_def = b[8]
 
 # Linker2 - 30bp with edit distance 6 (~0.2 fraction)
-l2 = anchor_relative(edit(f[ATCCACGTGCTTGAGAGGCCAGAGCATTCG], 6))
+#[search(relative)] #[edit(6)] l2 = f[ATCCACGTGCTTGAGAGGCCAGAGCATTCG]
 
 # BC1 with whitelist replacement (6bp truncated in 94bp read with 10bp UMI)
 bc1_def = b[6]

@@ -6,9 +6,9 @@
 
 umi = u[10]
 bc3 = b[8]
-linker_a = anchor_relative(hamming(f[GTGGCCGATGTTTCGCATCGGCGTACGACT], 6))
+#[search(relative)] #[hamming(6)] linker_a = f[GTGGCCGATGTTTCGCATCGGCGTACGACT]
 bc2 = b[8]
-linker_b = anchor_relative(hamming(f[ATCCACGTGCTTGAGACTGTGG], 4))
+#[search(relative)] #[hamming(4)] linker_b = f[ATCCACGTGCTTGAGACTGTGG]
 bc1 = b[8]
 rest = r:
 

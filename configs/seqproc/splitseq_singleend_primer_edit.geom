@@ -2,7 +2,7 @@
 # Structure: [skip_start][UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:22][BC1:8][rest]
 
 # Anchor on Linker1 with edit distance 5
-linker1 = anchor_relative(edit(f[GTGGCCGATGTTTCGCATCGGCGTACGACT], 5))
+#[search(relative)] #[edit(5)] linker1 = f[GTGGCCGATGTTTCGCATCGGCGTACGACT]
 
 # Elements
 skip_start = r:
