@@ -138,7 +138,7 @@ def fig_concordance_heatmaps(concordance, output_dir):
 
         ax.set_xticks(range(3))
         ax.set_yticks(range(3))
-        ax.set_xticklabels([t.capitalize() for t in tools], fontsize=8)
+        ax.set_xticklabels([t.capitalize() for t in tools], fontsize=8, rotation=45, ha='right')
         ax.set_yticklabels([t.capitalize() for t in tools], fontsize=8)
         ax.set_title(DS_LABELS.get(ds_key, ds_key), fontsize=10, fontweight='bold')
 
