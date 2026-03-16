@@ -107,7 +107,7 @@ def fig_concordance_heatmaps(concordance, output_dir):
         return
 
     n = len(datasets)
-    fig, axes = plt.subplots(1, n, figsize=(7.0, 1.8), squeeze=False)
+    fig, axes = plt.subplots(1, n, figsize=(9.0, 2.5), squeeze=False)
 
     for idx, ds_key in enumerate(datasets):
         ax = axes[0][idx]
@@ -134,15 +134,15 @@ def fig_concordance_heatmaps(concordance, output_dir):
                 val = matrix[i][j]
                 color = 'white' if val < 0.5 else 'black'
                 ax.text(j, i, f'{val:.3f}', ha='center', va='center',
-                        fontsize=7, fontweight='bold', color=color)
+                        fontsize=8, fontweight='bold', color=color)
 
         ax.set_xticks(range(3))
         ax.set_yticks(range(3))
-        ax.set_xticklabels([t.capitalize() for t in tools])
-        ax.set_yticklabels([t.capitalize() for t in tools])
-        ax.set_title(DS_LABELS.get(ds_key, ds_key), fontweight='bold')
+        ax.set_xticklabels([t.capitalize() for t in tools], fontsize=8)
+        ax.set_yticklabels([t.capitalize() for t in tools], fontsize=8)
+        ax.set_title(DS_LABELS.get(ds_key, ds_key), fontsize=10, fontweight='bold')
 
-    fig.suptitle('Pairwise Concordance (Jaccard Index)', fontsize=10, fontweight='bold', y=1.02)
+    fig.suptitle('Pairwise Concordance (Jaccard Index)', fontsize=11, fontweight='bold', y=1.02)
     plt.tight_layout()
     plt.savefig(output_dir / 'fig_concordance_heatmaps.pdf', bbox_inches='tight')
     plt.savefig(output_dir / 'fig_concordance_heatmaps.png', dpi=300, bbox_inches='tight')
@@ -178,8 +178,8 @@ def fig_recovery_comparison(concordance, output_dir):
     ax.set_title('Read Recovery by Dataset and Tool', fontweight='bold')
     ax.set_xticks(x + width)
     ax.set_xticklabels([DS_LABELS.get(k, k) for k in datasets])
-    ax.legend()
-    ax.set_ylim(0, 110)
+    ax.legend(loc='upper left', bbox_to_anchor=(0.0, 1.0), framealpha=0.9)
+    ax.set_ylim(0, 115)
     ax.grid(axis='y', alpha=0.3)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
