@@ -48,7 +48,8 @@ COLORS = {
     'splitcode': '#7B2D8E',
 }
 
-# Dataset configurations
+# Dataset configurations -- file paths are overridden at startup via
+# _apply_reads_level() when --reads is specified.
 reads = 1000000
 
 DATASETS = {
@@ -1095,6 +1096,36 @@ def save_results_json(results: List[BenchmarkResult], output_dir: Path):
 # Main
 # ============================================================================
 
+def _apply_reads_level(reads_level: str):
+    """Override DATASETS file paths and read counts based on --reads level.
+
+    Maps the benchmark DATASETS keys to data_config's canonical dataset keys
+    and replaces r1, r2, reads for each matching entry.
+    """
+    from data_config import resolve_datasets as _resolve
+
+    resolved = _resolve(reads_level)
+
+    # Mapping from benchmark DATASETS keys to data_config canonical keys.
+    # Multiple benchmark entries can map to the same canonical dataset
+    # (e.g. splitseq_pe_raw and splitseq_pe_replacement both use SRR6750041).
+    _KEY_MAP = {
+        "splitseq_pe_raw": "splitseq_pe",
+        "splitseq_pe_replacement": "splitseq_pe",
+        "splitseq_se_raw": "lr_splitseq",
+        "10x_short": "10x_short",
+        "sciseq": "sciseq",
+        # gridion/promethion are not in data_config (supplementary); skip them.
+    }
+
+    for bench_key, canon_key in _KEY_MAP.items():
+        if bench_key in DATASETS and canon_key in resolved:
+            src = resolved[canon_key]
+            DATASETS[bench_key]["r1"] = src["r1"]
+            DATASETS[bench_key]["r2"] = src["r2"]
+            DATASETS[bench_key]["reads"] = src["reads"]
+
+
 def main():
     parser = argparse.ArgumentParser(description='Run all paper benchmarks')
     parser.add_argument('--threads', type=int, default=4, help='Number of threads')
@@ -1102,7 +1133,12 @@ def main():
     parser.add_argument('--output', type=str, default=None, help='Output directory')
     parser.add_argument('--datasets', type=str, nargs='+', default=None,
                         help='Specific dataset keys to run (default: all)')
+    parser.add_argument('--reads', type=str, choices=['1m', 'full'], default='1m',
+                        help="Dataset size: '1m' (default) or 'full'")
     args = parser.parse_args()
+
+    # Override file paths for the requested reads level
+    _apply_reads_level(args.reads)
     
     output_dir = Path(args.output) if args.output else RESULTS_DIR
     

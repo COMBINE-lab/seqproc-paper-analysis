@@ -43,78 +43,16 @@ SPLITCODE_BIN = os.environ.get(
 CONFIGS = PROJECT_ROOT / "configs"
 
 # --------------------------------------------------------------------------
-# Dataset definitions
-# Each dataset defines:
-#   - tools: dict of tool -> config needed to run it
-#   - input files
-#   - how to extract read IDs from each tool's output
+# Dataset definitions -- loaded from centralized data_config module.
+# The DATASETS dict is populated at startup by _init_datasets() so that
+# existing code (including tests that import DATASETS) continues to work.
+# When run as __main__, --reads controls the dataset size.
 # --------------------------------------------------------------------------
 
-DATASETS = {
-    "splitseq_pe": {
-        "name": "SPLiT-seq PE",
-        "r1": PROJECT_ROOT / "data/SRR6750041_1M_R1.fastq",
-        "r2": PROJECT_ROOT / "data/SRR6750041_1M_R2.fastq",
-        "mode": "paired",
-        "reads": 1_000_000,
-        "seqproc_edit_geom": CONFIGS / "seqproc/splitseq_filter_edit.geom",
-        "seqproc_hamming_geom": CONFIGS / "seqproc/splitseq_filter_hamming6.geom",
-        "seqproc_maps": [
-            CONFIGS / "seqproc/splitseq_bc3_seq2seq.tsv",
-            CONFIGS / "seqproc/splitseq_bc2_seq2seq.tsv",
-            CONFIGS / "seqproc/splitseq_bc1_seq2seq.tsv",
-        ],
-        "matchbox_config": CONFIGS / "matchbox/splitseq_replacement.mb",
-        "matchbox_paired": True,
-        "splitcode_config": CONFIGS / "splitcode/splitseq_paper.config",
-    },
-    "lr_splitseq": {
-        "name": "LR-SPLiT-seq",
-        "r1": PROJECT_ROOT / "data/SRR13948564_1M.fastq",
-        "r2": None,
-        "mode": "single",
-        "reads": 1_000_000,
-        # Primary: annotation + edit (best config)
-        "seqproc_edit_geom": CONFIGS / "seqproc/splitseq_singleend_edit_ann.geom",
-        # Hamming comparison: annotation + hamming
-        "seqproc_hamming_geom": CONFIGS / "seqproc/splitseq_singleend_ann.geom",
-        # Forward-only configs for additional comparison
-        "seqproc_fw_edit_geom": CONFIGS / "seqproc/splitseq_singleend_edit.geom",
-        "seqproc_fw_hamming_geom": CONFIGS / "seqproc/splitseq_singleend.geom",
-        "seqproc_maps": [
-            CONFIGS / "seqproc/splitseq_bc3_seq2seq.tsv",
-            CONFIGS / "seqproc/splitseq_bc2_seq2seq.tsv",
-            CONFIGS / "seqproc/splitseq_bc1_seq2seq.tsv",
-        ],
-        "matchbox_config": CONFIGS / "matchbox/splitseq_singleend_dual.mb",
-        "matchbox_paired": False,
-        "splitcode_config": CONFIGS / "splitcode/splitseq_singleend.config",
-    },
-    "10x_short": {
-        "name": "10x Chromium v2 Short Read",
-        "r1": PROJECT_ROOT / "data/10x_short/SRR8315379_1M_R1.fastq",
-        "r2": PROJECT_ROOT / "data/10x_short/SRR8315379_1M_R2.fastq",
-        "mode": "paired",
-        "reads": 1_000_000,
-        "seqproc_edit_geom": CONFIGS / "seqproc/10x_v2.geom",
-        "seqproc_hamming_geom": None,  # No anchor matching, hamming==edit
-        "matchbox_config": CONFIGS / "matchbox/10x_v2.mb",
-        "matchbox_paired": False,
-        "splitcode_config": CONFIGS / "splitcode/10x_v2.config",
-    },
-    "sciseq": {
-        "name": "sci-RNA-seq3",
-        "r1": PROJECT_ROOT / "data/SRR7827254_1M_1.fastq",
-        "r2": PROJECT_ROOT / "data/SRR7827254_1M_2.fastq",
-        "mode": "paired",
-        "reads": 1_000_000,
-        "seqproc_edit_geom": CONFIGS / "seqproc/sciseq3_edit.geom",
-        "seqproc_hamming_geom": CONFIGS / "seqproc/sciseq3.geom",
-        "matchbox_config": CONFIGS / "matchbox/sciseq3.mb",
-        "matchbox_paired": True,
-        "splitcode_config": CONFIGS / "splitcode/sciseq3.config",
-    },
-}
+from data_config import resolve_datasets, add_reads_arg, TOOL_CONFIGS
+
+# Default to 1M subsets; overridden in main() when --reads is specified.
+DATASETS = resolve_datasets("1m")
 
 
 # ============================================================================
@@ -635,6 +573,7 @@ def print_summary_tables(all_results: Dict):
 
 
 def main():
+    global DATASETS
     parser = argparse.ArgumentParser(description='Concordance Analysis')
     parser.add_argument('--threads', type=int, default=4)
     parser.add_argument('--datasets', type=str, nargs='+', default=None,
@@ -642,7 +581,11 @@ def main():
     parser.add_argument('--skip-runs', action='store_true',
                         help='Skip tool runs, use cached ID files')
     parser.add_argument('--output', type=str, default=None)
+    add_reads_arg(parser)
     args = parser.parse_args()
+
+    # Re-resolve datasets for the requested reads level
+    DATASETS = resolve_datasets(args.reads)
 
     outdir = Path(args.output) if args.output else RESULTS_DIR
     outdir.mkdir(parents=True, exist_ok=True)
