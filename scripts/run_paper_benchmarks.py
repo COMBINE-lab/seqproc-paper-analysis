@@ -186,6 +186,45 @@ class BenchmarkResult:
 
 
 # ============================================================================
+# Validity Cache
+# ============================================================================
+
+VALIDITY_CACHE_DIR = RESULTS_DIR / "validity_cache"
+
+
+def _validity_cache_path(fastq_path: str, analyzer_name: str) -> Path:
+    """Return the cache file path for a given FASTQ + analyzer."""
+    import hashlib
+    fsize = os.path.getsize(fastq_path) if os.path.exists(fastq_path) else 0
+    key = f"{fastq_path}|{fsize}|{analyzer_name}"
+    hsh = hashlib.md5(key.encode()).hexdigest()[:12]
+    return VALIDITY_CACHE_DIR / f"{analyzer_name}_{hsh}.json"
+
+
+def _load_validity_cache(fastq_path: str, analyzer_name: str):
+    """Load cached valid_ids set, or return None if no cache."""
+    cache_file = _validity_cache_path(fastq_path, analyzer_name)
+    if cache_file.exists():
+        try:
+            data = json.loads(cache_file.read_text())
+            ids = set(data["valid_ids"])
+            print(f"    [CACHE HIT] Loaded {len(ids):,} valid IDs from {cache_file.name}")
+            return ids
+        except Exception:
+            pass
+    return None
+
+
+def _save_validity_cache(fastq_path: str, analyzer_name: str, valid_ids: set):
+    """Save valid_ids set to cache."""
+    VALIDITY_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_file = _validity_cache_path(fastq_path, analyzer_name)
+    data = {"fastq": fastq_path, "count": len(valid_ids), "valid_ids": sorted(valid_ids)}
+    cache_file.write_text(json.dumps(data))
+    print(f"    [CACHE SAVE] Saved {len(valid_ids):,} valid IDs to {cache_file.name}")
+
+
+# ============================================================================
 # Validity Analyzer
 # ============================================================================
 
@@ -240,7 +279,12 @@ class SplitSeqValidityAnalyzer:
         
     def analyze_fastqs(self, r1_path, r2_path):
         """Analyze raw FASTQs and return set of valid read IDs (d<=1)."""
-        print(f"    Analyzing raw input for validity (this may take 15-20s)...")
+        cached = _load_validity_cache(r2_path, "splitseq_pe")
+        if cached is not None:
+            self.valid_ids = cached
+            return cached
+
+        print(f"    Analyzing raw input for validity (this may take a while on full data)...")
         valid_ids = set()
         
         # We only need R2 for validity
@@ -282,6 +326,7 @@ class SplitSeqValidityAnalyzer:
                     valid_ids.add(read_id)
                     
         print(f"    Found {len(valid_ids):,} valid reads (d<=1) in input.")
+        _save_validity_cache(r2_path, "splitseq_pe", valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
@@ -334,6 +379,11 @@ class SplitSeqSingleEndValidityAnalyzer:
         
     def analyze_fastqs(self, r1_path):
         """Analyze raw R1 FASTQ and return set of valid read IDs (d<=1)."""
+        cached = _load_validity_cache(r1_path, "splitseq_se")
+        if cached is not None:
+            self.valid_ids = cached
+            return cached
+
         print(f"    Analyzing raw input for validity (Single-End)...")
         valid_ids = set()
         
@@ -366,6 +416,7 @@ class SplitSeqSingleEndValidityAnalyzer:
                     valid_ids.add(read_id)
                     
         print(f"    Found {len(valid_ids):,} valid reads (d<=1) in input.")
+        _save_validity_cache(r1_path, "splitseq_se", valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
@@ -384,6 +435,11 @@ class SciSeqValidityAnalyzer:
         
     def analyze_fastqs(self, r1_path, r2_path=None):
         """Analyze R1 FASTQ for validity."""
+        cached = _load_validity_cache(r1_path, "sciseq")
+        if cached is not None:
+            self.valid_ids = cached
+            return cached
+
         print(f"    Analyzing Sci-Seq input for validity (Anchor Check)...")
         valid_ids = set()
         
@@ -410,6 +466,7 @@ class SciSeqValidityAnalyzer:
                     valid_ids.add(header.strip().split()[0].replace('@', ''))
                     
         print(f"    Found {len(valid_ids):,} valid reads in input.")
+        _save_validity_cache(r1_path, "sciseq", valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
@@ -495,6 +552,12 @@ class TenXValidityAnalyzer:
         
     def analyze_fastqs(self, r1_path, r2_path=None):
         """Analyze FASTQ for validity."""
+        cache_name = "10x_short" if self.is_short_read else "10x_long"
+        cached = _load_validity_cache(r1_path, cache_name)
+        if cached is not None:
+            self.valid_ids = cached
+            return cached
+
         mode = "Short Read (Length=26)" if self.is_short_read else "Long Read (Primer Check + Whitelist)"
         print(f"    Analyzing 10x input for validity ({mode})...")
         valid_ids = set()
@@ -525,6 +588,7 @@ class TenXValidityAnalyzer:
                         valid_ids.add(read_id)
                     
         print(f"    Found {len(valid_ids):,} valid reads in input (Gold Standard).")
+        _save_validity_cache(r1_path, cache_name, valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 

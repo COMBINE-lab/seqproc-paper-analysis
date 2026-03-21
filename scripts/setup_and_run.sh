@@ -195,20 +195,30 @@ if [ ! -d "$WORKDIR/combine-lab/ANTISEQUENCE" ]; then
     git clone --branch cleanup_and_final_touches \
         "${GH_PREFIX}COMBINE-lab/ANTISEQUENCE.git" \
         "$WORKDIR/combine-lab/ANTISEQUENCE"
+else
+    echo "  Updating ANTISEQUENCE..."
+    git -C "$WORKDIR/combine-lab/ANTISEQUENCE" pull --ff-only 2>/dev/null || true
 fi
 
 if [ ! -d "$WORKDIR/combine-lab/seqproc" ]; then
     git clone --branch edit_distance_map \
         "${GH_PREFIX}COMBINE-lab/seqproc.git" \
         "$WORKDIR/combine-lab/seqproc"
+else
+    echo "  Updating seqproc..."
+    git -C "$WORKDIR/combine-lab/seqproc" pull --ff-only 2>/dev/null || true
 fi
 
-if [ -x "$SEQPROC_BIN" ]; then
-    echo "  [SKIP] seqproc already built: $SEQPROC_BIN"
+SEQPROC_STAMP="$WORKDIR/combine-lab/seqproc/.build_commit"
+SEQPROC_HEAD="$(git -C "$WORKDIR/combine-lab/seqproc" rev-parse HEAD 2>/dev/null || echo none)"
+SEQPROC_BUILT="$(cat "$SEQPROC_STAMP" 2>/dev/null || echo missing)"
+if [ -x "$SEQPROC_BIN" ] && [ "$SEQPROC_HEAD" = "$SEQPROC_BUILT" ]; then
+    echo "  [SKIP] seqproc already built at $SEQPROC_HEAD"
 else
-    echo "  Building seqproc (release)..."
+    echo "  Building seqproc (release) at $SEQPROC_HEAD..."
     cd "$WORKDIR/combine-lab/seqproc"
     cargo build --release
+    echo "$SEQPROC_HEAD" > "$SEQPROC_STAMP"
 fi
 echo "  seqproc: $("$SEQPROC_BIN" --version 2>&1 || echo 'built')"
 
