@@ -287,12 +287,21 @@ fi
 # ============================================================================
 echo "[6/8] Downloading full SRA datasets..."
 activate_bench_env
-mkdir -p "$WORKDIR/seqproc-paper-analysis/data/10x_short"
-cd "$WORKDIR/seqproc-paper-analysis/data"
+SRA_TMP="$WORKDIR/tmp"
+DATA_DIR="$WORKDIR/data"
+mkdir -p "$DATA_DIR/10x_short" "$SRA_TMP"
+
+# Symlink data dir into analysis repo so scripts find it
+ANALYSIS_DATA="$WORKDIR/seqproc-paper-analysis/data"
+if [ -L "$ANALYSIS_DATA" ] || [ ! -d "$ANALYSIS_DATA" ]; then
+    rm -f "$ANALYSIS_DATA"
+    ln -sfn "$DATA_DIR" "$ANALYSIS_DATA"
+fi
+cd "$DATA_DIR"
 
 if [ ! -f SRR6750041_R1.fastq ]; then
     echo "  Downloading SRR6750041 (SPLiT-seq PE, ~20 GB)..."
-    fasterq-dump --split-files SRR6750041 --threads "$THREADS"
+    fasterq-dump --split-files SRR6750041 --threads "$THREADS" --temp "$SRA_TMP"
     mv SRR6750041_1.fastq SRR6750041_R1.fastq
     mv SRR6750041_2.fastq SRR6750041_R2.fastq
     rm -rf SRR6750041/
@@ -304,7 +313,7 @@ fi
 
 if [ ! -f SRR13948564_full.fastq ]; then
     echo "  Downloading SRR13948564 (LR-SPLiT-seq, ~5 GB)..."
-    fasterq-dump SRR13948564 --threads "$THREADS"
+    fasterq-dump SRR13948564 --threads "$THREADS" --temp "$SRA_TMP"
     mv SRR13948564.fastq SRR13948564_full.fastq
     rm -rf SRR13948564/
 else
@@ -313,7 +322,7 @@ fi
 
 if [ ! -f 10x_short/SRR8315379_R1.fastq ]; then
     echo "  Downloading SRR8315379 (10x Chromium v2, ~10 GB)..."
-    fasterq-dump --split-files SRR8315379 --threads "$THREADS"
+    fasterq-dump --split-files SRR8315379 --threads "$THREADS" --temp "$SRA_TMP"
     mv SRR8315379_1.fastq 10x_short/SRR8315379_R1.fastq
     mv SRR8315379_2.fastq 10x_short/SRR8315379_R2.fastq
     rm -rf SRR8315379/
@@ -323,7 +332,7 @@ fi
 
 if [ ! -f SRR7827254_1.fastq ]; then
     echo "  Downloading SRR7827254 (sci-RNA-seq3, ~3 GB)..."
-    fasterq-dump --split-files SRR7827254 --threads "$THREADS"
+    fasterq-dump --split-files SRR7827254 --threads "$THREADS" --temp "$SRA_TMP"
     rm -rf SRR7827254/
 else
     echo "  [SKIP] SRR7827254 already present"
