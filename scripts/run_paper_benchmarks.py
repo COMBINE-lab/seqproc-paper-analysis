@@ -142,35 +142,9 @@ DATASETS = {
         'tools': ['seqproc', 'matchbox', 'splitcode'],
     },
     
-    # 10x GridION Long-Read
-    '10x_gridion': {
-        'name': '10x GridION Long-Read',
-        'short_name': '10x GridION',
-        'category': 'raw',
-        'r1': PROJECT_ROOT / 'data/10x/ERR9958134_1M.fastq',
-        'r2': None,
-        'mode': 'single',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/10x_longread_fwd_edit.geom',
-        'seqproc_geom_rev': PROJECT_ROOT / 'configs/seqproc/10x_longread_rev_edit.geom',
-        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/10x_longread.mb',
-        'reads': reads,
-        'tools': ['seqproc', 'matchbox'],
-    },
-    
-    # 10x PromethION Long-Read
-    '10x_promethion': {
-        'name': '10x PromethION Long-Read',
-        'short_name': '10x PromethION',
-        'category': 'raw',
-        'r1': PROJECT_ROOT / 'data/10x/ERR9958135_1M.fastq',
-        'r2': None,
-        'mode': 'single',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/10x_longread_fwd_edit.geom',
-        'seqproc_geom_rev': PROJECT_ROOT / 'configs/seqproc/10x_longread_rev_edit.geom',
-        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/10x_longread.mb',
-        'reads': reads,
-        'tools': ['seqproc', 'matchbox'],
-    },
+    # 10x GridION and PromethION Long-Read datasets are supplementary (1M-only).
+    # They are not downloaded by setup_and_run.sh and are excluded from the
+    # full-dataset benchmark run.  Re-enable when the ERR FASTQs are available.
 }
 
 
