@@ -39,6 +39,14 @@ SPLITCODE_BIN="$WORKDIR/splitcode/build/src/splitcode"
 mkdir -p "$WORKDIR" "$LOCAL_BIN"
 export PATH="$LOCAL_BIN:$HOME/.cargo/bin:$PATH"
 
+# GitHub auth: use GH_TOKEN for HTTPS cloning of private repos.
+# If not set, fall back to SSH (requires SSH keys).
+if [ -n "${GH_TOKEN:-}" ]; then
+    GH_PREFIX="https://${GH_TOKEN}@github.com/"
+else
+    GH_PREFIX="git@github.com:"
+fi
+
 echo "================================================================"
 echo "seqproc Full Paper Benchmark Setup"
 echo "  WORKDIR:       $WORKDIR"
@@ -178,13 +186,13 @@ mkdir -p "$WORKDIR/combine-lab"
 
 if [ ! -d "$WORKDIR/combine-lab/ANTISEQUENCE" ]; then
     git clone --branch cleanup_and_final_touches \
-        git@github.com:COMBINE-lab/ANTISEQUENCE.git \
+        "${GH_PREFIX}COMBINE-lab/ANTISEQUENCE.git" \
         "$WORKDIR/combine-lab/ANTISEQUENCE"
 fi
 
 if [ ! -d "$WORKDIR/combine-lab/seqproc" ]; then
     git clone --branch edit_distance_map \
-        git@github.com:COMBINE-lab/seqproc.git \
+        "${GH_PREFIX}COMBINE-lab/seqproc.git" \
         "$WORKDIR/combine-lab/seqproc"
 fi
 
@@ -253,7 +261,7 @@ if [ -f "$ANALYSIS_ROOT/scripts/run_all.sh" ]; then
 else
     if [ ! -d "$WORKDIR/seqproc-paper-analysis" ]; then
         git clone --branch phase3-orientation-benchmarks \
-            git@github.com:COMBINE-lab/seqproc-paper-analysis.git \
+            "${GH_PREFIX}COMBINE-lab/seqproc-paper-analysis.git" \
             "$WORKDIR/seqproc-paper-analysis"
     fi
 fi
