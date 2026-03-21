@@ -38,16 +38,15 @@ echo "  REPLICATES:    $REPLICATES"
 echo "================================================================"
 
 # ---------------------------------------------------------------------------
-# Helper: activate micromamba bench env if it exists
+# Helper: put micromamba bench env bin/ on PATH (no activate needed)
 # ---------------------------------------------------------------------------
+BENCH_BIN="$MICROMAMBA_ROOT/envs/bench/bin"
 activate_bench_env() {
-    if [ -d "$MICROMAMBA_ROOT/envs/bench" ] && [ -x "$MICROMAMBA_ROOT/bin/micromamba" ]; then
-        export MAMBA_ROOT_PREFIX="$MICROMAMBA_ROOT"
-        eval "$("$MICROMAMBA_ROOT/bin/micromamba" shell hook -s bash)"
-        micromamba activate bench 2>/dev/null || true
+    if [ -d "$BENCH_BIN" ]; then
+        export PATH="$BENCH_BIN:$LOCAL_BIN:$HOME/.cargo/bin:$PATH"
+    else
+        export PATH="$LOCAL_BIN:$HOME/.cargo/bin:$PATH"
     fi
-    # Always keep local bins available
-    export PATH="$LOCAL_BIN:$HOME/.cargo/bin:$PATH"
 }
 
 # ---------------------------------------------------------------------------
@@ -105,9 +104,8 @@ if [ "$NEED_MAMBA_PYTHON" = true ]; then
         "$MICROMAMBA_ROOT/bin/micromamba" create -y -n bench \
             python=3.11 sra-tools -c conda-forge -c bioconda
     fi
-    eval "$("$MICROMAMBA_ROOT/bin/micromamba" shell hook -s bash)"
-    micromamba activate bench
-    echo "  [OK] python3 via micromamba ($(python3 --version))"
+    activate_bench_env
+    echo "  [OK] python3 via micromamba ($($BENCH_BIN/python3 --version))"
 fi
 
 # -- cmake (install locally if missing) --
@@ -145,8 +143,7 @@ if ! command -v fasterq-dump &>/dev/null; then
     else
         "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench sra-tools -c conda-forge -c bioconda
     fi
-    eval "$("$MICROMAMBA_ROOT/bin/micromamba" shell hook -s bash)"
-    micromamba activate bench
+    activate_bench_env
     echo "  [OK] fasterq-dump via micromamba"
 else
     echo "  [OK] fasterq-dump"
