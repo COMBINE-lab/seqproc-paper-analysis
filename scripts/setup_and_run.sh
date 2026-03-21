@@ -28,7 +28,7 @@ else
     WORKDIR="$HOME/seqproc-bench"
 fi
 LOCAL_BIN="$HOME/.local/bin"
-MICROMAMBA_ROOT="$WORKDIR/micromamba"
+MICROMAMBA_ROOT="$HOME/.micromamba"
 THREADS=$(nproc 2>/dev/null || echo 4)
 REPLICATES=3
 
@@ -66,9 +66,18 @@ ensure_micromamba() {
     if [ ! -x "$MICROMAMBA_ROOT/bin/micromamba" ]; then
         echo "  Installing micromamba..."
         mkdir -p "$MICROMAMBA_ROOT/bin"
-        curl -sL https://micro.mamba.pm/api/micromamba/linux-64/latest \
-            | tar -xj -C "$MICROMAMBA_ROOT/bin" --strip-components=1 bin/micromamba
+        MAMBA_DL="$WORKDIR/_micromamba_download.tar.bz2"
+        curl -fSL -o "$MAMBA_DL" https://micro.mamba.pm/api/micromamba/linux-64/latest
+        if ! file "$MAMBA_DL" | grep -q "bzip2"; then
+            echo "  [ERROR] micromamba download is not a valid bzip2 file."
+            echo "  Contents: $(head -c 200 "$MAMBA_DL")"
+            echo "  Try downloading manually from https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html"
+            rm -f "$MAMBA_DL"
+            exit 1
+        fi
+        tar -xjf "$MAMBA_DL" -C "$MICROMAMBA_ROOT/bin" --strip-components=1 bin/micromamba
         chmod +x "$MICROMAMBA_ROOT/bin/micromamba"
+        rm -f "$MAMBA_DL"
     fi
     export MAMBA_ROOT_PREFIX="$MICROMAMBA_ROOT"
 }
