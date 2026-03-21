@@ -226,13 +226,15 @@ fi
 # 6. Download FULL SRA datasets
 # ============================================================================
 echo "[6/8] Downloading full SRA datasets..."
+# Re-assert LOCAL_BIN on PATH (micromamba activation may have changed it)
+export PATH="$LOCAL_BIN:$HOME/.cargo/bin:$PATH"
 mkdir -p "$WORKDIR/seqproc-paper-analysis/data/10x_short"
 cd "$WORKDIR/seqproc-paper-analysis/data"
 
 # SPLiT-seq PE (SRR6750041) -- ~86.8M paired-end reads, ~20 GB
 if [ ! -f SRR6750041_R1.fastq ]; then
     echo "  Downloading SRR6750041 (SPLiT-seq PE, ~20 GB)..."
-    prefetch SRR6750041 && fasterq-dump --split-files SRR6750041 --threads "$THREADS"
+    fasterq-dump --split-files SRR6750041 --threads "$THREADS"
     mv SRR6750041_1.fastq SRR6750041_R1.fastq
     mv SRR6750041_2.fastq SRR6750041_R2.fastq
     rm -rf SRR6750041/
@@ -244,7 +246,7 @@ fi
 # LR-SPLiT-seq (SRR13948564) -- ~4.2M single-end long reads
 if [ ! -f SRR13948564_full.fastq ]; then
     echo "  Downloading SRR13948564 (LR-SPLiT-seq, ~5 GB)..."
-    prefetch SRR13948564 && fasterq-dump SRR13948564 --threads "$THREADS"
+    fasterq-dump SRR13948564 --threads "$THREADS"
     mv SRR13948564.fastq SRR13948564_full.fastq
     rm -rf SRR13948564/
 fi
@@ -252,7 +254,7 @@ fi
 # 10x Chromium v2 (SRR8315379) -- ~56.5M paired-end reads, ~10 GB
 if [ ! -f 10x_short/SRR8315379_R1.fastq ]; then
     echo "  Downloading SRR8315379 (10x Chromium v2, ~10 GB)..."
-    prefetch SRR8315379 && fasterq-dump --split-files SRR8315379 --threads "$THREADS"
+    fasterq-dump --split-files SRR8315379 --threads "$THREADS"
     mv SRR8315379_1.fastq 10x_short/SRR8315379_R1.fastq
     mv SRR8315379_2.fastq 10x_short/SRR8315379_R2.fastq
     rm -rf SRR8315379/
@@ -261,7 +263,7 @@ fi
 # sci-RNA-seq3 (SRR7827254) -- ~10.2M paired-end reads, ~3 GB
 if [ ! -f SRR7827254_1.fastq ]; then
     echo "  Downloading SRR7827254 (sci-RNA-seq3, ~3 GB)..."
-    prefetch SRR7827254 && fasterq-dump --split-files SRR7827254 --threads "$THREADS"
+    fasterq-dump --split-files SRR7827254 --threads "$THREADS"
     # fasterq-dump names them _1.fastq / _2.fastq which matches data_config.py
     rm -rf SRR7827254/
 fi
