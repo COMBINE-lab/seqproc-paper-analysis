@@ -26,7 +26,7 @@ import argparse
 from pathlib import Path
 from typing import Set, Tuple
 
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).parent.parent))
 RESULTS_DIR = PROJECT_ROOT / "results" / "concordance" / "lr_splitseq"
 
 SPLITCODE_BIN = os.environ.get(

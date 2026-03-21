@@ -24,7 +24,7 @@ from typing import Dict, Set, Tuple
 # Configuration
 # ============================================================================
 
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).parent.parent))
 RESULTS_DIR = PROJECT_ROOT / "results" / "concordance"
 
 SEQPROC_BIN = os.environ.get(

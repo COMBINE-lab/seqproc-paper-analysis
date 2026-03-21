@@ -20,7 +20,7 @@ import statistics
 from pathlib import Path
 from typing import Tuple
 
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).parent.parent))
 CONFIGS = PROJECT_ROOT / "configs"
 RESULTS_DIR = PROJECT_ROOT / "results" / "lr_perf"
 
