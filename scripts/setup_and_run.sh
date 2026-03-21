@@ -16,7 +16,17 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ANALYSIS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-WORKDIR="$HOME/seqproc-bench"
+
+# WORKDIR: override with env var, or auto-detect scratch space, or fall back to $HOME
+if [ -n "${WORKDIR:-}" ]; then
+    : # user-provided, keep it
+elif [ -d "/scratch0" ] && [ -w "/scratch0" ]; then
+    WORKDIR="/scratch0/$USER/seqproc-bench"
+elif [ -d "/scratch1" ] && [ -w "/scratch1" ]; then
+    WORKDIR="/scratch1/$USER/seqproc-bench"
+else
+    WORKDIR="$HOME/seqproc-bench"
+fi
 LOCAL_BIN="$HOME/.local/bin"
 MICROMAMBA_ROOT="$WORKDIR/micromamba"
 THREADS=$(nproc 2>/dev/null || echo 4)
