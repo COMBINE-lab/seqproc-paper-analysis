@@ -4,55 +4,98 @@ set -euo pipefail
 ###############################################################################
 # seqproc Full Paper Benchmark -- Clean Machine Setup + Run
 #
-# Assumes: Ubuntu Linux, internet access, sudo privileges.
-# Produces: All paper figures and benchmark data for FULL SRA datasets.
+# NO SUDO REQUIRED. Installs everything to $HOME/.local and $HOME/.cargo.
+# Assumes: Linux x86_64, internet access, git, curl, python3, gcc/g++, cmake.
 #
-# Usage: scp this to the target machine, then:
-#   chmod +x setup_and_run.sh && ./setup_and_run.sh
+# Usage (from the cloned analysis repo root):
+#   chmod +x scripts/setup_and_run.sh && ./scripts/setup_and_run.sh
+#
+# Cluster usage (typical HPC with module system):
+#   module load gcc cmake python3 git curl   # load whatever is available
+#   ./scripts/setup_and_run.sh
 ###############################################################################
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ANALYSIS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 WORKDIR="$HOME/seqproc-bench"
-THREADS=$(nproc)
+LOCAL_BIN="$HOME/.local/bin"
+THREADS=$(nproc 2>/dev/null || echo 4)
 REPLICATES=3
+
+mkdir -p "$WORKDIR" "$LOCAL_BIN"
+export PATH="$LOCAL_BIN:$HOME/.cargo/bin:$PATH"
 
 echo "================================================================"
 echo "seqproc Full Paper Benchmark Setup"
-echo "  WORKDIR:    $WORKDIR"
-echo "  THREADS:    $THREADS"
-echo "  REPLICATES: $REPLICATES"
+echo "  WORKDIR:       $WORKDIR"
+echo "  ANALYSIS_ROOT: $ANALYSIS_ROOT"
+echo "  LOCAL_BIN:     $LOCAL_BIN"
+echo "  THREADS:       $THREADS"
+echo "  REPLICATES:    $REPLICATES"
 echo "================================================================"
 
 # ============================================================================
-# 1. System dependencies
+# 1. Check / install prerequisites (no sudo)
 # ============================================================================
-echo "[1/8] Installing system dependencies..."
-sudo apt-get update -qq
-sudo apt-get install -y -qq \
-    build-essential cmake curl git python3 python3-pip python3-venv \
-    time pkg-config libssl-dev
+echo "[1/8] Checking prerequisites..."
 
-# Rust toolchain
+# Helper: bail with a message if a required system tool is missing
+require_cmd() {
+    if ! command -v "$1" &>/dev/null; then
+        echo "  [ERROR] Required command '$1' not found."
+        echo "  On an HPC cluster, try: module load $1"
+        echo "  Or ask your sysadmin to install: $2"
+        exit 1
+    fi
+    echo "  [OK] $1"
+}
+
+require_cmd git      "git"
+require_cmd curl     "curl"
+require_cmd python3  "python3"
+require_cmd gcc      "gcc / build-essential"
+require_cmd make     "make / build-essential"
+
+# cmake -- try to find it, or install locally
+if ! command -v cmake &>/dev/null; then
+    echo "  cmake not found, installing locally..."
+    CMAKE_VER="3.28.3"
+    curl -sL "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz" \
+        | tar -xz -C "$WORKDIR"
+    ln -sf "$WORKDIR/cmake-${CMAKE_VER}-linux-x86_64/bin/cmake" "$LOCAL_BIN/cmake"
+    echo "  [OK] cmake (local install)"
+else
+    echo "  [OK] cmake"
+fi
+
+# Rust toolchain (user-local, no sudo)
 if ! command -v cargo &>/dev/null; then
-    echo "  Installing Rust..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    echo "  Installing Rust toolchain (user-local)..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
     source "$HOME/.cargo/env"
 fi
-# Ensure cargo is on PATH for this session
 export PATH="$HOME/.cargo/bin:$PATH"
+echo "  [OK] cargo $(cargo --version 2>/dev/null | head -1)"
 
-# SRA toolkit (fasterq-dump)
+# SRA toolkit (user-local, no sudo)
 if ! command -v fasterq-dump &>/dev/null; then
-    echo "  Installing SRA toolkit..."
-    curl -L -o /tmp/sratoolkit.tar.gz \
+    echo "  Installing SRA toolkit (user-local)..."
+    SRA_TMP="$WORKDIR/_sra_install"
+    mkdir -p "$SRA_TMP"
+    curl -L -o "$SRA_TMP/sratoolkit.tar.gz" \
         https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz
-    tar -xzf /tmp/sratoolkit.tar.gz -C /tmp
-    SRA_DIR=$(ls -d /tmp/sratoolkit.* | head -1)
-    sudo cp "$SRA_DIR/bin/fasterq-dump" /usr/local/bin/
-    sudo cp "$SRA_DIR/bin/prefetch" /usr/local/bin/
-    rm -rf /tmp/sratoolkit*
+    tar -xzf "$SRA_TMP/sratoolkit.tar.gz" -C "$SRA_TMP"
+    SRA_DIR=$(ls -d "$SRA_TMP"/sratoolkit.* 2>/dev/null | head -1)
+    cp "$SRA_DIR/bin/fasterq-dump" "$LOCAL_BIN/"
+    cp "$SRA_DIR/bin/prefetch" "$LOCAL_BIN/"
+    chmod +x "$LOCAL_BIN/fasterq-dump" "$LOCAL_BIN/prefetch"
+    rm -rf "$SRA_TMP"
+    echo "  [OK] fasterq-dump (local install)"
+else
+    echo "  [OK] fasterq-dump"
 fi
 
-mkdir -p "$WORKDIR"
+echo ""
 
 # ============================================================================
 # 2. Clone and build seqproc + ANTISEQUENCE
@@ -109,13 +152,23 @@ SPLITCODE_BIN="$WORKDIR/splitcode/build/src/splitcode"
 echo "  splitcode binary: $SPLITCODE_BIN"
 
 # ============================================================================
-# 5. Clone paper analysis repo
+# 5. Set up analysis repo
 # ============================================================================
-echo "[5/8] Cloning paper analysis repo..."
-if [ ! -d "$WORKDIR/seqproc-paper-analysis" ]; then
-    git clone --branch phase3-orientation-benchmarks \
-        git@github.com:COMBINE-lab/seqproc-paper-analysis.git \
-        "$WORKDIR/seqproc-paper-analysis"
+echo "[5/8] Setting up analysis repo..."
+
+# If this script is running from inside the cloned repo already, symlink it
+# into WORKDIR so paths are consistent. Otherwise clone fresh.
+if [ -f "$ANALYSIS_ROOT/scripts/run_all.sh" ]; then
+    echo "  Running from cloned repo at $ANALYSIS_ROOT"
+    if [ "$ANALYSIS_ROOT" != "$WORKDIR/seqproc-paper-analysis" ]; then
+        ln -sfn "$ANALYSIS_ROOT" "$WORKDIR/seqproc-paper-analysis"
+    fi
+else
+    if [ ! -d "$WORKDIR/seqproc-paper-analysis" ]; then
+        git clone --branch phase3-orientation-benchmarks \
+            git@github.com:COMBINE-lab/seqproc-paper-analysis.git \
+            "$WORKDIR/seqproc-paper-analysis"
+    fi
 fi
 
 cd "$WORKDIR/seqproc-paper-analysis"
