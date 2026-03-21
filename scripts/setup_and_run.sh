@@ -287,8 +287,13 @@ cd "$WORKDIR/seqproc-paper-analysis"
 activate_bench_env
 
 # Install Python deps into micromamba bench env
+# numpy/matplotlib MUST come from conda-forge (pip builds require X86_V2 which
+# older cluster CPUs lack).
 if [ -d "$BENCH_BIN" ]; then
-    "$BENCH_BIN/pip" install -q -r requirements.txt 2>/dev/null || "$BENCH_BIN/pip" install -r requirements.txt
+    "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench numpy matplotlib -c conda-forge 2>/dev/null \
+        || "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench numpy matplotlib -c conda-forge
+    "$BENCH_BIN/pip" install -q -r requirements.txt 2>/dev/null \
+        || "$BENCH_BIN/pip" install -r requirements.txt
     echo "  [OK] Python deps installed in micromamba bench env"
 else
     echo "  [ERROR] micromamba bench env not found at $BENCH_BIN"
