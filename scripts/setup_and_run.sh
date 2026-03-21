@@ -41,6 +41,11 @@ SPLITCODE_BIN="$WORKDIR/splitcode/build/src/splitcode"
 mkdir -p "$WORKDIR" "$LOCAL_BIN"
 export PATH="$LOCAL_BIN:$HOME/.cargo/bin:$PATH"
 
+# Tee all output to a timestamped log file AND the terminal
+LOG_FILE="$WORKDIR/setup_and_run_$(date +%Y%m%d_%H%M%S).log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+echo "Logging to: $LOG_FILE"
+
 # GitHub auth: use GH_TOKEN for HTTPS cloning of private repos.
 # If not set, fall back to SSH (requires SSH keys).
 if [ -n "${GH_TOKEN:-}" ]; then
@@ -271,15 +276,14 @@ fi
 cd "$WORKDIR/seqproc-paper-analysis"
 activate_bench_env
 
-# Install Python deps (into micromamba env or a venv)
-if [ -d "$MICROMAMBA_ROOT/envs/bench" ] 2>/dev/null; then
-    pip install -q -r requirements.txt 2>/dev/null || pip install -q -r requirements.txt
+# Install Python deps into micromamba bench env
+if [ -d "$BENCH_BIN" ]; then
+    "$BENCH_BIN/pip" install -q -r requirements.txt 2>/dev/null || "$BENCH_BIN/pip" install -r requirements.txt
+    echo "  [OK] Python deps installed in micromamba bench env"
 else
-    if [ ! -d venv ]; then
-        python3 -m venv venv
-    fi
-    source venv/bin/activate
-    pip install -q -r requirements.txt
+    echo "  [ERROR] micromamba bench env not found at $BENCH_BIN"
+    echo "  Cannot install Python deps. Ensure step 1 completed."
+    exit 1
 fi
 
 # ============================================================================
@@ -298,11 +302,12 @@ if [ ! -f "$NCBI_SETTINGS" ]; then
     printf '/repository/user/main/public/root = "%s"\n' "$WORKDIR/ncbi_cache" > "$NCBI_SETTINGS"
 fi
 
-# Symlink data dir into analysis repo so scripts find it
-ANALYSIS_DATA="$WORKDIR/seqproc-paper-analysis/data"
-if [ -L "$ANALYSIS_DATA" ] || [ ! -d "$ANALYSIS_DATA" ]; then
-    rm -f "$ANALYSIS_DATA"
-    ln -sfn "$DATA_DIR" "$ANALYSIS_DATA"
+# Symlink data dir into the REAL analysis repo so data_config.py finds files
+# (data_config.py resolves Path(__file__).parent.parent / "data" = ANALYSIS_ROOT/data)
+if [ -L "$ANALYSIS_ROOT/data" ] || [ ! -e "$ANALYSIS_ROOT/data" ]; then
+    rm -f "$ANALYSIS_ROOT/data"
+    ln -sfn "$DATA_DIR" "$ANALYSIS_ROOT/data"
+    echo "  Symlinked $ANALYSIS_ROOT/data -> $DATA_DIR"
 fi
 cd "$DATA_DIR"
 

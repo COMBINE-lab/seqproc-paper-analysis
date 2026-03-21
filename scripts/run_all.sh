@@ -66,12 +66,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Determine Python interpreter
-if [ -x "$PROJECT_ROOT/venv/bin/python3" ]; then
-    PYTHON="$PROJECT_ROOT/venv/bin/python3"
-else
-    PYTHON="python3"
-fi
+# Determine Python interpreter (use whatever python3 is on PATH;
+# setup_and_run.sh ensures the micromamba bench env is on PATH)
+PYTHON="python3"
 
 echo "========================================================================"
 echo "SEQPROC PAPER ANALYSIS -- FULL PIPELINE"
