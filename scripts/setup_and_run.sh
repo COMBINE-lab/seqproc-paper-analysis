@@ -146,14 +146,18 @@ if [ ! -d "$WORKDIR/splitcode" ]; then
         "$WORKDIR/splitcode"
 fi
 cd "$WORKDIR/splitcode"
-mkdir -p build && cd build
-# GCC < 9 needs -lstdc++fs for std::filesystem support
-CMAKE_EXTRA=""
+# GCC < 9 needs -lstdc++fs for std::filesystem support.
+# CMAKE_EXE_LINKER_FLAGS does not propagate to the splitcode target,
+# so we patch target_link_libraries in src/CMakeLists.txt directly.
 GCC_MAJOR=$(gcc -dumpversion | cut -d. -f1)
 if [ "$GCC_MAJOR" -lt 9 ] 2>/dev/null; then
-    CMAKE_EXTRA="-DCMAKE_EXE_LINKER_FLAGS=-lstdc++fs"
+    if ! grep -q "stdc++fs" src/CMakeLists.txt; then
+        echo "  Patching splitcode for GCC $GCC_MAJOR (adding -lstdc++fs)..."
+        sed -i 's/target_link_libraries(splitcode splitcode_core pthread)/target_link_libraries(splitcode splitcode_core pthread stdc++fs)/' src/CMakeLists.txt
+    fi
 fi
-cmake .. $CMAKE_EXTRA && make -j"$THREADS"
+rm -rf build && mkdir -p build && cd build
+cmake .. && make -j"$THREADS"
 SPLITCODE_BIN="$WORKDIR/splitcode/build/src/splitcode"
 echo "  splitcode binary: $SPLITCODE_BIN"
 
