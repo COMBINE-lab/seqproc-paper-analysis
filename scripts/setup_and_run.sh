@@ -288,17 +288,20 @@ cd "$WORKDIR/seqproc-paper-analysis"
 activate_bench_env
 
 # Install Python deps into micromamba bench env
-# numpy/matplotlib MUST come from conda-forge (pip builds require X86_V2 which
-# older cluster CPUs lack).  We uninstall any pip versions first so conda-forge
-# takes priority, then pip-install remaining deps but skip numpy/matplotlib.
+# numpy/matplotlib MUST come from conda-forge with numpy<2.0 (numpy 2.x
+# requires X86_V2 CPU instructions that older cluster nodes lack).
 if [ -d "$BENCH_BIN" ]; then
-    # Remove pip numpy/matplotlib if present (they may have X86_V2 requirement)
-    "$BENCH_BIN/pip" uninstall -y numpy matplotlib 2>/dev/null || true
-    # Install from conda-forge; pin numpy 1.26.x because numpy 2.x requires X86_V2
-    # CPU instructions that older cluster nodes lack.
-    "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench "numpy=1.26.*" "matplotlib=3.8.*" -c conda-forge 2>/dev/null \
-        || "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench "numpy=1.26.*" "matplotlib=3.8.*" -c conda-forge
-    # Install remaining pip deps, but ignore numpy/matplotlib already installed
+    # Only fix numpy/matplotlib if they fail to import (avoid breaking a working env)
+    if ! "$BENCH_BIN/python3" -c "import numpy, matplotlib" 2>/dev/null; then
+        echo "  Fixing numpy/matplotlib (need conda-forge numpy<2.0)..."
+        "$BENCH_BIN/pip" uninstall -y numpy matplotlib 2>/dev/null || true
+        rm -rf "$MICROMAMBA_ROOT/envs/bench/lib/python3.11/site-packages/numpy"* 2>/dev/null || true
+        "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench "numpy=1.26.*" "matplotlib=3.8.*" \
+            -c conda-forge --force-reinstall
+    else
+        echo "  [OK] numpy/matplotlib already working"
+    fi
+    # Install remaining pip deps (requirements.txt has no numpy/matplotlib)
     "$BENCH_BIN/pip" install -q -r requirements.txt 2>/dev/null \
         || "$BENCH_BIN/pip" install -r requirements.txt
     echo "  [OK] Python deps installed in micromamba bench env"
