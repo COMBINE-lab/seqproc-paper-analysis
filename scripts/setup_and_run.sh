@@ -291,6 +291,13 @@ SRA_TMP="$WORKDIR/tmp"
 DATA_DIR="$WORKDIR/data"
 mkdir -p "$DATA_DIR/10x_short" "$SRA_TMP"
 
+# Redirect SRA cache to project space (avoids NFS quota)
+export NCBI_SETTINGS="$WORKDIR/ncbi_settings.kfg"
+if [ ! -f "$NCBI_SETTINGS" ]; then
+    mkdir -p "$WORKDIR/ncbi_cache"
+    printf '/repository/user/main/public/root = "%s"\n' "$WORKDIR/ncbi_cache" > "$NCBI_SETTINGS"
+fi
+
 # Symlink data dir into analysis repo so scripts find it
 ANALYSIS_DATA="$WORKDIR/seqproc-paper-analysis/data"
 if [ -L "$ANALYSIS_DATA" ] || [ ! -d "$ANALYSIS_DATA" ]; then
@@ -301,7 +308,7 @@ cd "$DATA_DIR"
 
 if [ ! -f SRR6750041_R1.fastq ]; then
     echo "  Downloading SRR6750041 (SPLiT-seq PE, ~20 GB)..."
-    fasterq-dump --split-files SRR6750041 --threads "$THREADS" --temp "$SRA_TMP"
+    fasterq-dump --split-files SRR6750041 --threads "$THREADS" --temp "$SRA_TMP" --outdir "$DATA_DIR"
     mv SRR6750041_1.fastq SRR6750041_R1.fastq
     mv SRR6750041_2.fastq SRR6750041_R2.fastq
     rm -rf SRR6750041/
@@ -313,7 +320,7 @@ fi
 
 if [ ! -f SRR13948564_full.fastq ]; then
     echo "  Downloading SRR13948564 (LR-SPLiT-seq, ~5 GB)..."
-    fasterq-dump SRR13948564 --threads "$THREADS" --temp "$SRA_TMP"
+    fasterq-dump SRR13948564 --threads "$THREADS" --temp "$SRA_TMP" --outdir "$DATA_DIR"
     mv SRR13948564.fastq SRR13948564_full.fastq
     rm -rf SRR13948564/
 else
@@ -322,7 +329,7 @@ fi
 
 if [ ! -f 10x_short/SRR8315379_R1.fastq ]; then
     echo "  Downloading SRR8315379 (10x Chromium v2, ~10 GB)..."
-    fasterq-dump --split-files SRR8315379 --threads "$THREADS" --temp "$SRA_TMP"
+    fasterq-dump --split-files SRR8315379 --threads "$THREADS" --temp "$SRA_TMP" --outdir "$DATA_DIR"
     mv SRR8315379_1.fastq 10x_short/SRR8315379_R1.fastq
     mv SRR8315379_2.fastq 10x_short/SRR8315379_R2.fastq
     rm -rf SRR8315379/
@@ -332,7 +339,7 @@ fi
 
 if [ ! -f SRR7827254_1.fastq ]; then
     echo "  Downloading SRR7827254 (sci-RNA-seq3, ~3 GB)..."
-    fasterq-dump --split-files SRR7827254 --threads "$THREADS" --temp "$SRA_TMP"
+    fasterq-dump --split-files SRR7827254 --threads "$THREADS" --temp "$SRA_TMP" --outdir "$DATA_DIR"
     rm -rf SRR7827254/
 else
     echo "  [SKIP] SRR7827254 already present"
