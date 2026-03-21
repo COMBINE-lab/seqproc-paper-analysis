@@ -136,7 +136,8 @@ if [ "$NEED_MAMBA_PYTHON" = true ]; then
     if [ ! -d "$MICROMAMBA_ROOT/envs/bench" ]; then
         echo "  Creating micromamba bench env (python 3.11 + sra-tools)..."
         "$MICROMAMBA_ROOT/bin/micromamba" create -y -n bench \
-            python=3.11 sra-tools -c conda-forge -c bioconda
+            python=3.11 "numpy=1.26.*" "matplotlib=3.8.*" sra-tools \
+            -c conda-forge -c bioconda
     fi
     activate_bench_env
     echo "  [OK] python3 via micromamba ($($BENCH_BIN/python3 --version))"
@@ -293,10 +294,10 @@ activate_bench_env
 if [ -d "$BENCH_BIN" ]; then
     # Remove pip numpy/matplotlib if present (they may have X86_V2 requirement)
     "$BENCH_BIN/pip" uninstall -y numpy matplotlib 2>/dev/null || true
-    # Install from conda-forge; pin numpy<2.0 because numpy 2.x requires X86_V2
+    # Install from conda-forge; pin numpy 1.26.x because numpy 2.x requires X86_V2
     # CPU instructions that older cluster nodes lack.
-    "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench "numpy<2.0" "matplotlib<3.9" -c conda-forge 2>/dev/null \
-        || "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench "numpy<2.0" "matplotlib<3.9" -c conda-forge
+    "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench "numpy=1.26.*" "matplotlib=3.8.*" -c conda-forge 2>/dev/null \
+        || "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench "numpy=1.26.*" "matplotlib=3.8.*" -c conda-forge
     # Install remaining pip deps, but ignore numpy/matplotlib already installed
     "$BENCH_BIN/pip" install -q -r requirements.txt 2>/dev/null \
         || "$BENCH_BIN/pip" install -r requirements.txt
