@@ -52,9 +52,37 @@ require_cmd() {
 
 require_cmd git      "git"
 require_cmd curl     "curl"
-require_cmd python3  "python3"
 require_cmd gcc      "gcc / build-essential"
 require_cmd make     "make / build-essential"
+
+# Python >= 3.9 is required for matplotlib >= 3.7 and numpy >= 1.24.
+# If the system python3 is too old (or missing), install Python 3.11
+# via micromamba (no sudo needed).
+MICROMAMBA_ROOT="$WORKDIR/micromamba"
+PYTHON_BIN=""
+if command -v python3 &>/dev/null; then
+    PY_VER=$(python3 -c 'import sys; print(sys.version_info.minor)' 2>/dev/null || echo 0)
+    if [ "$PY_VER" -ge 9 ] 2>/dev/null; then
+        PYTHON_BIN="python3"
+        echo "  [OK] python3 ($(python3 --version))"
+    fi
+fi
+if [ -z "$PYTHON_BIN" ]; then
+    echo "  Python >= 3.9 not found. Installing Python 3.11 via micromamba..."
+    if [ ! -x "$MICROMAMBA_ROOT/bin/micromamba" ]; then
+        mkdir -p "$MICROMAMBA_ROOT"
+        curl -sL https://micro.mamba.pm/api/micromamba/linux-64/latest \
+            | tar -xvj -C "$MICROMAMBA_ROOT" --strip-components=1 bin/micromamba >/dev/null 2>&1
+    fi
+    export MAMBA_ROOT_PREFIX="$MICROMAMBA_ROOT/envs"
+    if [ ! -d "$MAMBA_ROOT_PREFIX/envs/bench" ]; then
+        "$MICROMAMBA_ROOT/bin/micromamba" create -y -n bench python=3.11 -c conda-forge
+    fi
+    eval "$("$MICROMAMBA_ROOT/bin/micromamba" shell hook -s bash)"
+    micromamba activate bench
+    PYTHON_BIN="python3"
+    echo "  [OK] python3 via micromamba ($(python3 --version))"
+fi
 
 # cmake -- try to find it, or install locally
 if ! command -v cmake &>/dev/null; then
@@ -183,10 +211,15 @@ fi
 
 cd "$WORKDIR/seqproc-paper-analysis"
 
-# Python venv
-python3 -m venv venv
-source venv/bin/activate
-pip install -q -r requirements.txt
+# Python venv -- use the Python we identified in step 1
+if [ -d "$MAMBA_ROOT_PREFIX/envs/bench" ] 2>/dev/null; then
+    # micromamba env is already active, install directly
+    pip install -q -r requirements.txt
+else
+    $PYTHON_BIN -m venv venv
+    source venv/bin/activate
+    pip install -q -r requirements.txt
+fi
 
 # ============================================================================
 # 6. Download FULL SRA datasets
