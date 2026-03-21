@@ -302,13 +302,9 @@ if [ ! -f "$NCBI_SETTINGS" ]; then
     printf '/repository/user/main/public/root = "%s"\n' "$WORKDIR/ncbi_cache" > "$NCBI_SETTINGS"
 fi
 
-# Symlink data dir into the REAL analysis repo so data_config.py finds files
-# (data_config.py resolves Path(__file__).parent.parent / "data" = ANALYSIS_ROOT/data)
-if [ -L "$ANALYSIS_ROOT/data" ] || [ ! -e "$ANALYSIS_ROOT/data" ]; then
-    rm -f "$ANALYSIS_ROOT/data"
-    ln -sfn "$DATA_DIR" "$ANALYSIS_ROOT/data"
-    echo "  Symlinked $ANALYSIS_ROOT/data -> $DATA_DIR"
-fi
+# Tell Python scripts where data lives (data_config.py reads this)
+export SEQPROC_DATA_DIR="$DATA_DIR"
+echo "  SEQPROC_DATA_DIR=$DATA_DIR"
 cd "$DATA_DIR"
 
 if [ ! -f SRR6750041_R1.fastq ]; then

@@ -16,11 +16,12 @@ Usage from other scripts:
     datasets = resolve_datasets(args.reads)
 """
 
+import os
 from pathlib import Path
 from typing import Dict
 
 PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
+DATA_DIR = Path(os.environ.get("SEQPROC_DATA_DIR", PROJECT_ROOT / "data"))
 CONFIGS = PROJECT_ROOT / "configs"
 
 # ============================================================================
