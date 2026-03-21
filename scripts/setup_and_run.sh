@@ -4,23 +4,27 @@ set -euo pipefail
 ###############################################################################
 # seqproc Full Paper Benchmark -- Clean Machine Setup + Run
 #
-# NO SUDO REQUIRED. Installs everything to $HOME/.local and $HOME/.cargo.
-# Assumes: Linux x86_64, internet access, git, curl, python3, gcc/g++, cmake.
+# NO SUDO REQUIRED. Installs everything to user-local directories.
+# Assumes: Linux x86_64, internet access, git, curl, gcc/g++, make.
+# Python and cmake are installed automatically if missing or too old.
+#
+# Every step is guarded: re-running this script skips completed work.
 #
 # Usage (from the cloned analysis repo root):
 #   chmod +x scripts/setup_and_run.sh && ./scripts/setup_and_run.sh
-#
-# Cluster usage (typical HPC with module system):
-#   module load gcc cmake python3 git curl   # load whatever is available
-#   ./scripts/setup_and_run.sh
 ###############################################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ANALYSIS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 WORKDIR="$HOME/seqproc-bench"
 LOCAL_BIN="$HOME/.local/bin"
+MICROMAMBA_ROOT="$WORKDIR/micromamba"
 THREADS=$(nproc 2>/dev/null || echo 4)
 REPLICATES=3
+
+SEQPROC_BIN="$WORKDIR/combine-lab/seqproc/target/release/seqproc"
+MATCHBOX_BIN="$WORKDIR/matchbox/target/release/matchbox"
+SPLITCODE_BIN="$WORKDIR/splitcode/build/src/splitcode"
 
 mkdir -p "$WORKDIR" "$LOCAL_BIN"
 export PATH="$LOCAL_BIN:$HOME/.cargo/bin:$PATH"
@@ -29,17 +33,42 @@ echo "================================================================"
 echo "seqproc Full Paper Benchmark Setup"
 echo "  WORKDIR:       $WORKDIR"
 echo "  ANALYSIS_ROOT: $ANALYSIS_ROOT"
-echo "  LOCAL_BIN:     $LOCAL_BIN"
 echo "  THREADS:       $THREADS"
 echo "  REPLICATES:    $REPLICATES"
 echo "================================================================"
+
+# ---------------------------------------------------------------------------
+# Helper: activate micromamba bench env if it exists
+# ---------------------------------------------------------------------------
+activate_bench_env() {
+    if [ -d "$MICROMAMBA_ROOT/envs/bench" ] && [ -x "$MICROMAMBA_ROOT/bin/micromamba" ]; then
+        export MAMBA_ROOT_PREFIX="$MICROMAMBA_ROOT"
+        eval "$("$MICROMAMBA_ROOT/bin/micromamba" shell hook -s bash)"
+        micromamba activate bench 2>/dev/null || true
+    fi
+    # Always keep local bins available
+    export PATH="$LOCAL_BIN:$HOME/.cargo/bin:$PATH"
+}
+
+# ---------------------------------------------------------------------------
+# Helper: ensure micromamba is installed
+# ---------------------------------------------------------------------------
+ensure_micromamba() {
+    if [ ! -x "$MICROMAMBA_ROOT/bin/micromamba" ]; then
+        echo "  Installing micromamba..."
+        mkdir -p "$MICROMAMBA_ROOT/bin"
+        curl -sL https://micro.mamba.pm/api/micromamba/linux-64/latest \
+            | tar -xj -C "$MICROMAMBA_ROOT/bin" --strip-components=1 bin/micromamba
+        chmod +x "$MICROMAMBA_ROOT/bin/micromamba"
+    fi
+    export MAMBA_ROOT_PREFIX="$MICROMAMBA_ROOT"
+}
 
 # ============================================================================
 # 1. Check / install prerequisites (no sudo)
 # ============================================================================
 echo "[1/8] Checking prerequisites..."
 
-# Helper: bail with a message if a required system tool is missing
 require_cmd() {
     if ! command -v "$1" &>/dev/null; then
         echo "  [ERROR] Required command '$1' not found."
@@ -55,77 +84,70 @@ require_cmd curl     "curl"
 require_cmd gcc      "gcc / build-essential"
 require_cmd make     "make / build-essential"
 
-# Python >= 3.9 is required for matplotlib >= 3.7 and numpy >= 1.24.
-# If the system python3 is too old (or missing), install Python 3.11
-# via micromamba (no sudo needed).
-MICROMAMBA_ROOT="$WORKDIR/micromamba"
-PYTHON_BIN=""
+# -- Python >= 3.9 (install via micromamba if missing/old) --
+NEED_MAMBA_PYTHON=false
 if command -v python3 &>/dev/null; then
     PY_VER=$(python3 -c 'import sys; print(sys.version_info.minor)' 2>/dev/null || echo 0)
     if [ "$PY_VER" -ge 9 ] 2>/dev/null; then
-        PYTHON_BIN="python3"
         echo "  [OK] python3 ($(python3 --version))"
+    else
+        NEED_MAMBA_PYTHON=true
     fi
+else
+    NEED_MAMBA_PYTHON=true
 fi
-if [ -z "$PYTHON_BIN" ]; then
-    echo "  Python >= 3.9 not found. Installing Python 3.11 via micromamba..."
-    if [ ! -x "$MICROMAMBA_ROOT/bin/micromamba" ]; then
-        mkdir -p "$MICROMAMBA_ROOT/bin"
-        curl -sL https://micro.mamba.pm/api/micromamba/linux-64/latest \
-            | tar -xj -C "$MICROMAMBA_ROOT/bin" --strip-components=1 bin/micromamba
-        chmod +x "$MICROMAMBA_ROOT/bin/micromamba"
-    fi
-    export MAMBA_ROOT_PREFIX="$MICROMAMBA_ROOT/envs"
-    if [ ! -d "$MAMBA_ROOT_PREFIX/envs/bench" ]; then
-        "$MICROMAMBA_ROOT/bin/micromamba" create -y -n bench python=3.11 sra-tools -c conda-forge -c bioconda
+
+if [ "$NEED_MAMBA_PYTHON" = true ]; then
+    echo "  Python >= 3.9 not found."
+    ensure_micromamba
+    if [ ! -d "$MICROMAMBA_ROOT/envs/bench" ]; then
+        echo "  Creating micromamba bench env (python 3.11 + sra-tools)..."
+        "$MICROMAMBA_ROOT/bin/micromamba" create -y -n bench \
+            python=3.11 sra-tools -c conda-forge -c bioconda
     fi
     eval "$("$MICROMAMBA_ROOT/bin/micromamba" shell hook -s bash)"
     micromamba activate bench
-    PYTHON_BIN="python3"
     echo "  [OK] python3 via micromamba ($(python3 --version))"
 fi
 
-# cmake -- try to find it, or install locally
+# -- cmake (install locally if missing) --
 if ! command -v cmake &>/dev/null; then
-    echo "  cmake not found, installing locally..."
-    CMAKE_VER="3.28.3"
-    curl -sL "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz" \
-        | tar -xz -C "$WORKDIR"
-    ln -sf "$WORKDIR/cmake-${CMAKE_VER}-linux-x86_64/bin/cmake" "$LOCAL_BIN/cmake"
-    echo "  [OK] cmake (local install)"
+    if [ -x "$LOCAL_BIN/cmake" ]; then
+        echo "  [OK] cmake (local)"
+    else
+        echo "  Installing cmake locally..."
+        CMAKE_VER="3.28.3"
+        curl -sL "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz" \
+            | tar -xz -C "$WORKDIR"
+        ln -sf "$WORKDIR/cmake-${CMAKE_VER}-linux-x86_64/bin/cmake" "$LOCAL_BIN/cmake"
+        echo "  [OK] cmake (local install)"
+    fi
 else
     echo "  [OK] cmake"
 fi
 
-# Rust toolchain (user-local, no sudo)
+# -- Rust toolchain --
 if ! command -v cargo &>/dev/null; then
-    echo "  Installing Rust toolchain (user-local)..."
+    echo "  Installing Rust toolchain..."
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
     source "$HOME/.cargo/env"
 fi
 export PATH="$HOME/.cargo/bin:$PATH"
 echo "  [OK] cargo $(cargo --version 2>/dev/null | head -1)"
 
-# SRA toolkit (via micromamba if not already available)
+# -- SRA toolkit (via micromamba if not already available) --
+activate_bench_env
 if ! command -v fasterq-dump &>/dev/null; then
     echo "  fasterq-dump not found. Installing sra-tools via micromamba..."
-    # Ensure micromamba is available (may already be set up for Python)
-    if [ ! -x "$MICROMAMBA_ROOT/bin/micromamba" ]; then
-        mkdir -p "$MICROMAMBA_ROOT/bin"
-        curl -sL https://micro.mamba.pm/api/micromamba/linux-64/latest \
-            | tar -xj -C "$MICROMAMBA_ROOT/bin" --strip-components=1 bin/micromamba
-        chmod +x "$MICROMAMBA_ROOT/bin/micromamba"
-    fi
-    export MAMBA_ROOT_PREFIX="$MICROMAMBA_ROOT/envs"
-    # Install sra-tools into the bench env (create if needed)
-    if [ ! -d "$MAMBA_ROOT_PREFIX/envs/bench" ]; then
+    ensure_micromamba
+    if [ ! -d "$MICROMAMBA_ROOT/envs/bench" ]; then
         "$MICROMAMBA_ROOT/bin/micromamba" create -y -n bench sra-tools -c conda-forge -c bioconda
     else
         "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench sra-tools -c conda-forge -c bioconda
     fi
     eval "$("$MICROMAMBA_ROOT/bin/micromamba" shell hook -s bash)"
     micromamba activate bench
-    echo "  [OK] fasterq-dump (via micromamba: $(fasterq-dump --version 2>&1 | head -1))"
+    echo "  [OK] fasterq-dump via micromamba"
 else
     echo "  [OK] fasterq-dump"
 fi
@@ -135,74 +157,78 @@ echo ""
 # ============================================================================
 # 2. Clone and build seqproc + ANTISEQUENCE
 # ============================================================================
-echo "[2/8] Cloning and building seqproc + ANTISEQUENCE..."
+echo "[2/8] seqproc + ANTISEQUENCE..."
 mkdir -p "$WORKDIR/combine-lab"
 
-# ANTISEQUENCE (must be cloned first -- seqproc depends on it via path)
 if [ ! -d "$WORKDIR/combine-lab/ANTISEQUENCE" ]; then
     git clone --branch cleanup_and_final_touches \
         git@github.com:COMBINE-lab/ANTISEQUENCE.git \
         "$WORKDIR/combine-lab/ANTISEQUENCE"
 fi
 
-# seqproc
 if [ ! -d "$WORKDIR/combine-lab/seqproc" ]; then
     git clone --branch edit_distance_map \
         git@github.com:COMBINE-lab/seqproc.git \
         "$WORKDIR/combine-lab/seqproc"
 fi
 
-# Build seqproc (release mode)
-cd "$WORKDIR/combine-lab/seqproc"
-cargo build --release
-SEQPROC_BIN="$WORKDIR/combine-lab/seqproc/target/release/seqproc"
-echo "  seqproc binary: $SEQPROC_BIN"
-"$SEQPROC_BIN" --version || true
+if [ -x "$SEQPROC_BIN" ]; then
+    echo "  [SKIP] seqproc already built: $SEQPROC_BIN"
+else
+    echo "  Building seqproc (release)..."
+    cd "$WORKDIR/combine-lab/seqproc"
+    cargo build --release
+fi
+echo "  seqproc: $("$SEQPROC_BIN" --version 2>&1 || echo 'built')"
 
 # ============================================================================
 # 3. Clone and build matchbox
 # ============================================================================
-echo "[3/8] Cloning and building matchbox..."
+echo "[3/8] matchbox..."
 if [ ! -d "$WORKDIR/matchbox" ]; then
     git clone https://github.com/jakob-schuster/matchbox.git \
         "$WORKDIR/matchbox"
 fi
-cd "$WORKDIR/matchbox"
-cargo build --release
-MATCHBOX_BIN="$WORKDIR/matchbox/target/release/matchbox"
-echo "  matchbox binary: $MATCHBOX_BIN"
+
+if [ -x "$MATCHBOX_BIN" ]; then
+    echo "  [SKIP] matchbox already built: $MATCHBOX_BIN"
+else
+    echo "  Building matchbox (release)..."
+    cd "$WORKDIR/matchbox"
+    cargo build --release
+fi
 
 # ============================================================================
 # 4. Clone and build splitcode
 # ============================================================================
-echo "[4/8] Cloning and building splitcode..."
+echo "[4/8] splitcode..."
 if [ ! -d "$WORKDIR/splitcode" ]; then
     git clone https://github.com/pachterlab/splitcode.git \
         "$WORKDIR/splitcode"
 fi
-cd "$WORKDIR/splitcode"
-# GCC < 9 needs -lstdc++fs for std::filesystem support.
-# CMAKE_EXE_LINKER_FLAGS does not propagate to the splitcode target,
-# so we patch target_link_libraries in src/CMakeLists.txt directly.
-GCC_MAJOR=$(gcc -dumpversion | cut -d. -f1)
-if [ "$GCC_MAJOR" -lt 9 ] 2>/dev/null; then
-    if ! grep -q "stdc++fs" src/CMakeLists.txt; then
-        echo "  Patching splitcode for GCC $GCC_MAJOR (adding -lstdc++fs)..."
-        sed -i 's/target_link_libraries(splitcode splitcode_core pthread)/target_link_libraries(splitcode splitcode_core pthread stdc++fs)/' src/CMakeLists.txt
+
+if [ -x "$SPLITCODE_BIN" ]; then
+    echo "  [SKIP] splitcode already built: $SPLITCODE_BIN"
+else
+    echo "  Building splitcode..."
+    cd "$WORKDIR/splitcode"
+    # GCC < 9 needs -lstdc++fs for std::filesystem
+    GCC_MAJOR=$(gcc -dumpversion | cut -d. -f1)
+    if [ "$GCC_MAJOR" -lt 9 ] 2>/dev/null; then
+        if ! grep -q "stdc++fs" src/CMakeLists.txt; then
+            echo "  Patching splitcode for GCC $GCC_MAJOR (adding -lstdc++fs)..."
+            sed -i 's/target_link_libraries(splitcode splitcode_core pthread)/target_link_libraries(splitcode splitcode_core pthread stdc++fs)/' src/CMakeLists.txt
+        fi
     fi
+    rm -rf build && mkdir -p build && cd build
+    cmake .. && make -j"$THREADS"
 fi
-rm -rf build && mkdir -p build && cd build
-cmake .. && make -j"$THREADS"
-SPLITCODE_BIN="$WORKDIR/splitcode/build/src/splitcode"
-echo "  splitcode binary: $SPLITCODE_BIN"
 
 # ============================================================================
-# 5. Set up analysis repo
+# 5. Set up analysis repo + Python deps
 # ============================================================================
-echo "[5/8] Setting up analysis repo..."
+echo "[5/8] Analysis repo + Python deps..."
 
-# If this script is running from inside the cloned repo already, symlink it
-# into WORKDIR so paths are consistent. Otherwise clone fresh.
 if [ -f "$ANALYSIS_ROOT/scripts/run_all.sh" ]; then
     echo "  Running from cloned repo at $ANALYSIS_ROOT"
     if [ "$ANALYSIS_ROOT" != "$WORKDIR/seqproc-paper-analysis" ]; then
@@ -217,13 +243,15 @@ else
 fi
 
 cd "$WORKDIR/seqproc-paper-analysis"
+activate_bench_env
 
-# Python venv -- use the Python we identified in step 1
-if [ -d "$MAMBA_ROOT_PREFIX/envs/bench" ] 2>/dev/null; then
-    # micromamba env is already active, install directly
-    pip install -q -r requirements.txt
+# Install Python deps (into micromamba env or a venv)
+if [ -d "$MICROMAMBA_ROOT/envs/bench" ] 2>/dev/null; then
+    pip install -q -r requirements.txt 2>/dev/null || pip install -q -r requirements.txt
 else
-    $PYTHON_BIN -m venv venv
+    if [ ! -d venv ]; then
+        python3 -m venv venv
+    fi
     source venv/bin/activate
     pip install -q -r requirements.txt
 fi
@@ -232,51 +260,50 @@ fi
 # 6. Download FULL SRA datasets
 # ============================================================================
 echo "[6/8] Downloading full SRA datasets..."
-# Re-assert LOCAL_BIN on PATH (micromamba activation may have changed it)
-export PATH="$LOCAL_BIN:$HOME/.cargo/bin:$PATH"
+activate_bench_env
 mkdir -p "$WORKDIR/seqproc-paper-analysis/data/10x_short"
 cd "$WORKDIR/seqproc-paper-analysis/data"
 
-# SPLiT-seq PE (SRR6750041) -- ~86.8M paired-end reads, ~20 GB
 if [ ! -f SRR6750041_R1.fastq ]; then
     echo "  Downloading SRR6750041 (SPLiT-seq PE, ~20 GB)..."
     fasterq-dump --split-files SRR6750041 --threads "$THREADS"
     mv SRR6750041_1.fastq SRR6750041_R1.fastq
     mv SRR6750041_2.fastq SRR6750041_R2.fastq
     rm -rf SRR6750041/
-    # Also create 10M subset used by some configs
     head -40000000 SRR6750041_R1.fastq > SRR6750041_10M_R1.fastq
     head -40000000 SRR6750041_R2.fastq > SRR6750041_10M_R2.fastq
+else
+    echo "  [SKIP] SRR6750041 already present"
 fi
 
-# LR-SPLiT-seq (SRR13948564) -- ~4.2M single-end long reads
 if [ ! -f SRR13948564_full.fastq ]; then
     echo "  Downloading SRR13948564 (LR-SPLiT-seq, ~5 GB)..."
     fasterq-dump SRR13948564 --threads "$THREADS"
     mv SRR13948564.fastq SRR13948564_full.fastq
     rm -rf SRR13948564/
+else
+    echo "  [SKIP] SRR13948564 already present"
 fi
 
-# 10x Chromium v2 (SRR8315379) -- ~56.5M paired-end reads, ~10 GB
 if [ ! -f 10x_short/SRR8315379_R1.fastq ]; then
     echo "  Downloading SRR8315379 (10x Chromium v2, ~10 GB)..."
     fasterq-dump --split-files SRR8315379 --threads "$THREADS"
     mv SRR8315379_1.fastq 10x_short/SRR8315379_R1.fastq
     mv SRR8315379_2.fastq 10x_short/SRR8315379_R2.fastq
     rm -rf SRR8315379/
+else
+    echo "  [SKIP] SRR8315379 already present"
 fi
 
-# sci-RNA-seq3 (SRR7827254) -- ~10.2M paired-end reads, ~3 GB
 if [ ! -f SRR7827254_1.fastq ]; then
     echo "  Downloading SRR7827254 (sci-RNA-seq3, ~3 GB)..."
     fasterq-dump --split-files SRR7827254 --threads "$THREADS"
-    # fasterq-dump names them _1.fastq / _2.fastq which matches data_config.py
     rm -rf SRR7827254/
+else
+    echo "  [SKIP] SRR7827254 already present"
 fi
 
 cd "$WORKDIR/seqproc-paper-analysis"
-
-# Verify all data is present
 echo "  Verifying data availability..."
 python scripts/data_config.py --reads full
 
@@ -284,9 +311,8 @@ python scripts/data_config.py --reads full
 # 7. Run the full benchmark pipeline
 # ============================================================================
 echo "[7/8] Running full benchmark pipeline..."
-export SEQPROC_BIN
-export MATCHBOX_BIN
-export SPLITCODE_BIN
+activate_bench_env
+export SEQPROC_BIN MATCHBOX_BIN SPLITCODE_BIN
 
 chmod +x scripts/run_all.sh
 bash scripts/run_all.sh --reads full --threads "$THREADS" --replicates "$REPLICATES"
