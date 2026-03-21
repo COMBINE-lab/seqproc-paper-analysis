@@ -77,7 +77,7 @@ if [ -z "$PYTHON_BIN" ]; then
     fi
     export MAMBA_ROOT_PREFIX="$MICROMAMBA_ROOT/envs"
     if [ ! -d "$MAMBA_ROOT_PREFIX/envs/bench" ]; then
-        "$MICROMAMBA_ROOT/bin/micromamba" create -y -n bench python=3.11 -c conda-forge
+        "$MICROMAMBA_ROOT/bin/micromamba" create -y -n bench python=3.11 sra-tools -c conda-forge -c bioconda
     fi
     eval "$("$MICROMAMBA_ROOT/bin/micromamba" shell hook -s bash)"
     micromamba activate bench
@@ -106,20 +106,26 @@ fi
 export PATH="$HOME/.cargo/bin:$PATH"
 echo "  [OK] cargo $(cargo --version 2>/dev/null | head -1)"
 
-# SRA toolkit (user-local, no sudo)
+# SRA toolkit (via micromamba if not already available)
 if ! command -v fasterq-dump &>/dev/null; then
-    echo "  Installing SRA toolkit (user-local)..."
-    SRA_TMP="$WORKDIR/_sra_install"
-    mkdir -p "$SRA_TMP"
-    curl -L -o "$SRA_TMP/sratoolkit.tar.gz" \
-        https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz
-    tar -xzf "$SRA_TMP/sratoolkit.tar.gz" -C "$SRA_TMP"
-    SRA_DIR=$(ls -d "$SRA_TMP"/sratoolkit.* 2>/dev/null | head -1)
-    cp "$SRA_DIR/bin/fasterq-dump" "$LOCAL_BIN/"
-    cp "$SRA_DIR/bin/prefetch" "$LOCAL_BIN/"
-    chmod +x "$LOCAL_BIN/fasterq-dump" "$LOCAL_BIN/prefetch"
-    rm -rf "$SRA_TMP"
-    echo "  [OK] fasterq-dump (local install)"
+    echo "  fasterq-dump not found. Installing sra-tools via micromamba..."
+    # Ensure micromamba is available (may already be set up for Python)
+    if [ ! -x "$MICROMAMBA_ROOT/bin/micromamba" ]; then
+        mkdir -p "$MICROMAMBA_ROOT/bin"
+        curl -sL https://micro.mamba.pm/api/micromamba/linux-64/latest \
+            | tar -xj -C "$MICROMAMBA_ROOT/bin" --strip-components=1 bin/micromamba
+        chmod +x "$MICROMAMBA_ROOT/bin/micromamba"
+    fi
+    export MAMBA_ROOT_PREFIX="$MICROMAMBA_ROOT/envs"
+    # Install sra-tools into the bench env (create if needed)
+    if [ ! -d "$MAMBA_ROOT_PREFIX/envs/bench" ]; then
+        "$MICROMAMBA_ROOT/bin/micromamba" create -y -n bench sra-tools -c conda-forge -c bioconda
+    else
+        "$MICROMAMBA_ROOT/bin/micromamba" install -y -n bench sra-tools -c conda-forge -c bioconda
+    fi
+    eval "$("$MICROMAMBA_ROOT/bin/micromamba" shell hook -s bash)"
+    micromamba activate bench
+    echo "  [OK] fasterq-dump (via micromamba: $(fasterq-dump --version 2>&1 | head -1))"
 else
     echo "  [OK] fasterq-dump"
 fi
