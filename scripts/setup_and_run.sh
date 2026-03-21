@@ -302,9 +302,11 @@ if [ ! -f "$NCBI_SETTINGS" ]; then
     printf '/repository/user/main/public/root = "%s"\n' "$WORKDIR/ncbi_cache" > "$NCBI_SETTINGS"
 fi
 
-# Tell Python scripts where data lives (data_config.py reads this)
+# Tell Python scripts where data and configs live (data_config.py reads these)
 export SEQPROC_DATA_DIR="$DATA_DIR"
+export SEQPROC_PROJECT_ROOT="$ANALYSIS_ROOT"
 echo "  SEQPROC_DATA_DIR=$DATA_DIR"
+echo "  SEQPROC_PROJECT_ROOT=$ANALYSIS_ROOT"
 cd "$DATA_DIR"
 
 if [ ! -f SRR6750041_R1.fastq ]; then

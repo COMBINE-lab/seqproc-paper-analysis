@@ -20,7 +20,7 @@ import os
 from pathlib import Path
 from typing import Dict
 
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).parent.parent))
 DATA_DIR = Path(os.environ.get("SEQPROC_DATA_DIR", PROJECT_ROOT / "data"))
 CONFIGS = PROJECT_ROOT / "configs"
 
