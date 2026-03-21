@@ -70,9 +70,10 @@ fi
 if [ -z "$PYTHON_BIN" ]; then
     echo "  Python >= 3.9 not found. Installing Python 3.11 via micromamba..."
     if [ ! -x "$MICROMAMBA_ROOT/bin/micromamba" ]; then
-        mkdir -p "$MICROMAMBA_ROOT"
+        mkdir -p "$MICROMAMBA_ROOT/bin"
         curl -sL https://micro.mamba.pm/api/micromamba/linux-64/latest \
-            | tar -xvj -C "$MICROMAMBA_ROOT" --strip-components=1 bin/micromamba >/dev/null 2>&1
+            | tar -xj -C "$MICROMAMBA_ROOT/bin" --strip-components=1 bin/micromamba
+        chmod +x "$MICROMAMBA_ROOT/bin/micromamba"
     fi
     export MAMBA_ROOT_PREFIX="$MICROMAMBA_ROOT/envs"
     if [ ! -d "$MAMBA_ROOT_PREFIX/envs/bench" ]; then
