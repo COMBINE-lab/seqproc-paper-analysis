@@ -147,7 +147,13 @@ if [ ! -d "$WORKDIR/splitcode" ]; then
 fi
 cd "$WORKDIR/splitcode"
 mkdir -p build && cd build
-cmake .. && make -j"$THREADS"
+# GCC < 9 needs -lstdc++fs for std::filesystem support
+CMAKE_EXTRA=""
+GCC_MAJOR=$(gcc -dumpversion | cut -d. -f1)
+if [ "$GCC_MAJOR" -lt 9 ] 2>/dev/null; then
+    CMAKE_EXTRA="-DCMAKE_EXE_LINKER_FLAGS=-lstdc++fs"
+fi
+cmake .. $CMAKE_EXTRA && make -j"$THREADS"
 SPLITCODE_BIN="$WORKDIR/splitcode/build/src/splitcode"
 echo "  splitcode binary: $SPLITCODE_BIN"
 
