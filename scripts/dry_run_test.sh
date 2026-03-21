@@ -35,6 +35,13 @@ else
     WORKDIR="$HOME/seqproc-bench"
 fi
 
+# ── Activate micromamba bench env (same as setup_and_run.sh) ──
+MICROMAMBA_ROOT="$HOME/.micromamba"
+BENCH_BIN="$MICROMAMBA_ROOT/envs/bench/bin"
+if [ -d "$BENCH_BIN" ]; then
+    export PATH="$BENCH_BIN:$PATH"
+fi
+
 DATA_DIR="${SEQPROC_DATA_DIR:-$WORKDIR/data}"
 PROJECT_ROOT="${SEQPROC_PROJECT_ROOT:-$ANALYSIS_ROOT}"
 export SEQPROC_DATA_DIR="$DATA_DIR"
