@@ -38,6 +38,11 @@ PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).parent
 RESULTS_DIR = PROJECT_ROOT / "results" / "paper_figures"
 CHECKPOINT_FILE = RESULTS_DIR / ".benchmark_checkpoint.json"
 
+# Temp directory base: use scratch space (SEQPROC_DATA_DIR parent) instead of
+# /tmp which is often a small tmpfs that fills up with splitcode's large output.
+_data_dir = os.environ.get("SEQPROC_DATA_DIR", "")
+TMPDIR_BASE = str(Path(_data_dir).parent / "tmp") if _data_dir else None
+
 # Tool binaries
 SEQPROC_BIN = os.environ.get("SEQPROC_BIN", str(PROJECT_ROOT.parent / "combine-lab/seqproc/target/release/seqproc"))
 MATCHBOX_BIN = os.environ.get("MATCHBOX_BIN", str(PROJECT_ROOT.parent / "matchbox/target/release/matchbox"))
@@ -865,7 +870,7 @@ def run_benchmarks(threads: int, replicates: int, dataset_filter=None) -> List[B
         for rep in range(1, replicates + 1):
             print(f"\n  Replicate {rep}/{replicates}:")
             
-            with tempfile.TemporaryDirectory() as tmpdir:
+            with tempfile.TemporaryDirectory(dir=TMPDIR_BASE) as tmpdir:
                 for tool in dataset['tools']:
                     print(f"    {tool}...", end=" ", flush=True)
                     
