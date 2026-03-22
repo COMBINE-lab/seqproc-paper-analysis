@@ -92,7 +92,7 @@ def test_import_lr_perf_rerun():
 def test_import_run_paper_benchmarks():
     """run_paper_benchmarks module must be importable."""
     from run_paper_benchmarks import PROJECT_ROOT as PR
-    assert PR == PROJECT_ROOT
+    assert PR.resolve() == PROJECT_ROOT.resolve()
 
 
 # ============================================================================

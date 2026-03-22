@@ -351,19 +351,31 @@ class SplitSeqValidityAnalyzer:
 
 
 class SplitSeqSingleEndValidityAnalyzer:
-    """Analyzes SPLiT-seq Single-End reads for validity (d<=1)."""
-    
-    # SE Linkers (different from PE)
+    """Analyzes SPLiT-seq Single-End (PacBio long) reads for validity.
+
+    PacBio reads are long (~1 kb) and randomly oriented.  The barcode
+    structure can appear anywhere in the read:
+        [skip][UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:22][BC1:8][rest]
+    We locate Linker1 via fast exact substring search (str.find) on both
+    the forward read and its reverse complement, then extract barcodes
+    relative to the linker position and validate against whitelists.
+    """
+
     LINKER1 = "GTGGCCGATGTTTCGCATCGGCGTACGACT"  # 30bp
-    # Linker 2 is skipped in geometry but present in sequence: ATCCACGTGCTTGAGACTGTGG (22bp)
-    LINKER2 = "ATCCACGTGCTTGAGACTGTGG" 
-    
+
+    _COMP = str.maketrans('ACGTacgt', 'TGCAtgca')
+
     def __init__(self, bc1_map, bc2_map, bc3_map):
         self.bc1_wl = self._load_whitelist(bc1_map)
         self.bc2_wl = self._load_whitelist(bc2_map)
         self.bc3_wl = self._load_whitelist(bc3_map)
         self.valid_ids = set()
-        
+        self._linker1_rc = self.LINKER1.translate(self._COMP)[::-1]
+        # Detect barcode lengths from whitelist entries (BC1 is 6bp in PE whitelists)
+        self._bc3_len = len(next(iter(self.bc3_wl))) if self.bc3_wl else 8
+        self._bc2_len = len(next(iter(self.bc2_wl))) if self.bc2_wl else 8
+        self._bc1_len = len(next(iter(self.bc1_wl))) if self.bc1_wl else 8
+
     def _load_whitelist(self, path):
         wl = set()
         with open(path) as f:
@@ -372,40 +384,66 @@ class SplitSeqSingleEndValidityAnalyzer:
                 if len(parts) >= 2:
                     wl.add(parts[1])
         return wl
-        
-    def _hamming(self, s1, s2):
+
+    @staticmethod
+    def _hamming(s1, s2):
         if len(s1) != len(s2): return 99
         return sum(a != b for a, b in zip(s1, s2))
-    
+
     def _check_wl(self, bc, wl):
         """Check if barcode matches whitelist within Hamming distance 1."""
         if bc in wl: return True
         for cand in wl:
             if self._hamming(bc, cand) <= 1: return True
         return False
-        
-    def _find_linker(self, read, linker, start=0):
-        best_pos, best_dist = -1, 100
-        search_end = min(len(read) - len(linker) + 1, start + 40)
-        
-        for i in range(start, search_end):
-            dist = self._hamming(read[i:i+len(linker)], linker)
-            if dist < best_dist:
-                best_dist = dist
-                best_pos = i
-                if dist <= 1: break
-        return best_pos, best_dist
-        
+
+    def _rc(self, seq):
+        return seq.translate(self._COMP)[::-1]
+
+    def _try_extract(self, seq):
+        """Try to find Linker1 and extract barcodes.  Returns True if valid."""
+        # Fast exact search (O(N) via C-level str.find)
+        l1_pos = seq.find(self.LINKER1)
+        if l1_pos < 0:
+            return False
+        # Need UMI(10) + BC3 before linker
+        min_prefix = 10 + self._bc3_len
+        if l1_pos < min_prefix:
+            return False
+        # Need L1(30) + BC2 + L2(22) + BC1 after linker start
+        min_suffix = 30 + self._bc2_len + 22 + self._bc1_len
+        if l1_pos + min_suffix > len(seq):
+            return False
+
+        bc3 = seq[l1_pos - self._bc3_len : l1_pos]
+        bc2_start = l1_pos + 30
+        bc2 = seq[bc2_start : bc2_start + self._bc2_len]
+        bc1_start = bc2_start + self._bc2_len + 22
+        bc1 = seq[bc1_start : bc1_start + self._bc1_len]
+
+        if len(bc3) != self._bc3_len or len(bc2) != self._bc2_len or len(bc1) != self._bc1_len:
+            return False
+
+        return (self._check_wl(bc3, self.bc3_wl)
+                and self._check_wl(bc2, self.bc2_wl)
+                and self._check_wl(bc1, self.bc1_wl))
+
     def analyze_fastqs(self, r1_path):
-        """Analyze raw R1 FASTQ and return set of valid read IDs (d<=1)."""
+        """Analyze raw FASTQ and return set of valid read IDs.
+
+        Searches each read in both orientations (PacBio reads are randomly
+        oriented).  Uses exact linker matching for speed; HiFi reads have
+        ~1% error so ~74% of barcoded reads will have an error-free linker.
+        """
         cached = _load_validity_cache(r1_path, "splitseq_se")
         if cached is not None:
             self.valid_ids = cached
             return cached
 
-        print(f"    Analyzing raw input for validity (Single-End)...")
+        print(f"    Analyzing raw input for validity (Single-End, both orientations)...")
         valid_ids = set()
-        
+        total = 0
+
         with open(r1_path, 'r') as f:
             while True:
                 header = f.readline()
@@ -413,28 +451,23 @@ class SplitSeqSingleEndValidityAnalyzer:
                 seq = f.readline().strip()
                 f.readline()
                 f.readline()
-                
+
+                total += 1
+                if total % 500_000 == 0:
+                    print(f"      ...{total:,} reads scanned, {len(valid_ids):,} valid so far")
+
                 read_id = header.strip().split()[0].replace('@', '')
-                
-                # Structure: [UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:22][BC1:8]
-                # Find Linker 1
-                l1_pos, l1_dist = self._find_linker(seq, self.LINKER1, 10) # Start search after UMI+BC3 approx
-                if l1_dist > 3: continue
-                
-                # Check bounds
-                if l1_pos < 18: continue # Needs 10+8 before it
-                
-                bc3 = seq[l1_pos-8:l1_pos]
-                bc2 = seq[l1_pos+30:l1_pos+38]
-                bc1 = seq[l1_pos+30+8+22:l1_pos+30+8+22+8] # L1(30) + BC2(8) + L2(22)
-                
-                if len(bc3) != 8 or len(bc2) != 8 or len(bc1) != 8:
+
+                # Try forward orientation
+                if self._try_extract(seq):
+                    valid_ids.add(read_id)
                     continue
 
-                if self._check_wl(bc3, self.bc3_wl) and self._check_wl(bc2, self.bc2_wl) and self._check_wl(bc1, self.bc1_wl):
+                # Try reverse complement
+                if self._try_extract(self._rc(seq)):
                     valid_ids.add(read_id)
-                    
-        print(f"    Found {len(valid_ids):,} valid reads (d<=1) in input.")
+
+        print(f"    Found {len(valid_ids):,} valid reads (d<=1) in {total:,} input reads.")
         _save_validity_cache(r1_path, "splitseq_se", valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
