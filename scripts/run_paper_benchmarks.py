@@ -946,6 +946,13 @@ def run_benchmarks(threads: int, replicates: int, dataset_filter=None) -> List[B
                     else:
                         print(f"{runtime:.2f}s, {memory:.1f}MB, {reads:,} reads")
                         
+                    # Sanity guard: don't checkpoint obviously bad results.
+                    # If a tool produces fewer than 100 reads on a dataset
+                    # with millions of inputs, something went wrong.
+                    if reads < 100 and dataset.get('reads', 0) > 10000:
+                        print(f"\n    [SKIP CHECKPOINT] {tool} produced only {reads} reads (expected millions) -- will retry on next run")
+                        continue
+
                     result = BenchmarkResult(
                         dataset=dataset_key,
                         tool=tool,
@@ -1227,7 +1234,23 @@ def main():
                         help="Dataset size: '1m' (default) or 'full'")
     parser.add_argument('--fresh', action='store_true',
                         help='Clear checkpoint and re-run all benchmarks from scratch')
+    parser.add_argument('--purge', type=str, nargs='+', metavar='DATASET:TOOL:REP',
+                        help='Remove specific checkpoint entries (e.g. splitseq_pe_replacement:matchbox:2)')
     args = parser.parse_args()
+
+    if args.purge:
+        existing = _load_checkpoint()
+        before = len(existing)
+        for spec in args.purge:
+            parts = spec.split(':')
+            if len(parts) != 3:
+                print(f"  [PURGE] Invalid format '{spec}', expected DATASET:TOOL:REP")
+                continue
+            ds, tool, rep = parts[0], parts[1], int(parts[2])
+            existing = [r for r in existing if not (r.dataset == ds and r.tool == tool and r.replicate == rep)]
+            print(f"  [PURGE] Removed {ds}/{tool}/rep{rep}")
+        _save_checkpoint(existing)
+        print(f"  [PURGE] {before} -> {len(existing)} entries")
 
     if args.fresh and CHECKPOINT_FILE.exists():
         CHECKPOINT_FILE.unlink()
