@@ -1284,6 +1284,7 @@ def main():
             print(f"  [PURGE] Removed {ds}/{tool}/rep{rep}")
         _save_checkpoint(existing)
         print(f"  [PURGE] {before} -> {len(existing)} entries")
+        return
 
     if args.fresh and CHECKPOINT_FILE.exists():
         CHECKPOINT_FILE.unlink()
@@ -1304,6 +1305,9 @@ def main():
     if args.datasets:
         print(f"Datasets: {', '.join(args.datasets)}")
     
+    # Count checkpoint entries before running so we can detect if new work was done
+    pre_count = len(_load_checkpoint())
+
     # Run benchmarks
     results = run_benchmarks(args.threads, args.replicates, dataset_filter=args.datasets)
     
@@ -1318,10 +1322,13 @@ def main():
     generate_all_figures(results, output_dir)
     save_results_json(results, output_dir)
 
-    # All done -- remove checkpoint file (no longer needed)
-    if CHECKPOINT_FILE.exists():
+    # Only clear checkpoint if new benchmarks actually ran.
+    new_count = len(results) - pre_count
+    if new_count > 0 and CHECKPOINT_FILE.exists():
         CHECKPOINT_FILE.unlink()
-        print("  [CHECKPOINT] Cleared after successful completion")
+        print(f"  [CHECKPOINT] Cleared after successful completion ({new_count} new results)")
+    elif CHECKPOINT_FILE.exists():
+        print(f"  [CHECKPOINT] Kept -- no new benchmarks ran (all {len(results)} from checkpoint)")
     
     print("\n" + "=" * 70)
     print("COMPLETE")
