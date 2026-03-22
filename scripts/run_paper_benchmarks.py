@@ -137,7 +137,7 @@ DATASETS = {
         'r1': PROJECT_ROOT / 'data/SRR13948564_1M.fastq',
         'r2': None,
         'mode': 'single',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_singleend_primer_edit.geom',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_singleend_edit_ann.geom',
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_singleend.mb',
         'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_singleend.config',
         'seqproc_maps': [
