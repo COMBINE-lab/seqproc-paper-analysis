@@ -18,6 +18,7 @@ import subprocess
 import time
 import os
 import json
+import shutil
 import tempfile
 import argparse
 from pathlib import Path
@@ -35,6 +36,7 @@ from matplotlib.gridspec import GridSpec
 
 PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).parent.parent))
 RESULTS_DIR = PROJECT_ROOT / "results" / "paper_figures"
+CHECKPOINT_FILE = RESULTS_DIR / ".benchmark_checkpoint.json"
 
 # Tool binaries
 SEQPROC_BIN = os.environ.get("SEQPROC_BIN", str(PROJECT_ROOT.parent / "combine-lab/seqproc/target/release/seqproc"))
@@ -157,6 +159,44 @@ class BenchmarkResult:
     reads_out: int
     reads_valid: int  # New field for valid reads
     replicate: int
+
+
+# ============================================================================
+# Checkpoint Save / Load (survives crashes)
+# ============================================================================
+
+def _save_checkpoint(results: List['BenchmarkResult']):
+    """Incrementally save completed results so crashes don't lose work."""
+    CHECKPOINT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    data = [{
+        'dataset': r.dataset, 'tool': r.tool, 'runtime': r.runtime,
+        'memory_mb': r.memory_mb, 'reads_out': r.reads_out,
+        'reads_valid': r.reads_valid, 'replicate': r.replicate,
+    } for r in results]
+    tmp = str(CHECKPOINT_FILE) + '.tmp'
+    with open(tmp, 'w') as f:
+        json.dump(data, f, indent=2)
+    os.replace(tmp, str(CHECKPOINT_FILE))
+
+
+def _load_checkpoint() -> List['BenchmarkResult']:
+    """Load previously completed results from checkpoint file."""
+    if not CHECKPOINT_FILE.exists():
+        return []
+    try:
+        with open(CHECKPOINT_FILE) as f:
+            data = json.load(f)
+        results = [BenchmarkResult(**d) for d in data]
+        print(f"  [CHECKPOINT] Loaded {len(results)} completed result(s) from previous run")
+        return results
+    except (json.JSONDecodeError, TypeError, KeyError) as e:
+        print(f"  [CHECKPOINT] Could not load checkpoint ({e}), starting fresh")
+        return []
+
+
+def _checkpoint_has(results: List['BenchmarkResult'], dataset: str, tool: str, rep: int) -> bool:
+    """Check if a specific dataset+tool+replicate is already in the checkpoint."""
+    return any(r.dataset == dataset and r.tool == tool and r.replicate == rep for r in results)
 
 
 # ============================================================================
@@ -705,7 +745,7 @@ def run_matchbox(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, float
         # Remove stale files from previous runs before checking
         dst = Path(tmpdir) / fq
         if src.exists():
-            os.rename(src, dst)
+            shutil.move(str(src), str(dst))
             generated_fastqs.append(dst)
             
     if generated_fastqs:
@@ -773,8 +813,8 @@ def run_splitcode(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, floa
 # ============================================================================
 
 def run_benchmarks(threads: int, replicates: int, dataset_filter=None) -> List[BenchmarkResult]:
-    """Run all benchmarks."""
-    results = []
+    """Run all benchmarks with checkpoint/resume."""
+    results = _load_checkpoint()
     
     for dataset_key, dataset in DATASETS.items():
         if dataset_filter and dataset_key not in dataset_filter:
@@ -829,6 +869,11 @@ def run_benchmarks(threads: int, replicates: int, dataset_filter=None) -> List[B
                 for tool in dataset['tools']:
                     print(f"    {tool}...", end=" ", flush=True)
                     
+                    if _checkpoint_has(results, dataset_key, tool, rep):
+                        prev = [r for r in results if r.dataset == dataset_key and r.tool == tool and r.replicate == rep][0]
+                        print(f"[CHECKPOINT SKIP] {prev.runtime:.2f}s, {prev.memory_mb:.1f}MB, {prev.reads_out:,} reads")
+                        continue
+
                     if tool == 'seqproc':
                         runtime, memory, reads = run_seqproc(dataset, tmpdir, threads)
                     elif tool == 'matchbox':
@@ -896,7 +941,7 @@ def run_benchmarks(threads: int, replicates: int, dataset_filter=None) -> List[B
                     else:
                         print(f"{runtime:.2f}s, {memory:.1f}MB, {reads:,} reads")
                         
-                    results.append(BenchmarkResult(
+                    result = BenchmarkResult(
                         dataset=dataset_key,
                         tool=tool,
                         runtime=runtime,
@@ -904,7 +949,9 @@ def run_benchmarks(threads: int, replicates: int, dataset_filter=None) -> List[B
                         reads_out=reads,
                         reads_valid=reads_valid,
                         replicate=rep
-                    ))
+                    )
+                    results.append(result)
+                    _save_checkpoint(results)
     
     return results
 
@@ -1173,7 +1220,13 @@ def main():
                         help='Specific dataset keys to run (default: all)')
     parser.add_argument('--reads', type=str, choices=['1m', 'full'], default='1m',
                         help="Dataset size: '1m' (default) or 'full'")
+    parser.add_argument('--fresh', action='store_true',
+                        help='Clear checkpoint and re-run all benchmarks from scratch')
     args = parser.parse_args()
+
+    if args.fresh and CHECKPOINT_FILE.exists():
+        CHECKPOINT_FILE.unlink()
+        print("  [CHECKPOINT] Cleared -- starting fresh")
 
     # Override file paths for the requested reads level
     _apply_reads_level(args.reads)
@@ -1203,6 +1256,11 @@ def main():
     print("=" * 70)
     generate_all_figures(results, output_dir)
     save_results_json(results, output_dir)
+
+    # All done -- remove checkpoint file (no longer needed)
+    if CHECKPOINT_FILE.exists():
+        CHECKPOINT_FILE.unlink()
+        print("  [CHECKPOINT] Cleared after successful completion")
     
     print("\n" + "=" * 70)
     print("COMPLETE")
