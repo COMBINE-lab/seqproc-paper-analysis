@@ -15,6 +15,7 @@ Usage:
 """
 
 import subprocess
+import sys
 import time
 import os
 import json
@@ -43,10 +44,38 @@ CHECKPOINT_FILE = RESULTS_DIR / ".benchmark_checkpoint.json"
 _data_dir = os.environ.get("SEQPROC_DATA_DIR", "")
 TMPDIR_BASE = str(Path(_data_dir).parent / "tmp") if _data_dir else None
 
-# Tool binaries
-SEQPROC_BIN = os.environ.get("SEQPROC_BIN", str(PROJECT_ROOT.parent / "combine-lab/seqproc/target/release/seqproc"))
-MATCHBOX_BIN = os.environ.get("MATCHBOX_BIN", str(PROJECT_ROOT.parent / "matchbox/target/release/matchbox"))
-SPLITCODE_BIN = os.environ.get("SPLITCODE_BIN", str(PROJECT_ROOT.parent / "splitcode/build/src/splitcode"))
+# Tool binaries -- resolved by _find_binary() with multi-location fallback
+def _find_binary(env_var: str, name: str, relative_paths: list) -> str:
+    """Resolve a tool binary from env var, known relative paths, or PATH."""
+    import shutil
+    # 1. Explicit env var (highest priority)
+    val = os.environ.get(env_var)
+    if val and os.path.isfile(val) and os.access(val, os.X_OK):
+        return val
+    # 2. Search candidate directories
+    search_roots = [PROJECT_ROOT.parent]
+    # Also try WORKDIR derived from SEQPROC_DATA_DIR (e.g. /fs/.../bench)
+    if _data_dir:
+        search_roots.append(Path(_data_dir).parent)
+    for root in search_roots:
+        for rp in relative_paths:
+            candidate = root / rp
+            if candidate.is_file() and os.access(str(candidate), os.X_OK):
+                return str(candidate)
+    # 3. Fall back to PATH
+    found = shutil.which(name)
+    if found:
+        return found
+    # 4. Return the env var value (even if invalid) or best-guess default for
+    #    a clear error later in validate_environment().
+    return val or str(PROJECT_ROOT.parent / relative_paths[0])
+
+SEQPROC_BIN = _find_binary("SEQPROC_BIN", "seqproc",
+    ["combine-lab/seqproc/target/release/seqproc"])
+MATCHBOX_BIN = _find_binary("MATCHBOX_BIN", "matchbox",
+    ["matchbox/target/release/matchbox"])
+SPLITCODE_BIN = _find_binary("SPLITCODE_BIN", "splitcode",
+    ["splitcode/build/src/splitcode"])
 
 # Colors
 COLORS = {
@@ -1256,6 +1285,55 @@ def _apply_reads_level(reads_level: str):
             DATASETS[bench_key]["reads"] = src["reads"]
 
 
+def _validate_environment(dataset_filter=None):
+    """Check that tool binaries and data files exist before running benchmarks.
+
+    Exits with a clear error message if anything is missing, so the user
+    doesn't waste hours waiting for a failure mid-pipeline.
+    """
+    errors = []
+
+    # Check tool binaries
+    for label, path in [("seqproc", SEQPROC_BIN), ("matchbox", MATCHBOX_BIN),
+                        ("splitcode", SPLITCODE_BIN)]:
+        if not os.path.isfile(path) or not os.access(path, os.X_OK):
+            errors.append(f"  [MISSING] {label} binary: {path}")
+
+    # Check data files for requested datasets
+    for ds_key, ds in DATASETS.items():
+        if dataset_filter and ds_key not in dataset_filter:
+            continue
+        if not os.path.exists(ds['r1']):
+            errors.append(f"  [MISSING] {ds_key} R1: {ds['r1']}")
+        if ds.get('r2') and not os.path.exists(ds['r2']):
+            errors.append(f"  [MISSING] {ds_key} R2: {ds['r2']}")
+
+    if errors:
+        print("=" * 70)
+        print("ENVIRONMENT VALIDATION FAILED")
+        print("=" * 70)
+        for e in errors:
+            print(e)
+        print()
+        print("Hints:")
+        if not _data_dir:
+            print("  - SEQPROC_DATA_DIR is not set. Export it to point at the data directory.")
+            print("    Example: export SEQPROC_DATA_DIR=/fs/nexus-projects/seqproc/bench/data")
+        print("  - Set SEQPROC_BIN, MATCHBOX_BIN, SPLITCODE_BIN env vars, OR")
+        print("    set SEQPROC_DATA_DIR so binaries can be found relative to its parent.")
+        print("  - Or run via setup_and_run.sh which sets all env vars automatically.")
+        sys.exit(1)
+
+    # Print resolved paths for transparency
+    print("  [ENV] seqproc:   " + SEQPROC_BIN)
+    print("  [ENV] matchbox:  " + MATCHBOX_BIN)
+    print("  [ENV] splitcode: " + SPLITCODE_BIN)
+    if _data_dir:
+        print(f"  [ENV] data dir:  {_data_dir}")
+    if TMPDIR_BASE:
+        print(f"  [ENV] tmp dir:   {TMPDIR_BASE}")
+
+
 def main():
     parser = argparse.ArgumentParser(description='Run all paper benchmarks')
     parser.add_argument('--threads', type=int, default=4, help='Number of threads')
@@ -1295,6 +1373,9 @@ def main():
     
     output_dir = Path(args.output) if args.output else RESULTS_DIR
     
+    # Validate environment before starting expensive work
+    _validate_environment(args.datasets)
+    
     print("=" * 70)
     print("SEQPROC PAPER BENCHMARKS")
     print("=" * 70)
@@ -1322,13 +1403,12 @@ def main():
     generate_all_figures(results, output_dir)
     save_results_json(results, output_dir)
 
-    # Only clear checkpoint if new benchmarks actually ran.
-    new_count = len(results) - pre_count
-    if new_count > 0 and CHECKPOINT_FILE.exists():
-        CHECKPOINT_FILE.unlink()
-        print(f"  [CHECKPOINT] Cleared after successful completion ({new_count} new results)")
-    elif CHECKPOINT_FILE.exists():
-        print(f"  [CHECKPOINT] Kept -- no new benchmarks ran (all {len(results)} from checkpoint)")
+    # Never clear the checkpoint -- it allows re-runs to skip completed work
+    # (e.g. after purging a single bad entry).  Results are already persisted
+    # in benchmark_results.json and the generated figures.
+    if CHECKPOINT_FILE.exists():
+        new_count = len(results) - pre_count
+        print(f"  [CHECKPOINT] Kept ({len(results)} total entries, {new_count} new this run)")
     
     print("\n" + "=" * 70)
     print("COMPLETE")
