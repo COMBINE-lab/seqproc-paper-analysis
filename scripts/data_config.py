@@ -17,12 +17,52 @@ Usage from other scripts:
 """
 
 import os
+import shutil
 from pathlib import Path
 from typing import Dict
 
 PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).parent.parent))
 DATA_DIR = Path(os.environ.get("SEQPROC_DATA_DIR", PROJECT_ROOT / "data"))
 CONFIGS = PROJECT_ROOT / "configs"
+
+# ============================================================================
+# Tool binary auto-discovery (shared by all benchmark scripts)
+# ============================================================================
+
+def _find_binary(env_var: str, name: str, relative_paths: list) -> str:
+    """Resolve a tool binary from env var, known relative paths, or PATH."""
+    # 1. Explicit env var (highest priority)
+    val = os.environ.get(env_var)
+    if val and os.path.isfile(val) and os.access(val, os.X_OK):
+        return val
+    # 2. Search candidate directories
+    _data_dir = os.environ.get("SEQPROC_DATA_DIR", "")
+    search_roots = [PROJECT_ROOT.parent]
+    if _data_dir:
+        search_roots.append(Path(_data_dir).parent)
+    for root in search_roots:
+        for rp in relative_paths:
+            candidate = root / rp
+            if candidate.is_file() and os.access(str(candidate), os.X_OK):
+                return str(candidate)
+    # 3. Fall back to PATH
+    found = shutil.which(name)
+    if found:
+        return found
+    # 4. Return best-guess default for a clear error later.
+    return val or str(PROJECT_ROOT.parent / relative_paths[0])
+
+
+def resolve_binaries() -> Dict[str, str]:
+    """Return dict with resolved paths for seqproc, matchbox, splitcode."""
+    return {
+        "seqproc": _find_binary("SEQPROC_BIN", "seqproc",
+            ["combine-lab/seqproc/target/release/seqproc"]),
+        "matchbox": _find_binary("MATCHBOX_BIN", "matchbox",
+            ["matchbox/target/release/matchbox"]),
+        "splitcode": _find_binary("SPLITCODE_BIN", "splitcode",
+            ["splitcode/build/src/splitcode"]),
+    }
 
 # ============================================================================
 # SRA accessions and full read counts (from SRA metadata)

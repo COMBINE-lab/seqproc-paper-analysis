@@ -13,6 +13,7 @@ Usage:
 """
 
 import subprocess
+import shutil
 import time
 import os
 import json
@@ -27,19 +28,6 @@ from typing import Dict, Set, Tuple
 PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).parent.parent))
 RESULTS_DIR = PROJECT_ROOT / "results" / "concordance"
 
-SEQPROC_BIN = os.environ.get(
-    "SEQPROC_BIN",
-    str(PROJECT_ROOT.parent / "combine-lab/seqproc/target/release/seqproc")
-)
-MATCHBOX_BIN = os.environ.get(
-    "MATCHBOX_BIN",
-    str(PROJECT_ROOT.parent / "matchbox/target/release/matchbox")
-)
-SPLITCODE_BIN = os.environ.get(
-    "SPLITCODE_BIN",
-    str(PROJECT_ROOT.parent / "splitcode/build/src/splitcode")
-)
-
 CONFIGS = PROJECT_ROOT / "configs"
 
 # --------------------------------------------------------------------------
@@ -49,7 +37,16 @@ CONFIGS = PROJECT_ROOT / "configs"
 # When run as __main__, --reads controls the dataset size.
 # --------------------------------------------------------------------------
 
-from data_config import resolve_datasets, add_reads_arg, TOOL_CONFIGS
+from data_config import resolve_datasets, add_reads_arg, TOOL_CONFIGS, resolve_binaries, DATA_DIR
+
+_bins = resolve_binaries()
+SEQPROC_BIN = _bins["seqproc"]
+MATCHBOX_BIN = _bins["matchbox"]
+SPLITCODE_BIN = _bins["splitcode"]
+
+# Temp directory base: use scratch space instead of /tmp which fills up
+_data_dir = os.environ.get("SEQPROC_DATA_DIR", "")
+TMPDIR_BASE = str(Path(_data_dir).parent / "tmp") if _data_dir else None
 
 # Default to 1M subsets; overridden in main() when --reads is specified.
 DATASETS = resolve_datasets("1m")
@@ -61,9 +58,13 @@ DATASETS = resolve_datasets("1m")
 
 def run_cmd(cmd: str, cwd=None) -> Tuple[float, float, int, str]:
     """Run command, return (runtime_s, peak_mem_mb, returncode, stderr)."""
+    env = None
+    if TMPDIR_BASE:
+        os.makedirs(TMPDIR_BASE, exist_ok=True)
+        env = {**os.environ, "TMPDIR": TMPDIR_BASE}
     time_cmd = f"/usr/bin/time -v {cmd}"
     start = time.time()
-    result = subprocess.run(time_cmd, shell=True, capture_output=True, text=True, cwd=cwd)
+    result = subprocess.run(time_cmd, shell=True, capture_output=True, text=True, cwd=cwd, env=env)
     runtime = time.time() - start
 
     peak_mem_kb = 0
@@ -190,7 +191,7 @@ def run_matchbox(dataset: dict, outdir: Path,
         src = PROJECT_ROOT / fq_name
         if src.exists():
             dst = outdir / fq_name
-            os.rename(src, dst)
+            shutil.move(str(src), str(dst))
             moved[fq_name] = dst
 
     # Extract IDs: prefer R2 for paired-end (consistent with seqproc/splitcode)

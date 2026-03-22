@@ -109,7 +109,7 @@ echo ""
 echo "========================================================================"
 echo "--- Step 3: Discordant Read Validation (Supp. Fig S1) ---"
 echo "========================================================================"
-"$PYTHON" "$SCRIPT_DIR/discordant_analysis.py"
+"$PYTHON" "$SCRIPT_DIR/discordant_analysis.py" --reads "$READS"
 
 # Step 4: Generate all publication figures
 echo ""

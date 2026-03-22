@@ -10,12 +10,15 @@ Primary question: Are splitcode's 77K+ unique SPLiT-seq PE reads structurally
 valid or false positives?
 """
 
+import argparse
 import json
 import os
 import random
 import sys
 from pathlib import Path
 from collections import Counter
+
+from data_config import resolve_datasets, add_reads_arg
 
 PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).parent.parent))
 RESULTS_DIR = PROJECT_ROOT / "results" / "concordance"
@@ -248,6 +251,12 @@ def print_analysis(label, results, total_reads):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Discordant Read Characterization')
+    add_reads_arg(parser)
+    args = parser.parse_args()
+
+    datasets = resolve_datasets(args.reads)
+
     print("=" * 70)
     print("DISCORDANT READ CHARACTERIZATION")
     print("=" * 70)
@@ -257,7 +266,7 @@ def main():
     bc1_wl = load_whitelist(PROJECT_ROOT / "configs/seqproc/splitseq_bc1_whitelist_6bp.txt")
     print(f"Loaded whitelists: BC2/3={len(bc23_wl)} entries, BC1={len(bc1_wl)} entries (6bp)")
 
-    r2_path = PROJECT_ROOT / "data/SRR6750041_1M_R2.fastq"
+    r2_path = datasets["splitseq_pe"]["r2"]
     if not r2_path.exists():
         print(f"[ERROR] R2 data not found: {r2_path}")
         sys.exit(1)
