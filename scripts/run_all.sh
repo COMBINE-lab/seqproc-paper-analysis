@@ -92,7 +92,8 @@ echo "========================================================================"
 "$PYTHON" "$SCRIPT_DIR/run_paper_benchmarks.py" \
     --threads "$THREADS" \
     --replicates "$REPLICATES" \
-    --reads "$READS"
+    --reads "$READS" \
+    --datasets splitseq_pe_raw splitseq_se_raw 10x_short sciseq
 
 # Step 2: Concordance analysis (Figures 3-5 data)
 echo ""
