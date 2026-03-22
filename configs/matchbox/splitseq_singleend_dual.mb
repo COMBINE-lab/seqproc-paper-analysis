@@ -1,5 +1,5 @@
-linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
-linker2 = ATCCACGTGCTTGAGACTGTGG
+linker1 = GTGGCCGCTGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGAGGCCAGAGCATTCG
 
 if read matches {
     [_ umi:|10| bc3:|8| linker1 bc2:|8| linker2 bc1:|8| rest:_] =>
