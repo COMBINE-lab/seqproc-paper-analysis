@@ -164,11 +164,17 @@ def run_matchbox(dataset: dict, outdir: Path,
     """Run matchbox and return (read_id_set, runtime, memory_mb)."""
     out_tsv = outdir / "matchbox_out.tsv"
 
-    # Clean stale matchbox output files
+    # Clean stale matchbox output files in outdir
     for fq in ['mb_r1.fq', 'mb_r2.fq']:
-        stale = PROJECT_ROOT / fq
+        stale = outdir / fq
         if stale.exists():
             stale.unlink()
+
+    # Symlink configs into outdir so matchbox csv() relative paths resolve
+    # when we run from outdir (on /fs/) instead of PROJECT_ROOT (NFS).
+    configs_link = outdir / "configs"
+    if not configs_link.exists():
+        configs_link.symlink_to(CONFIGS.parent / "configs")
 
     # Build args using explicit matchbox_paired flag (not name-based dispatch)
     if dataset.get('matchbox_paired', False):
@@ -179,26 +185,25 @@ def run_matchbox(dataset: dict, outdir: Path,
     cmd = (f"{MATCHBOX_BIN} -e 0.2 -t {threads} "
            f"-s {dataset['matchbox_config']} {args} > {out_tsv}")
 
-    runtime, mem, rc, stderr = run_cmd(cmd, PROJECT_ROOT)
+    # Run from outdir so .out!() FASTQ files land on scratch, not NFS
+    runtime, mem, rc, stderr = run_cmd(cmd, str(outdir))
     if rc != 0:
         print(f"    [ERROR] matchbox failed (rc={rc})")
         print(f"    stderr: {stderr[-500:]}")
         return set(), runtime, mem
 
-    # Move generated FASTQ files (replacement configs write to PROJECT_ROOT)
-    moved = {}
+    # Collect FASTQ files (.out!() now writes directly to outdir)
+    found = {}
     for fq_name in ['mb_r1.fq', 'mb_r2.fq']:
-        src = PROJECT_ROOT / fq_name
-        if src.exists():
-            dst = outdir / fq_name
-            shutil.move(str(src), str(dst))
-            moved[fq_name] = dst
+        fq_path = outdir / fq_name
+        if fq_path.exists():
+            found[fq_name] = fq_path
 
     # Extract IDs: prefer R2 for paired-end (consistent with seqproc/splitcode)
     ids = set()
-    if moved:
+    if found:
         prefer = 'mb_r2.fq' if dataset['mode'] == 'paired' else 'mb_r1.fq'
-        id_src = moved.get(prefer) or next(iter(moved.values()))
+        id_src = found.get(prefer) or next(iter(found.values()))
         ids = extract_fastq_ids(str(id_src))
 
     # Fallback to TSV
