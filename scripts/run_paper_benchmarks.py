@@ -1113,7 +1113,10 @@ def generate_all_figures(results: List[BenchmarkResult], output_dir: Path):
         
         for ds_key in all_datasets:
             ds_info = DATASETS[ds_key]
-            total_input = ds_info['reads']
+            # Count actual FASTQ reads (SRA metadata can be wrong)
+            total_input = count_fastq_reads(str(ds_info['r1']))
+            if total_input == 0:
+                total_input = ds_info['reads']
             
             for tool in ['seqproc', 'matchbox', 'splitcode']:
                 if tool in data[ds_key]:
@@ -1229,9 +1232,13 @@ def save_results_json(results: List[BenchmarkResult], output_dir: Path):
     
     summary = {}
     for ds_key, tool_data in data.items():
+        # Count actual FASTQ reads (SRA metadata can be wrong)
+        actual_input = count_fastq_reads(str(DATASETS[ds_key]['r1']))
+        if actual_input == 0:
+            actual_input = DATASETS[ds_key]['reads']
         summary[ds_key] = {
             'name': DATASETS[ds_key]['name'],
-            'total_reads': DATASETS[ds_key]['reads'],
+            'total_reads': actual_input,
             'tools': {}
         }
         for tool, runs in tool_data.items():
@@ -1242,8 +1249,8 @@ def save_results_json(results: List[BenchmarkResult], output_dir: Path):
                 'mean_memory_mb': float(np.mean([r['memory_mb'] for r in runs])),
                 'mean_reads_out': int(np.mean([r['reads_out'] for r in runs])),
                 'mean_reads_valid': int(mean_valid),
-                'recovery_rate': float(np.mean([r['reads_out'] for r in runs]) / DATASETS[ds_key]['reads'] * 100),
-                'valid_rate': float(mean_valid / DATASETS[ds_key]['reads'] * 100) if mean_valid > 0 else 0.0
+                'recovery_rate': float(np.mean([r['reads_out'] for r in runs]) / actual_input * 100),
+                'valid_rate': float(mean_valid / actual_input * 100) if mean_valid > 0 else 0.0
             }
     
     with open(output_dir / 'benchmark_results.json', 'w') as f:

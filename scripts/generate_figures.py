@@ -17,6 +17,7 @@ Usage:
 
 import json
 import os
+import sys
 import shutil
 import numpy as np
 import matplotlib
@@ -24,6 +25,10 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from pathlib import Path
+
+# Allow importing data_config from the scripts directory
+sys.path.insert(0, str(Path(__file__).parent))
+from data_config import resolve_datasets
 
 PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).parent.parent))
 
@@ -72,6 +77,43 @@ PERF_TO_CONCORDANCE = {
 }
 
 
+def _count_fastq_reads(filepath):
+    """Count reads in a FASTQ file (lines / 4)."""
+    fp = str(filepath)
+    if not os.path.exists(fp):
+        return 0
+    with open(fp, 'r') as f:
+        lines = sum(1 for _ in f)
+    return lines // 4
+
+
+def _fix_total_reads(concordance):
+    """Recompute total_reads and recovery_pct from actual FASTQ read counts.
+
+    SRA metadata can disagree with the actual FASTQ file size (e.g. for 10x
+    and sci-RNA-seq3 the SRA spot count != per-file read count).  This function
+    counts the R1 FASTQ on disk and patches the concordance dict in place.
+    """
+    reads_level = os.environ.get("SEQPROC_READS", "full")
+    try:
+        datasets = resolve_datasets(reads_level)
+    except Exception:
+        datasets = {}
+
+    for ds_key, entry in concordance.items():
+        ds_cfg = datasets.get(ds_key)
+        if ds_cfg and ds_cfg.get('r1'):
+            actual = _count_fastq_reads(ds_cfg['r1'])
+            if actual > 0 and actual != entry.get('total_reads', 0):
+                old = entry.get('total_reads', 0)
+                print(f"  [FIX] {ds_key}: total_reads {old:,} -> {actual:,} (from FASTQ)")
+                entry['total_reads'] = actual
+                # Recompute recovery_pct
+                for tool, count in entry.get('recovery', {}).items():
+                    entry.setdefault('recovery_pct', {})[tool] = round(
+                        count / actual * 100, 2)
+
+
 def load_data():
     """Load concordance results and performance benchmark results.
 
@@ -83,6 +125,9 @@ def load_data():
     if concordance_path.exists():
         with open(concordance_path) as f:
             concordance = json.load(f)
+
+    # Fix total_reads from actual FASTQ counts (SRA metadata may be wrong)
+    _fix_total_reads(concordance)
 
     # Back up original performance data before it gets overwritten
     if not PERF_BACKUP.exists() and PERF_JSON.exists():

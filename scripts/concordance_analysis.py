@@ -91,6 +91,15 @@ def extract_fastq_ids(filepath: str) -> Set[str]:
     return ids
 
 
+def count_fastq_reads(filepath: str) -> int:
+    """Count reads in a FASTQ file (lines / 4)."""
+    if not os.path.exists(filepath):
+        return 0
+    with open(filepath, 'r') as f:
+        lines = sum(1 for _ in f)
+    return lines // 4
+
+
 def extract_tsv_ids(filepath: str) -> Set[str]:
     """Extract read IDs from first column of a TSV file."""
     ids = set()
@@ -499,12 +508,18 @@ def run_dataset_analysis(
     # ----------------------------------------------------------------
     # Assemble results
     # ----------------------------------------------------------------
+    # Count actual input reads from FASTQ (SRA metadata can be wrong)
+    actual_input = count_fastq_reads(str(dataset['r1']))
+    if actual_input == 0:
+        actual_input = dataset["reads"]
+    print(f"\n  Input reads (from FASTQ): {actual_input:,}")
+
     result = {
         "name": dataset["name"],
-        "total_reads": dataset["reads"],
+        "total_reads": actual_input,
         "performance": perf,
         "recovery": {t: len(ids) for t, ids in id_sets.items()},
-        "recovery_pct": {t: round(len(ids) / dataset["reads"] * 100, 2)
+        "recovery_pct": {t: round(len(ids) / actual_input * 100, 2)
                          for t, ids in id_sets.items()},
         "concordance": concordance,
         "discordant": discordant,
