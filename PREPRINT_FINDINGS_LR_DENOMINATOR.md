@@ -79,6 +79,35 @@ structurally valid output." Both are true. The first is the right headline.
 7. **Methods section**: add the paragraph in `paper/sections/methods.tex` defining both metrics and clarifying the validator's strictness (exact `str.find()` linker; Hamming ≤ 1 barcode).
 8. **Finalize splitcode dual-pass row** once `splitcode_lr_dual_validate.py` completes.
 
+## Methodology note: precision is not cross-tool comparable
+
+The three tools emit different output formats:
+
+- `splitcode` preserves the original full-length read including the linker (~2.3 KB per record).
+- `seqproc` emits a compact record containing only the extracted barcode block (~112 B per record); the linker is stripped during extraction.
+- `matchbox` emits a TSV of barcode columns; no FASTQ sequence at all.
+
+The structural-validity script (`SplitSeqSingleEndValidityAnalyzer`) is a `str.find()` linker scanner: it operates only on formats that preserve the linker. On the full LR-SPLiT-seq dataset:
+
+- splitcode forward: 17.5% of emitted reads validate (1.58M emit → 277k valid).
+- splitcode dual-pass: 17.3% (2.98M emit → 516k valid).
+- seqproc: 0% by this validator (linker absent by design — extraction is the tool's job).
+- matchbox: not testable in this format (TSV, not FASTQ).
+- raw input direct scan: V_total = 489,305 = 8.49% of input.
+
+**The 17.5% number characterizes splitcode's output verbosity, not its biological correctness.** Reads splitcode emits whose linker has been corrupted beyond exact-match recovery still contain a barcode region a downstream tool could try to use; the validator simply can't confirm them. Direct precision comparison across the three tools is not meaningful; the supplementary note must say so explicitly. The headline cross-tool comparison uses Ceiling Recall (read-ID level, format-agnostic) for this reason.
+
+## Final Ceiling Recall numbers (LR-SPLiT-seq, against union-with-dual-pass-splitcode)
+
+| Tool | Emit | Ceiling Recall (denom 3,068,359) |
+|---|---:|---:|
+| seqproc | 2,864,547 | **93.36%** |
+| matchbox | 2,039,475 | 66.47% |
+| splitcode (forward) | 1,583,449 | 51.61% |
+| splitcode (dual-pass) | 2,984,418 | **97.26%** |
+
+Ceiling = 3,068,359 = 53.23% of 5,764,421 input reads. The remaining 46.77% of input is consistent with expected PacBio long-read sequencing/library noise (~1% per-base error compounding across four critical anchor regions, no-insert reads, off-target priming).
+
 ## What does NOT need to be re-run
 
 - **No tool re-runs are required.** All three tools' emit IDs and runtimes are
