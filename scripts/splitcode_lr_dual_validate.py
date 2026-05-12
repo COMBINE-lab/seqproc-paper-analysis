@@ -80,7 +80,12 @@ def run_cmd(cmd: str) -> Tuple[float, float, int, str]:
     """Run shell cmd under /usr/bin/time -v. Returns (runtime_s, peak_mem_mb, exit, stderr)."""
     full_cmd = f"/usr/bin/time -v {cmd}"
     start = time.time()
-    result = subprocess.run(full_cmd, shell=True, capture_output=True, text=True)
+    # Compat: capture_output/text were added in Python 3.7; spell them out for 3.6.
+    result = subprocess.run(
+        full_cmd, shell=True,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        universal_newlines=True,
+    )
     runtime = time.time() - start
     peak_kb = 0
     exit_code = result.returncode
