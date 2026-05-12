@@ -76,7 +76,7 @@ SRA_INFO = {
     },
     "SRR13948564": {
         "description": "LR-SPLiT-seq (PacBio Sequel II long-read)",
-        "full_reads": 4_229_250,
+        "full_reads": 5_764_421,
         "download_cmd": "fasterq-dump SRR13948564",
     },
     "SRR8315379": {
