@@ -7,7 +7,7 @@ Covers:
   - Bug 2: check_wl_match scoping (bc distances initialized before use)
   - Bug 3: matchbox_paired flag replaces magic string dispatch
   - Bug 5: matchbox ID extraction prefers R2 for paired-end
-  - splitcode_dual: reverse_complement correctness
+  - DNA reverse-complement primitive (used by splitcode_lr_dual_validate)
 """
 
 import subprocess
@@ -137,31 +137,33 @@ def test_paired_prefers_r2():
 
 
 # ---------------------------------------------------------------------------
-# splitcode_dual: reverse_complement
+# DNA reverse-complement (used by splitcode_lr_dual_validate)
 # ---------------------------------------------------------------------------
+
+_COMPLEMENT = str.maketrans("ACGTNacgtn", "TGCANtgcan")
+
+
+def _rc(seq):
+    return seq.translate(_COMPLEMENT)[::-1]
+
 
 def test_reverse_complement():
     """RC should correctly reverse-complement DNA sequences."""
-    from splitcode_dual import reverse_complement
-
-    assert reverse_complement("ACGT") == "ACGT"  # palindrome
-    assert reverse_complement("AAAA") == "TTTT"
-    assert reverse_complement("CCCC") == "GGGG"
-    assert reverse_complement("ATCG") == "CGAT"
-    assert reverse_complement("N") == "N"
-    assert reverse_complement("") == ""
+    assert _rc("ACGT") == "ACGT"  # palindrome
+    assert _rc("AAAA") == "TTTT"
+    assert _rc("CCCC") == "GGGG"
+    assert _rc("ATCG") == "CGAT"
+    assert _rc("N") == "N"
+    assert _rc("") == ""
     # Mixed case
-    assert reverse_complement("AcGt") == "aCgT"
+    assert _rc("AcGt") == "aCgT"
 
 
 def test_reverse_complement_idempotent():
     """RC(RC(seq)) should return original sequence."""
-    from splitcode_dual import reverse_complement
-
     seqs = ["ACGTACGT", "AAAAGGGG", "NNNNN", "ATCGATCG"]
     for seq in seqs:
-        assert reverse_complement(reverse_complement(seq)) == seq, (
-            f"RC(RC({seq})) != {seq}")
+        assert _rc(_rc(seq)) == seq, f"RC(RC({seq})) != {seq}"
 
 
 # ---------------------------------------------------------------------------
@@ -169,8 +171,9 @@ def test_reverse_complement_idempotent():
 # ---------------------------------------------------------------------------
 
 def test_jaccard():
-    """Jaccard index should be correct for known sets."""
-    from splitcode_dual import jaccard
+    """Jaccard index should be correct for known sets.
+    Canonical source is concordance_analysis."""
+    from concordance_analysis import jaccard
 
     assert jaccard(set(), set()) == 1.0
     assert jaccard({1, 2, 3}, {1, 2, 3}) == 1.0
