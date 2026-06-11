@@ -2,7 +2,7 @@
 # Structure: [_][barcode_rc:16][primer_rc:22][_]
 # Primer: CTACACGACGCTCTTCCGATCT -> RC: AGATCGGAAGAGCGTCGTGTAG
 
-primer_rc = anchor_relative(edit(f[AGATCGGAAGAGCGTCGTGTAG], 3))
+#[search(relative)] #[edit(3)] primer_rc = f[AGATCGGAAGAGCGTCGTGTAG]
 bc_rc = b[16]
 umi_rc = u[12]
 rest_rc = r:

@@ -1,14 +1,20 @@
 # seqproc Paper Analysis
 
-Benchmarking and accuracy analysis scripts for the seqproc paper, comparing seqproc against matchbox and splitcode on SPLiT-seq and 10x Genomics data.
+Benchmarking and accuracy analysis for the seqproc paper, comparing seqproc
+against matchbox and splitcode across four single-cell RNA-seq chemistries.
 
-## Final Results
+## Paper Artifacts
 
-The final results used in the paper are located in:
-- **`results/paper_figures_revised/`**: Main SPLiT-seq benchmark figures (Runtime, Recovery, Correlation).
-- **`results/paper_figures/`**: Comprehensive benchmark tables (Recovery, Performance) across all datasets (SPLiT-seq PE, SE, 10x Long Read).
-- **`results/precision_recall/`**: Precision-recall analysis (Figure E style).
-- **`docs/FINAL_REPORT.md`**: Comprehensive summary of the findings.
+Each paper figure and table has a dedicated directory containing a README with
+reproduction instructions, links to configs, scripts, and output files.
+
+| Directory | Paper artifact | Description |
+|-----------|---------------|-------------|
+| [`table2/`](table2/) | Table 1 | Benchmark summary: recovery, runtime, memory |
+| [`fig_recovery/`](fig_recovery/) | Figure 3 | Read recovery comparison bar chart |
+| [`fig_concordance/`](fig_concordance/) | Figure 4 | Pairwise concordance heatmaps (Jaccard) |
+| [`fig_hamming_vs_edit/`](fig_hamming_vs_edit/) | Figure 5 | Hamming vs edit distance comparison |
+| [`fig_discordant/`](fig_discordant/) | Supp. Figure S1 | Discordant read recovery breakdown |
 
 ## Quick Start
 
@@ -22,102 +28,126 @@ export MATCHBOX_BIN=/path/to/matchbox
 export SPLITCODE_BIN=/path/to/splitcode
 ```
 
-## Reproduction Steps
+## Full Reproduction
 
-The following scripts were used to generate the data for the final paper draft.
-
-### 1. Main Paper Benchmarks (Tables & Figures)
-This script runs the core benchmarks across multiple datasets (SPLiT-seq Paired-End, SPLiT-seq Single-End, 10x GridION, 10x PromethION) to generate the performance distribution and recovery tables.
-
-**Script:** `scripts/run_paper_benchmarks.py`
-**Output:** `results/paper_figures/` (Figures 1, 2, 3 and `benchmark_results.json`)
+To reproduce all paper results from scratch:
 
 ```bash
-# Run benchmarks with 3 replicates (requires ~1M reads/dataset in data/)
+# Step 1: Run performance benchmarks (Table 1)
 python scripts/run_paper_benchmarks.py --threads 4 --replicates 3
+
+# Step 2: Run concordance analysis (Figs 3-5 data)
+python scripts/concordance_analysis.py --threads 4
+
+# Step 3: Run discordant read structural validation (Supp. Fig S1 data)
+python scripts/discordant_analysis.py
+
+# Step 4: Generate all figures and combined JSON
+python scripts/generate_figures.py
+
+# Step 5: (Optional) Re-run LR-SPLiT-seq performance with current config
+python scripts/lr_perf_rerun.py --threads 4 --reps 3
 ```
 
-**Datasets involved:**
-- SPLiT-seq PE (`SRR6750041`)
-- SPLiT-seq SE Long Read (`SRR13948564`)
-- 10x GridION (`ERR9958134`)
-- 10x PromethION (`ERR9958135`)
+### Datasets
 
-### 2. Precision-Recall Analysis (Figure 3/E)
-Generates synthetic data with known ground truth to evaluate precision and recall at different error tolerances.
+| Dataset | SRA Accession | Reads | Mode |
+|---------|---------------|-------|------|
+| SPLiT-seq PE | SRR6750041 | 1,000,000 | paired-end |
+| LR-SPLiT-seq | SRR13948564 | 1,000,000 | single-end |
+| 10x Chromium v2 | SRR8315379 | 1,000,000 | paired-end |
+| sci-RNA-seq3 | SRR7827254 | 1,000,000 | paired-end |
 
-**Script:** `scripts/run_precision_recall.py`
-**Output:** `results/precision_recall/fig_precision_recall.png`
+FASTQ files are stored in `data/` (gitignored).
+
+## Testing
 
 ```bash
-python scripts/run_precision_recall.py --num-reads 50000 --threads 4
+# Run the full regression test suite (73 tests)
+python -m pytest tests/ -v
 ```
 
-### 3. 10x Chromium v2 Benchmark (Splitcode)
-Validates Splitcode performance on 10x Chromium v2 short reads using an optimized positional extraction configuration. This was used to correct the "N/A" entries in the initial draft.
-
-**Script:** `scripts/benchmark_splitcode_10x.py`
-**Config:** `configs/splitcode/10x_v2_user.config`
-**Output:** Console output (Runtime, Memory, Recovery %)
-
-```bash
-python scripts/benchmark_splitcode_10x.py
-```
-
-### 4. SPLiT-seq Concordance (Seqproc vs Split-pipe)
-Calculates the Jaccard index and concordance metrics between seqproc extracted reads and the vendor's `split-pipe` output.
-
-**Script:** `scripts/compare_splitseq.py`
-**Prerequisites:** Requires `seqproc` output FASTQ and `split-pipe` output `barcode_head.fastq`.
-
-```bash
-python scripts/compare_splitseq.py \
-    --seqproc /path/to/seqproc_R2.fq \
-    --splitpipe /path/to/splitpipe_barcode_head.fastq
-```
-
-### 5. Sci-Seq 3 Jaccard Analysis
-Performs a pairwise intersection analysis (Jaccard index) of recovered read IDs between `seqproc`, `matchbox`, and `splitcode` on the Sci-Seq 3 dataset (`SRR7827254`).
-
-**Script:** `scripts/sciseq_jaccard_analysis.py`
-**Output:** Console output (Intersection counts, Jaccard indices, Unique reads per tool)
-
-```bash
-python scripts/sciseq_jaccard_analysis.py
-```
-
-## Configurations
-
-The analysis relies on specific configuration files for each tool:
-
-### seqproc (`configs/seqproc/`)
-- `splitseq_real.geom`: Main SPLiT-seq geometry (Anchor Relative).
-- `splitseq_filter.geom`: "Locked-in" geometry with whitelist filtering (referenced in Final Report).
-- `10x_longread_fwd.geom` / `_rev.geom`: Dual-pass geometry for 10x Long Read (GridION/PromethION) to handle mixed orientation.
-- `sciseq3.geom`: Geometry for Sci-Seq 3 analysis.
-
-### matchbox (`configs/matchbox/`)
-- `splitseq.mb`: SPLiT-seq configuration script.
-- `10x_longread.mb`: 10x Long Read configuration.
-
-### splitcode (`configs/splitcode/`)
-- `splitseq_paper.config`: Main SPLiT-seq configuration.
-- `10x_v2_user.config`: Optimized positional extraction config for 10x v2.
-- `sciseq3.config`: Configuration for Sci-Seq 3.
+Tests cover script compilation, module imports, path resolution, banned
+terminology guards, result integrity, figure determinism, and bug-fix
+regression checks. A pre-commit hook runs the suite automatically before
+every commit.
 
 ## Directory Structure
 
 ```
-├── configs/                    # Tool configurations (.geom, .mb, .config)
-├── data/                       # Input datasets (not included in repo)
-├── docs/                       # Final reports and analysis summaries
-├── paper_summaries/            # detailed daily summaries of analysis steps
-├── results/
-│   ├── paper_figures/          # Final Benchmark Tables & Plots
-│   ├── paper_figures_revised/  # Revised SPLiT-seq specific figures
-│   └── precision_recall/       # Precision-recall analysis results
-└── scripts/                    # Analysis and plotting scripts
+table2/                     # --> Paper Table 1 reproduction README
+fig_recovery/               # --> Paper Figure 3 reproduction README
+fig_concordance/            # --> Paper Figure 4 reproduction README
+fig_hamming_vs_edit/        # --> Paper Figure 5 reproduction README
+fig_discordant/             # --> Paper Supp. Figure S1 reproduction README
+configs/
+  seqproc/                  # EFGDL geometry files (.geom) + whitelists
+  matchbox/                 # Matchbox pattern files (.mb) + support CSVs
+  splitcode/                # Splitcode config files (.config)
+scripts/
+  run_paper_benchmarks.py   # Main benchmark runner (Table 1)
+  concordance_analysis.py   # Pairwise concordance + hamming vs edit
+  discordant_analysis.py    # Structural validation of tool-unique reads
+  generate_figures.py       # Publication figure generation
+  lr_perf_rerun.py          # LR-SPLiT-seq performance re-run
+  splitcode_dual.py         # Splitcode dual-orientation helper
+data/                       # Input FASTQ datasets (gitignored)
+results/
+  paper_figures/            # Final figures (PDF + PNG), benchmark JSON
+  concordance/              # Pairwise concordance analysis outputs
+  orientation/              # Orientation benchmark outputs
+  lr_perf/                  # LR-SPLiT-seq performance re-run results
+  splitseq_pe_perf/         # SPLiT-seq PE performance re-run results
+tests/
+  test_regression.py        # Comprehensive regression test suite
+  test_benchmark_pipeline.py # Bug-fix unit tests
+  conftest.py               # Shared pytest fixtures
 ```
+
+## Configurations
+
+### seqproc (`configs/seqproc/`)
+
+| Config | Dataset | Notes |
+|--------|---------|-------|
+| `splitseq_filter_edit.geom` | SPLiT-seq PE | Edit distance, whitelist filtering |
+| `splitseq_filter_hamming6.geom` | SPLiT-seq PE | Hamming baseline for comparison |
+| `splitseq_replacement_edit.geom` | SPLiT-seq PE | Replacement mode variant |
+| `splitseq_singleend_edit_ann.geom` | LR-SPLiT-seq | Annotation + edit distance |
+| `splitseq_singleend_ann.geom` | LR-SPLiT-seq | Annotation + hamming |
+| `splitseq_singleend_edit.geom` | LR-SPLiT-seq | Forward-only + edit |
+| `splitseq_singleend.geom` | LR-SPLiT-seq | Forward-only + hamming |
+| `splitseq_singleend_primer_edit.geom` | LR-SPLiT-seq | Primer-based variant |
+| `10x_v2.geom` | 10x Chromium v2 | Fixed-position extraction |
+| `10x_longread_fwd_edit.geom` | 10x Long Read | Forward orientation |
+| `10x_longread_rev_edit.geom` | 10x Long Read | Reverse orientation |
+| `sciseq3.geom` | sci-RNA-seq3 | Hamming baseline |
+| `sciseq3_edit.geom` | sci-RNA-seq3 | Edit distance |
+
+Support files: `splitseq_bc1_whitelist_6bp.txt`, `splitseq_bc23_whitelist.txt`
+
+### matchbox (`configs/matchbox/`)
+
+| Config | Dataset |
+|--------|---------|
+| `splitseq_replacement.mb` | SPLiT-seq PE |
+| `splitseq_singleend.mb` | LR-SPLiT-seq (forward) |
+| `splitseq_singleend_dual.mb` | LR-SPLiT-seq (dual orientation) |
+| `10x_v2.mb` | 10x Chromium v2 |
+| `10x_longread.mb` | 10x Long Read |
+| `sciseq3.mb` | sci-RNA-seq3 |
+
+Support files: `rt.csv`, `r2_r3.txt`
+
+### splitcode (`configs/splitcode/`)
+
+| Config | Dataset |
+|--------|---------|
+| `splitseq_paper.config` | SPLiT-seq PE |
+| `splitseq_singleend.config` | LR-SPLiT-seq |
+| `10x_v2.config` | 10x Chromium v2 |
+| `10x_longread.config` | 10x Long Read |
+| `sciseq3.config` | sci-RNA-seq3 |
 
 ## Citation
 

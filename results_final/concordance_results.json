@@ -1,0 +1,323 @@
+{
+  "splitseq_pe": {
+    "name": "SPLiT-seq PE",
+    "total_reads": 86820578,
+    "performance": {
+      "seqproc_edit": {
+        "runtime": 98.23,
+        "memory_mb": 175.9
+      },
+      "matchbox": {
+        "runtime": 1269.1,
+        "memory_mb": 23046.4
+      },
+      "splitcode": {
+        "runtime": 115.13,
+        "memory_mb": 1291.3
+      }
+    },
+    "recovery": {
+      "seqproc": 65705225,
+      "matchbox": 60828797,
+      "splitcode": 71290130
+    },
+    "recovery_pct": {
+      "seqproc": 75.68,
+      "matchbox": 70.06,
+      "splitcode": 82.11
+    },
+    "concordance": {
+      "tools": {
+        "matchbox": 60828797,
+        "seqproc": 65705225,
+        "splitcode": 71290130
+      },
+      "pairwise": [
+        {
+          "tool_a": "matchbox",
+          "tool_b": "seqproc",
+          "both": 60828121,
+          "matchbox_only": 676,
+          "seqproc_only": 4877104,
+          "jaccard": 0.9258,
+          "union": 65705901
+        },
+        {
+          "tool_a": "matchbox",
+          "tool_b": "splitcode",
+          "both": 60682215,
+          "matchbox_only": 146582,
+          "splitcode_only": 10607915,
+          "jaccard": 0.8495,
+          "union": 71436712
+        },
+        {
+          "tool_a": "seqproc",
+          "tool_b": "splitcode",
+          "both": 65502402,
+          "seqproc_only": 202823,
+          "splitcode_only": 5787728,
+          "jaccard": 0.9162,
+          "union": 71492953
+        }
+      ]
+    },
+    "discordant": {
+      "matchbox_unique": 262,
+      "seqproc_unique": 56503,
+      "splitcode_unique": 5787314,
+      "all_tools_consensus": 60681801,
+      "any_tool_union": 71493215
+    },
+    "hamming_vs_edit": {
+      "hamming_reads": 62708563,
+      "edit_reads": 65705225,
+      "both": 62705999,
+      "hamming_only": 2564,
+      "edit_only": 2999226,
+      "edit_gain": 2996662,
+      "edit_gain_pct": 4.78,
+      "jaccard": 0.9543,
+      "hamming_runtime": 127.45,
+      "hamming_memory_mb": 173.7
+    }
+  },
+  "lr_splitseq": {
+    "name": "LR-SPLiT-seq",
+    "total_reads": 4229250,
+    "performance": {
+      "seqproc_edit": {
+        "runtime": 18.54,
+        "memory_mb": 253.3
+      },
+      "matchbox": {
+        "runtime": 23.96,
+        "memory_mb": 987.0
+      },
+      "splitcode": {
+        "runtime": 29.08,
+        "memory_mb": 550.6
+      }
+    },
+    "recovery": {
+      "seqproc": 2864547,
+      "matchbox": 2039475,
+      "splitcode": 1583449
+    },
+    "recovery_pct": {
+      "seqproc": 67.73,
+      "matchbox": 48.22,
+      "splitcode": 37.44
+    },
+    "concordance": {
+      "tools": {
+        "matchbox": 2039475,
+        "seqproc": 2864547,
+        "splitcode": 1583449
+      },
+      "pairwise": [
+        {
+          "tool_a": "matchbox",
+          "tool_b": "seqproc",
+          "both": 2033916,
+          "matchbox_only": 5559,
+          "seqproc_only": 830631,
+          "jaccard": 0.7087,
+          "union": 2870106
+        },
+        {
+          "tool_a": "matchbox",
+          "tool_b": "splitcode",
+          "both": 1059711,
+          "matchbox_only": 979764,
+          "splitcode_only": 523738,
+          "jaccard": 0.4134,
+          "union": 2563213
+        },
+        {
+          "tool_a": "seqproc",
+          "tool_b": "splitcode",
+          "both": 1481225,
+          "seqproc_only": 1383322,
+          "splitcode_only": 102224,
+          "jaccard": 0.4993,
+          "union": 2966771
+        }
+      ]
+    },
+    "discordant": {
+      "matchbox_unique": 3073,
+      "seqproc_unique": 406631,
+      "splitcode_unique": 99738,
+      "all_tools_consensus": 1057225,
+      "any_tool_union": 2969844
+    },
+    "hamming_vs_edit": {
+      "hamming_reads": 2478775,
+      "edit_reads": 2864547,
+      "both": 2478212,
+      "hamming_only": 563,
+      "edit_only": 386335,
+      "edit_gain": 385772,
+      "edit_gain_pct": 15.56,
+      "jaccard": 0.865,
+      "hamming_runtime": 12.47,
+      "hamming_memory_mb": 249.1
+    }
+  },
+  "10x_short": {
+    "name": "10x Chromium v2 Short Read",
+    "total_reads": 56514800,
+    "performance": {
+      "seqproc_edit": {
+        "runtime": 466.63,
+        "memory_mb": 140.9
+      },
+      "matchbox": {
+        "runtime": 653.23,
+        "memory_mb": 42947.0
+      },
+      "splitcode": {
+        "runtime": 381.18,
+        "memory_mb": 1260.2
+      }
+    },
+    "recovery": {
+      "seqproc": 234382218,
+      "matchbox": 234382218,
+      "splitcode": 234382218
+    },
+    "recovery_pct": {
+      "seqproc": 414.73,
+      "matchbox": 414.73,
+      "splitcode": 414.73
+    },
+    "concordance": {
+      "tools": {
+        "matchbox": 234382218,
+        "seqproc": 234382218,
+        "splitcode": 234382218
+      },
+      "pairwise": [
+        {
+          "tool_a": "matchbox",
+          "tool_b": "seqproc",
+          "both": 234382218,
+          "matchbox_only": 0,
+          "seqproc_only": 0,
+          "jaccard": 1.0,
+          "union": 234382218
+        },
+        {
+          "tool_a": "matchbox",
+          "tool_b": "splitcode",
+          "both": 234382218,
+          "matchbox_only": 0,
+          "splitcode_only": 0,
+          "jaccard": 1.0,
+          "union": 234382218
+        },
+        {
+          "tool_a": "seqproc",
+          "tool_b": "splitcode",
+          "both": 234382218,
+          "seqproc_only": 0,
+          "splitcode_only": 0,
+          "jaccard": 1.0,
+          "union": 234382218
+        }
+      ]
+    },
+    "discordant": {
+      "matchbox_unique": 0,
+      "seqproc_unique": 0,
+      "splitcode_unique": 0,
+      "all_tools_consensus": 234382218,
+      "any_tool_union": 234382218
+    },
+    "hamming_vs_edit": {}
+  },
+  "sciseq": {
+    "name": "sci-RNA-seq3",
+    "total_reads": 10177866,
+    "performance": {
+      "seqproc_edit": {
+        "runtime": 33.6,
+        "memory_mb": 138.5
+      },
+      "matchbox": {
+        "runtime": 177.41,
+        "memory_mb": 3197.8
+      },
+      "splitcode": {
+        "runtime": 36.07,
+        "memory_mb": 1831.8
+      }
+    },
+    "recovery": {
+      "seqproc": 19879895,
+      "matchbox": 19980569,
+      "splitcode": 19695955
+    },
+    "recovery_pct": {
+      "seqproc": 195.32,
+      "matchbox": 196.31,
+      "splitcode": 193.52
+    },
+    "concordance": {
+      "tools": {
+        "matchbox": 19980569,
+        "seqproc": 19879895,
+        "splitcode": 19695955
+      },
+      "pairwise": [
+        {
+          "tool_a": "matchbox",
+          "tool_b": "seqproc",
+          "both": 19879895,
+          "matchbox_only": 100674,
+          "seqproc_only": 0,
+          "jaccard": 0.995,
+          "union": 19980569
+        },
+        {
+          "tool_a": "matchbox",
+          "tool_b": "splitcode",
+          "both": 19695955,
+          "matchbox_only": 284614,
+          "splitcode_only": 0,
+          "jaccard": 0.9858,
+          "union": 19980569
+        },
+        {
+          "tool_a": "seqproc",
+          "tool_b": "splitcode",
+          "both": 19695955,
+          "seqproc_only": 183940,
+          "splitcode_only": 0,
+          "jaccard": 0.9907,
+          "union": 19879895
+        }
+      ]
+    },
+    "discordant": {
+      "matchbox_unique": 100674,
+      "seqproc_unique": 0,
+      "splitcode_unique": 0,
+      "all_tools_consensus": 19695955,
+      "any_tool_union": 19980569
+    },
+    "hamming_vs_edit": {
+      "hamming_reads": 19695955,
+      "edit_reads": 19879895,
+      "both": 19695955,
+      "hamming_only": 0,
+      "edit_only": 183940,
+      "edit_gain": 183940,
+      "edit_gain_pct": 0.93,
+      "jaccard": 0.9907,
+      "hamming_runtime": 27.59,
+      "hamming_memory_mb": 138.0
+    }
+  }
+}

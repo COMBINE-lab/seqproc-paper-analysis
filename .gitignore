@@ -4,7 +4,7 @@ __pycache__/
 .venv/
 venv/
 
-# Results (large files)
+# Results (large output files)
 results/*/
 
 # Data files
@@ -12,6 +12,9 @@ results/*/
 *.fastq.gz
 *.fq
 *.fq.gz
+*.sra
+*.bam
+data/
 
 # IDE
 .vscode/
@@ -19,8 +22,3 @@ results/*/
 
 # OS
 .DS_Store
-
-# Large data files
-data/10x/
-*.sra
-*.fastq

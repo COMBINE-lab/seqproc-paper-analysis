@@ -1,4 +1,4 @@
-primer = anchor_relative(edit(f[CTACACGACGCTCTTCCGATCT], 4))
+#[search(relative)] #[edit(4)] primer = f[CTACACGACGCTCTTCCGATCT]
 bc = b[16]
 umi = u[12]
 rest = r:
