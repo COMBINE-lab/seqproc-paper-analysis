@@ -69,17 +69,6 @@ def test_import_discordant_analysis():
         f"RESULTS_DIR should contain 'concordance', got {RD}")
 
 
-def test_import_splitcode_dual():
-    """splitcode_dual module must be importable with correct constants."""
-    from splitcode_dual import (
-        RESULTS_DIR as RD, reverse_complement, jaccard
-    )
-    assert "concordance" in str(RD) and "lr_splitseq" in str(RD), (
-        f"RESULTS_DIR should be concordance/lr_splitseq, got {RD}")
-    assert callable(reverse_complement)
-    assert callable(jaccard)
-
-
 def test_import_lr_perf_rerun():
     """lr_perf_rerun module must be importable with correct RESULTS_DIR."""
     from lr_perf_rerun import RESULTS_DIR as RD
@@ -526,35 +515,12 @@ def test_paired_prefers_r2():
     assert prefer == 'mb_r1.fq'
 
 
-# --- splitcode_dual: reverse_complement ---
-
-def test_reverse_complement():
-    """RC should correctly reverse-complement DNA sequences."""
-    from splitcode_dual import reverse_complement
-
-    assert reverse_complement("ACGT") == "ACGT"
-    assert reverse_complement("AAAA") == "TTTT"
-    assert reverse_complement("CCCC") == "GGGG"
-    assert reverse_complement("ATCG") == "CGAT"
-    assert reverse_complement("N") == "N"
-    assert reverse_complement("") == ""
-    assert reverse_complement("AcGt") == "aCgT"
-
-
-def test_reverse_complement_idempotent():
-    """RC(RC(seq)) should return original sequence."""
-    from splitcode_dual import reverse_complement
-
-    seqs = ["ACGTACGT", "AAAAGGGG", "NNNNN", "ATCGATCG"]
-    for seq in seqs:
-        assert reverse_complement(reverse_complement(seq)) == seq
-
-
 # --- Jaccard index ---
 
 def test_jaccard():
-    """Jaccard index should be correct for known sets."""
-    from splitcode_dual import jaccard
+    """Jaccard index should be correct for known sets.
+    Imports jaccard from concordance_analysis (the canonical source)."""
+    from concordance_analysis import jaccard
 
     assert jaccard(set(), set()) == 1.0
     assert jaccard({1, 2, 3}, {1, 2, 3}) == 1.0
