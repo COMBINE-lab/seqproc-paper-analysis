@@ -1,5 +1,5 @@
 # definitions
-anchor = edit(f[CAGAGC], 1)
+#[edit(1)] anchor = f[CAGAGC]
 brc1 = norm(b[9-10])
 brc2 = b[10]
 umi = u[8]

@@ -15,9 +15,11 @@ Usage:
 """
 
 import subprocess
+import sys
 import time
 import os
 import json
+import shutil
 import tempfile
 import argparse
 from pathlib import Path
@@ -33,13 +35,47 @@ from matplotlib.gridspec import GridSpec
 # Configuration
 # ============================================================================
 
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).parent.parent))
 RESULTS_DIR = PROJECT_ROOT / "results" / "paper_figures"
+CHECKPOINT_FILE = RESULTS_DIR / ".benchmark_checkpoint.json"
 
-# Tool binaries
-SEQPROC_BIN = os.environ.get("SEQPROC_BIN", str(PROJECT_ROOT.parent / "seqproc/target/release/seqproc"))
-MATCHBOX_BIN = os.environ.get("MATCHBOX_BIN", str(PROJECT_ROOT.parent / "matchbox/target/release/matchbox"))
-SPLITCODE_BIN = os.environ.get("SPLITCODE_BIN", str(PROJECT_ROOT.parent / "splitcode/build/src/splitcode"))
+# Temp directory base: use scratch space (SEQPROC_DATA_DIR parent) instead of
+# /tmp which is often a small tmpfs that fills up with splitcode's large output.
+_data_dir = os.environ.get("SEQPROC_DATA_DIR", "")
+TMPDIR_BASE = str(Path(_data_dir).parent / "tmp") if _data_dir else None
+
+# Tool binaries -- resolved by _find_binary() with multi-location fallback
+def _find_binary(env_var: str, name: str, relative_paths: list) -> str:
+    """Resolve a tool binary from env var, known relative paths, or PATH."""
+    import shutil
+    # 1. Explicit env var (highest priority)
+    val = os.environ.get(env_var)
+    if val and os.path.isfile(val) and os.access(val, os.X_OK):
+        return val
+    # 2. Search candidate directories
+    search_roots = [PROJECT_ROOT.parent]
+    # Also try WORKDIR derived from SEQPROC_DATA_DIR (e.g. /fs/.../bench)
+    if _data_dir:
+        search_roots.append(Path(_data_dir).parent)
+    for root in search_roots:
+        for rp in relative_paths:
+            candidate = root / rp
+            if candidate.is_file() and os.access(str(candidate), os.X_OK):
+                return str(candidate)
+    # 3. Fall back to PATH
+    found = shutil.which(name)
+    if found:
+        return found
+    # 4. Return the env var value (even if invalid) or best-guess default for
+    #    a clear error later in validate_environment().
+    return val or str(PROJECT_ROOT.parent / relative_paths[0])
+
+SEQPROC_BIN = _find_binary("SEQPROC_BIN", "seqproc",
+    ["combine-lab/seqproc/target/release/seqproc"])
+MATCHBOX_BIN = _find_binary("MATCHBOX_BIN", "matchbox",
+    ["matchbox/target/release/matchbox"])
+SPLITCODE_BIN = _find_binary("SPLITCODE_BIN", "splitcode",
+    ["splitcode/build/src/splitcode"])
 
 # Colors
 COLORS = {
@@ -48,38 +84,40 @@ COLORS = {
     'splitcode': '#7B2D8E',
 }
 
-# Dataset configurations
+# Dataset configurations -- file paths are overridden at startup via
+# _apply_reads_level() when --reads is specified.
 reads = 1000000
 
 DATASETS = {
-    # Raw extraction benchmarks
+    # SPLiT-seq PE -- filter + edit distance (Table 2 primary config)
     'splitseq_pe_raw': {
-        'name': 'SPLiT-seq PE (Raw)',
+        'name': 'SPLiT-seq PE',
         'short_name': 'SPLiT-seq PE',
         'category': 'raw',
-        'r1': PROJECT_ROOT / 'data/SRR6750041_1M_R1.fastq',
-        'r2': PROJECT_ROOT / 'data/SRR6750041_1M_R2.fastq',
+        'r1': PROJECT_ROOT / 'data/SRR6750041_10M_R1.fastq',
+        'r2': PROJECT_ROOT / 'data/SRR6750041_10M_R2.fastq',
         'mode': 'paired',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_filter.geom',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_filter_edit.geom',
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_replacement.mb',
+        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_paper.config',
         'seqproc_maps': [
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc3_seq2seq.tsv',
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc2_seq2seq.tsv',
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc1_seq2seq.tsv',
         ],
-        'reads': 1_000_000,
-        'tools': ['seqproc', 'matchbox'],
+        'reads': 10_000_000,
+        'tools': ['seqproc', 'matchbox', 'splitcode'],
     },
 
-    # Replacement benchmark (seqproc vs splitcode)
+    # SPLiT-seq PE -- replacement + edit distance (supplementary config)
     'splitseq_pe_replacement': {
         'name': 'SPLiT-seq PE (Replacement)',
         'short_name': 'SPLiT-seq PE Replace',
         'category': 'replacement',
-        'r1': PROJECT_ROOT / 'data/SRR6750041_1M_R1.fastq',
-        'r2': PROJECT_ROOT / 'data/SRR6750041_1M_R2.fastq',
+        'r1': PROJECT_ROOT / 'data/SRR6750041_10M_R1.fastq',
+        'r2': PROJECT_ROOT / 'data/SRR6750041_10M_R2.fastq',
         'mode': 'paired',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_replacement.geom',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_replacement_edit.geom',
         'seqproc_maps': [
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc3_seq2seq.tsv',
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc2_seq2seq.tsv',
@@ -87,23 +125,28 @@ DATASETS = {
         ],
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_replacement.mb',
         'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_paper.config',
-        'reads': 1_000_000,
-        'tools': ['seqproc', 'splitcode', 'matchbox'],
+        'reads': 10_000_000,
+        'tools': ['seqproc', 'matchbox', 'splitcode'],
     },
     
-    # SPLiT-seq Long-Read
+    # LR-SPLiT-seq (PacBio Sequel II long-read)
     'splitseq_se_raw': {
-        'name': 'SPLiT-seq Long Read',
-        'short_name': 'SPLiT-seq Long',
+        'name': 'LR-SPLiT-seq',
+        'short_name': 'LR-SPLiT-seq',
         'category': 'raw',
         'r1': PROJECT_ROOT / 'data/SRR13948564_1M.fastq',
         'r2': None,
         'mode': 'single',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_singleend_primer.geom',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_singleend_edit_ann.geom',
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_singleend.mb',
         'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_singleend.config',
+        'seqproc_maps': [
+            PROJECT_ROOT / 'configs/seqproc/splitseq_bc3_seq2seq.tsv',
+            PROJECT_ROOT / 'configs/seqproc/splitseq_bc2_seq2seq.tsv',
+            PROJECT_ROOT / 'configs/seqproc/splitseq_bc1_seq2seq.tsv',
+        ],
         'reads': reads,
-        'tools': ['seqproc', 'matchbox'],
+        'tools': ['seqproc', 'matchbox', 'splitcode'],
     },
     
     '10x_short': {
@@ -115,9 +158,29 @@ DATASETS = {
         'mode': 'paired', # While geom only uses R1, we provide both for consistency
         'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/10x_v2.geom',
         'matchbox_config': PROJECT_ROOT / 'configs/matchbox/10x_v2.mb',
+        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/10x_v2.config',
         'reads': reads,
-        'tools': ['seqproc', 'matchbox'],
+        'tools': ['seqproc', 'matchbox', 'splitcode'],
     },
+    
+    # sci-RNA-seq3
+    'sciseq': {
+        'name': 'sci-RNA-seq3',
+        'short_name': 'sci-RNA-seq3',
+        'category': 'raw',
+        'r1': PROJECT_ROOT / 'data/SRR7827254_1M_1.fastq',
+        'r2': PROJECT_ROOT / 'data/SRR7827254_1M_2.fastq',
+        'mode': 'paired',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/sciseq3_edit.geom',
+        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/sciseq3.mb',
+        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/sciseq3.config',
+        'reads': reads,
+        'tools': ['seqproc', 'matchbox', 'splitcode'],
+    },
+    
+    # 10x GridION and PromethION Long-Read datasets are supplementary (1M-only).
+    # They are not downloaded by setup_and_run.sh and are excluded from the
+    # full-dataset benchmark run.  Re-enable when the ERR FASTQs are available.
 }
 
 
@@ -133,6 +196,83 @@ class BenchmarkResult:
 
 
 # ============================================================================
+# Checkpoint Save / Load (survives crashes)
+# ============================================================================
+
+def _save_checkpoint(results: List['BenchmarkResult']):
+    """Incrementally save completed results so crashes don't lose work."""
+    CHECKPOINT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    data = [{
+        'dataset': r.dataset, 'tool': r.tool, 'runtime': r.runtime,
+        'memory_mb': r.memory_mb, 'reads_out': r.reads_out,
+        'reads_valid': r.reads_valid, 'replicate': r.replicate,
+    } for r in results]
+    tmp = str(CHECKPOINT_FILE) + '.tmp'
+    with open(tmp, 'w') as f:
+        json.dump(data, f, indent=2)
+    os.replace(tmp, str(CHECKPOINT_FILE))
+
+
+def _load_checkpoint() -> List['BenchmarkResult']:
+    """Load previously completed results from checkpoint file."""
+    if not CHECKPOINT_FILE.exists():
+        return []
+    try:
+        with open(CHECKPOINT_FILE) as f:
+            data = json.load(f)
+        results = [BenchmarkResult(**d) for d in data]
+        print(f"  [CHECKPOINT] Loaded {len(results)} completed result(s) from previous run")
+        return results
+    except (json.JSONDecodeError, TypeError, KeyError) as e:
+        print(f"  [CHECKPOINT] Could not load checkpoint ({e}), starting fresh")
+        return []
+
+
+def _checkpoint_has(results: List['BenchmarkResult'], dataset: str, tool: str, rep: int) -> bool:
+    """Check if a specific dataset+tool+replicate is already in the checkpoint."""
+    return any(r.dataset == dataset and r.tool == tool and r.replicate == rep for r in results)
+
+
+# ============================================================================
+# Validity Cache
+# ============================================================================
+
+VALIDITY_CACHE_DIR = RESULTS_DIR / "validity_cache"
+
+
+def _validity_cache_path(fastq_path: str, analyzer_name: str) -> Path:
+    """Return the cache file path for a given FASTQ + analyzer."""
+    import hashlib
+    fsize = os.path.getsize(fastq_path) if os.path.exists(fastq_path) else 0
+    key = f"{fastq_path}|{fsize}|{analyzer_name}"
+    hsh = hashlib.md5(key.encode()).hexdigest()[:12]
+    return VALIDITY_CACHE_DIR / f"{analyzer_name}_{hsh}.json"
+
+
+def _load_validity_cache(fastq_path: str, analyzer_name: str):
+    """Load cached valid_ids set, or return None if no cache."""
+    cache_file = _validity_cache_path(fastq_path, analyzer_name)
+    if cache_file.exists():
+        try:
+            data = json.loads(cache_file.read_text())
+            ids = set(data["valid_ids"])
+            print(f"    [CACHE HIT] Loaded {len(ids):,} valid IDs from {cache_file.name}")
+            return ids
+        except Exception:
+            pass
+    return None
+
+
+def _save_validity_cache(fastq_path: str, analyzer_name: str, valid_ids: set):
+    """Save valid_ids set to cache."""
+    VALIDITY_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_file = _validity_cache_path(fastq_path, analyzer_name)
+    data = {"fastq": fastq_path, "count": len(valid_ids), "valid_ids": sorted(valid_ids)}
+    cache_file.write_text(json.dumps(data))
+    print(f"    [CACHE SAVE] Saved {len(valid_ids):,} valid IDs to {cache_file.name}")
+
+
+# ============================================================================
 # Validity Analyzer
 # ============================================================================
 
@@ -143,24 +283,35 @@ class SplitSeqValidityAnalyzer:
     LINKER2 = "ATCCACGTGCTTGAGAGGCCAGAGCATTCG"  # 30bp
     
     def __init__(self, bc1_map, bc2_map, bc3_map):
-        self.bc1_wl = self._load_whitelist(bc1_map)
+        self.bc1_wl = self._load_whitelist(bc1_map, truncate=6)
         self.bc2_wl = self._load_whitelist(bc2_map)
         self.bc3_wl = self._load_whitelist(bc3_map)
         self.valid_ids = set()
         
-    def _load_whitelist(self, path):
+    def _load_whitelist(self, path, truncate=None):
         wl = set()
         with open(path) as f:
             for line in f:
                 parts = line.strip().split('\t')
                 if len(parts) >= 2:
-                    wl.add(parts[1])
+                    seq = parts[1]
+                    if truncate and len(seq) > truncate:
+                        seq = seq[:truncate]
+                    wl.add(seq)
         return wl
         
     def _hamming(self, s1, s2):
+        if len(s1) != len(s2): return 99
         return sum(a != b for a, b in zip(s1, s2))
+    
+    def _check_wl(self, bc, wl):
+        """Check if barcode matches whitelist within Hamming distance 1."""
+        if bc in wl: return True
+        for cand in wl:
+            if self._hamming(bc, cand) <= 1: return True
+        return False
         
-    def _find_linker(self, read, linker, start=0, max_dist=3):
+    def _find_linker(self, read, linker, start=0):
         best_pos, best_dist = -1, 100
         # Optimization: Only search in plausible window
         # L1 usually around 18, L2 around 56
@@ -176,7 +327,12 @@ class SplitSeqValidityAnalyzer:
         
     def analyze_fastqs(self, r1_path, r2_path):
         """Analyze raw FASTQs and return set of valid read IDs (d<=1)."""
-        print(f"    Analyzing raw input for validity (this may take 15-20s)...")
+        cached = _load_validity_cache(r2_path, "splitseq_pe")
+        if cached is not None:
+            self.valid_ids = cached
+            return cached
+
+        print(f"    Analyzing raw input for validity (this may take a while on full data)...")
         valid_ids = set()
         
         # We only need R2 for validity
@@ -198,12 +354,12 @@ class SplitSeqValidityAnalyzer:
                 if l2_dist > 3: continue
                 
                 # Extract BCs
-                # NN(2) + UMI(8) + BC3(8) + L1 + BC2(8) + L2 + BC1(8)
+                # NN(2) + UMI(10) + BC3(8) + L1(30) + BC2(8) + L2(30) + BC1(6)
                 bc3 = seq[l1_pos-8:l1_pos]
                 bc2 = seq[l1_pos+30:l1_pos+38]
-                bc1 = seq[l2_pos+30:l2_pos+38]
+                bc1 = seq[l2_pos+30:l2_pos+36]
                 
-                if len(bc3) != 8 or len(bc2) != 8 or len(bc1) != 8:
+                if len(bc3) != 8 or len(bc2) != 8 or len(bc1) != 6:
                     continue
                     
                 # Check validity (d<=1)
@@ -214,35 +370,41 @@ class SplitSeqValidityAnalyzer:
                     
                 # Check d<=1
                 # This is slow in Python, but we only do it for non-exact matches
-                
-                def check_wl(bc, wl):
-                    if bc in wl: return True
-                    for cand in wl:
-                        if self._hamming(bc, cand) <= 1: return True
-                    return False
-                
-                if check_wl(bc3, self.bc3_wl) and check_wl(bc2, self.bc2_wl) and check_wl(bc1, self.bc1_wl):
+                if self._check_wl(bc3, self.bc3_wl) and self._check_wl(bc2, self.bc2_wl) and self._check_wl(bc1, self.bc1_wl):
                     valid_ids.add(read_id)
                     
         print(f"    Found {len(valid_ids):,} valid reads (d<=1) in input.")
+        _save_validity_cache(r2_path, "splitseq_pe", valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
 
 class SplitSeqSingleEndValidityAnalyzer:
-    """Analyzes SPLiT-seq Single-End reads for validity (d<=1)."""
-    
-    # SE Linkers (different from PE)
+    """Analyzes SPLiT-seq Single-End (PacBio long) reads for validity.
+
+    PacBio reads are long (~1 kb) and randomly oriented.  The barcode
+    structure can appear anywhere in the read:
+        [skip][UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:22][BC1:8][rest]
+    We locate Linker1 via fast exact substring search (str.find) on both
+    the forward read and its reverse complement, then extract barcodes
+    relative to the linker position and validate against whitelists.
+    """
+
     LINKER1 = "GTGGCCGATGTTTCGCATCGGCGTACGACT"  # 30bp
-    # Linker 2 is skipped in geometry but present in sequence: ATCCACGTGCTTGAGACTGTGG (22bp)
-    LINKER2 = "ATCCACGTGCTTGAGACTGTGG" 
-    
+
+    _COMP = str.maketrans('ACGTacgt', 'TGCAtgca')
+
     def __init__(self, bc1_map, bc2_map, bc3_map):
         self.bc1_wl = self._load_whitelist(bc1_map)
         self.bc2_wl = self._load_whitelist(bc2_map)
         self.bc3_wl = self._load_whitelist(bc3_map)
         self.valid_ids = set()
-        
+        self._linker1_rc = self.LINKER1.translate(self._COMP)[::-1]
+        # Detect barcode lengths from whitelist entries (BC1 is 6bp in PE whitelists)
+        self._bc3_len = len(next(iter(self.bc3_wl))) if self.bc3_wl else 8
+        self._bc2_len = len(next(iter(self.bc2_wl))) if self.bc2_wl else 8
+        self._bc1_len = len(next(iter(self.bc1_wl))) if self.bc1_wl else 8
+
     def _load_whitelist(self, path):
         wl = set()
         with open(path) as f:
@@ -251,27 +413,66 @@ class SplitSeqSingleEndValidityAnalyzer:
                 if len(parts) >= 2:
                     wl.add(parts[1])
         return wl
-        
-    def _hamming(self, s1, s2):
+
+    @staticmethod
+    def _hamming(s1, s2):
+        if len(s1) != len(s2): return 99
         return sum(a != b for a, b in zip(s1, s2))
-        
-    def _find_linker(self, read, linker, start=0, max_dist=3):
-        best_pos, best_dist = -1, 100
-        search_end = min(len(read) - len(linker) + 1, start + 40)
-        
-        for i in range(start, search_end):
-            dist = self._hamming(read[i:i+len(linker)], linker)
-            if dist < best_dist:
-                best_dist = dist
-                best_pos = i
-                if dist <= 1: break
-        return best_pos, best_dist
-        
+
+    def _check_wl(self, bc, wl):
+        """Check if barcode matches whitelist within Hamming distance 1."""
+        if bc in wl: return True
+        for cand in wl:
+            if self._hamming(bc, cand) <= 1: return True
+        return False
+
+    def _rc(self, seq):
+        return seq.translate(self._COMP)[::-1]
+
+    def _try_extract(self, seq):
+        """Try to find Linker1 and extract barcodes.  Returns True if valid."""
+        # Fast exact search (O(N) via C-level str.find)
+        l1_pos = seq.find(self.LINKER1)
+        if l1_pos < 0:
+            return False
+        # Need UMI(10) + BC3 before linker
+        min_prefix = 10 + self._bc3_len
+        if l1_pos < min_prefix:
+            return False
+        # Need L1(30) + BC2 + L2(22) + BC1 after linker start
+        min_suffix = 30 + self._bc2_len + 22 + self._bc1_len
+        if l1_pos + min_suffix > len(seq):
+            return False
+
+        bc3 = seq[l1_pos - self._bc3_len : l1_pos]
+        bc2_start = l1_pos + 30
+        bc2 = seq[bc2_start : bc2_start + self._bc2_len]
+        bc1_start = bc2_start + self._bc2_len + 22
+        bc1 = seq[bc1_start : bc1_start + self._bc1_len]
+
+        if len(bc3) != self._bc3_len or len(bc2) != self._bc2_len or len(bc1) != self._bc1_len:
+            return False
+
+        return (self._check_wl(bc3, self.bc3_wl)
+                and self._check_wl(bc2, self.bc2_wl)
+                and self._check_wl(bc1, self.bc1_wl))
+
     def analyze_fastqs(self, r1_path):
-        """Analyze raw R1 FASTQ and return set of valid read IDs (d<=1)."""
-        print(f"    Analyzing raw input for validity (Single-End)...")
+        """Analyze raw FASTQ and return set of valid read IDs.
+
+        Searches each read in both orientations (PacBio reads are randomly
+        oriented).  Uses exact linker matching for speed; HiFi reads have
+        ~1% error so ~74% of barcoded reads will have an error-free linker.
+        """
+        cached = _load_validity_cache(r1_path, "splitseq_se")
+        if cached is not None:
+            self.valid_ids = cached
+            return cached
+
+        print(f"    Analyzing raw input for validity (Single-End, both orientations)...")
         valid_ids = set()
-        
+        total = 0
+
         with open(r1_path, 'r') as f:
             while True:
                 header = f.readline()
@@ -279,34 +480,24 @@ class SplitSeqSingleEndValidityAnalyzer:
                 seq = f.readline().strip()
                 f.readline()
                 f.readline()
-                
+
+                total += 1
+                if total % 500_000 == 0:
+                    print(f"      ...{total:,} reads scanned, {len(valid_ids):,} valid so far")
+
                 read_id = header.strip().split()[0].replace('@', '')
-                
-                # Structure: [UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:22][BC1:8]
-                # Find Linker 1
-                l1_pos, l1_dist = self._find_linker(seq, self.LINKER1, 10) # Start search after UMI+BC3 approx
-                if l1_dist > 3: continue
-                
-                # Check bounds
-                if l1_pos < 18: continue # Needs 10+8 before it
-                
-                bc3 = seq[l1_pos-8:l1_pos]
-                bc2 = seq[l1_pos+30:l1_pos+38]
-                bc1 = seq[l1_pos+30+8+22:l1_pos+30+8+22+8] # L1(30) + BC2(8) + L2(22)
-                
-                if len(bc3) != 8 or len(bc2) != 8 or len(bc1) != 8:
+
+                # Try forward orientation
+                if self._try_extract(seq):
+                    valid_ids.add(read_id)
                     continue
 
-                def check_wl(bc, wl):
-                    if bc in wl: return True
-                    for cand in wl:
-                        if self._hamming(bc, cand) <= 1: return True
-                    return False
-
-                if check_wl(bc3, self.bc3_wl) and check_wl(bc2, self.bc2_wl) and check_wl(bc1, self.bc1_wl):
+                # Try reverse complement
+                if self._try_extract(self._rc(seq)):
                     valid_ids.add(read_id)
-                    
-        print(f"    Found {len(valid_ids):,} valid reads (d<=1) in input.")
+
+        print(f"    Found {len(valid_ids):,} valid reads (d<=1) in {total:,} input reads.")
+        _save_validity_cache(r1_path, "splitseq_se", valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
@@ -325,6 +516,11 @@ class SciSeqValidityAnalyzer:
         
     def analyze_fastqs(self, r1_path, r2_path=None):
         """Analyze R1 FASTQ for validity."""
+        cached = _load_validity_cache(r1_path, "sciseq")
+        if cached is not None:
+            self.valid_ids = cached
+            return cached
+
         print(f"    Analyzing Sci-Seq input for validity (Anchor Check)...")
         valid_ids = set()
         
@@ -351,6 +547,7 @@ class SciSeqValidityAnalyzer:
                     valid_ids.add(header.strip().split()[0].replace('@', ''))
                     
         print(f"    Found {len(valid_ids):,} valid reads in input.")
+        _save_validity_cache(r1_path, "sciseq", valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
@@ -436,6 +633,12 @@ class TenXValidityAnalyzer:
         
     def analyze_fastqs(self, r1_path, r2_path=None):
         """Analyze FASTQ for validity."""
+        cache_name = "10x_short" if self.is_short_read else "10x_long"
+        cached = _load_validity_cache(r1_path, cache_name)
+        if cached is not None:
+            self.valid_ids = cached
+            return cached
+
         mode = "Short Read (Length=26)" if self.is_short_read else "Long Read (Primer Check + Whitelist)"
         print(f"    Analyzing 10x input for validity ({mode})...")
         valid_ids = set()
@@ -466,6 +669,7 @@ class TenXValidityAnalyzer:
                         valid_ids.add(read_id)
                     
         print(f"    Found {len(valid_ids):,} valid reads in input (Gold Standard).")
+        _save_validity_cache(r1_path, cache_name, valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
@@ -519,33 +723,26 @@ def run_seqproc(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, float,
     if 'seqproc_geom_rev' in dataset:
         out1_fwd = f"{tmpdir}/seqproc_R1_fwd.fq"
         out1_rev = f"{tmpdir}/seqproc_R1_rev.fq"
-        out2_fwd = f"{tmpdir}/seqproc_R2_fwd.fq"
-        out2_rev = f"{tmpdir}/seqproc_R2_rev.fq"
         
-        # Run forward pass (Generate R1 and R2)
-        cmd_fwd = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom']} --file1 {dataset['r1']} --out1 {out1_fwd} --out2 {out2_fwd} --threads {threads}"
-        rt1, mem1, rc1, _ = run_with_memory(cmd_fwd, PROJECT_ROOT)
+        # Run forward pass (single output)
+        cmd_fwd = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom']} --file1 {dataset['r1']} --out1 {out1_fwd} --threads {threads}"
+        rt1, mem1, rc1, stderr1 = run_with_memory(cmd_fwd, PROJECT_ROOT)
+        if rc1 != 0:
+            print(f"\n[ERROR] Seqproc fwd pass failed with rc={rc1}:\n{stderr1}")
         
-        # Run reverse pass (Generate R1 and R2)
-        cmd_rev = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom_rev']} --file1 {dataset['r1']} --out1 {out1_rev} --out2 {out2_rev} --threads {threads}"
-        rt2, mem2, rc2, _ = run_with_memory(cmd_rev, PROJECT_ROOT)
+        # Run reverse pass (single output)
+        cmd_rev = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom_rev']} --file1 {dataset['r1']} --out1 {out1_rev} --threads {threads}"
+        rt2, mem2, rc2, stderr2 = run_with_memory(cmd_rev, PROJECT_ROOT)
+        if rc2 != 0:
+            print(f"\n[ERROR] Seqproc rev pass failed with rc={rc2}:\n{stderr2}")
         
-        # Merge outputs (R1 and R2)
-        # Concatenate R1s
+        # Merge outputs
         if os.path.exists(out1_fwd) or os.path.exists(out1_rev):
             with open(out1, 'wb') as outfile:
                 if os.path.exists(out1_fwd):
                     with open(out1_fwd, 'rb') as f: outfile.write(f.read())
                 if os.path.exists(out1_rev):
                     with open(out1_rev, 'rb') as f: outfile.write(f.read())
-        
-        # Concatenate R2s (if they exist)
-        if os.path.exists(out2_fwd) or os.path.exists(out2_rev):
-            with open(out2, 'wb') as outfile:
-                if os.path.exists(out2_fwd):
-                    with open(out2_fwd, 'rb') as f: outfile.write(f.read())
-                if os.path.exists(out2_rev):
-                    with open(out2_rev, 'rb') as f: outfile.write(f.read())
             
         runtime = rt1 + rt2
         memory_mb = max(mem1, mem2)
@@ -563,7 +760,10 @@ def run_seqproc(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, float,
         for map_file in dataset['seqproc_maps']:
             cmd += f" -a {map_file}"
     
-    runtime, memory_mb, rc, _ = run_with_memory(cmd, PROJECT_ROOT)
+    runtime, memory_mb, rc, stderr = run_with_memory(cmd, PROJECT_ROOT)
+    
+    if rc != 0:
+        print(f"\n[ERROR] Seqproc failed with rc={rc}:\n{stderr}")
     
     output_file = out2 if dataset['mode'] == 'paired' else out1
     reads = count_fastq_reads(output_file)
@@ -574,6 +774,12 @@ def run_seqproc(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, float,
 def run_matchbox(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, float, int]:
     """Run matchbox on dataset."""
     out_tsv = f"{tmpdir}/matchbox_out.tsv"
+    
+    # Clean stale matchbox output files from previous runs
+    for fq in ['mb_r1.fq', 'mb_r2.fq']:
+        stale = PROJECT_ROOT / fq
+        if stale.exists():
+            stale.unlink()
     
     # Determine input arguments and output expectations
     args = ""
@@ -603,10 +809,10 @@ def run_matchbox(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, float
     
     for fq in ['mb_r1.fq', 'mb_r2.fq']:
         src = PROJECT_ROOT / fq
+        # Remove stale files from previous runs before checking
         dst = Path(tmpdir) / fq
         if src.exists():
-            # Move to tmpdir
-            os.rename(src, dst)
+            shutil.move(str(src), str(dst))
             generated_fastqs.append(dst)
             
     if generated_fastqs:
@@ -629,13 +835,29 @@ def run_splitcode(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, floa
     """Run splitcode on dataset."""
     mapping = f"{tmpdir}/splitcode_mapping.txt"
     
+    # Detect whether config has tag lines (needs --assign) or only @extract directives
+    with open(dataset['splitcode_config']) as f:
+        config_text = f.read()
+    has_tags = False
+    for line in config_text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#') or stripped.startswith('@'):
+            continue
+        # Header row (ID/group etc.) or actual tag data rows are tab-separated
+        fields = stripped.split('\t')
+        if len(fields) >= 3 and fields[0] not in ('ID', 'group'):
+            has_tags = True
+            break
+    assign_flag = "--assign" if has_tags else ""
+    mapping_flag = f"-m {mapping}" if has_tags else ""
+    
     if dataset['mode'] == 'single':
         out_fq = f"{tmpdir}/splitcode_out.fq"
-        cmd = f"{SPLITCODE_BIN} -c {dataset['splitcode_config']} --assign -N 1 -t {threads} -m {mapping} -o {out_fq} {dataset['r1']}"
+        cmd = f"{SPLITCODE_BIN} -c {dataset['splitcode_config']} {assign_flag} -N 1 -t {threads} {mapping_flag} -o {out_fq} {dataset['r1']}"
     else:
         out1 = f"{tmpdir}/splitcode_R1.fq"
         out2 = f"{tmpdir}/splitcode_R2.fq"
-        cmd = f"{SPLITCODE_BIN} -c {dataset['splitcode_config']} --assign -N 2 -t {threads} -m {mapping} -o {out1},{out2} {dataset['r1']} {dataset['r2']}"
+        cmd = f"{SPLITCODE_BIN} -c {dataset['splitcode_config']} {assign_flag} -N 2 -t {threads} {mapping_flag} -o {out1},{out2} {dataset['r1']} {dataset['r2']}"
     
     runtime, memory_mb, rc, stderr = run_with_memory(cmd, PROJECT_ROOT)
     
@@ -657,11 +879,13 @@ def run_splitcode(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, floa
 # Benchmark Runner
 # ============================================================================
 
-def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
-    """Run all benchmarks."""
-    results = []
+def run_benchmarks(threads: int, replicates: int, dataset_filter=None) -> List[BenchmarkResult]:
+    """Run all benchmarks with checkpoint/resume."""
+    results = _load_checkpoint()
     
     for dataset_key, dataset in DATASETS.items():
+        if dataset_filter and dataset_key not in dataset_filter:
+            continue
         # Check if data exists
         if not os.path.exists(dataset['r1']):
             print(f"  [SKIP] Data not found: {dataset['r1']}")
@@ -671,47 +895,52 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
         print(f"Dataset: {dataset['name']}")
         print(f"{'='*60}")
         
+        # Instantiate validity analyzer ONCE per dataset (outside replicate loop)
+        validity_analyzer = None
+        
+        if 'splitseq' in dataset_key:
+            # SPLiT-seq datasets
+            if 'seqproc_maps' in dataset:
+                if dataset['mode'] == 'paired':
+                    # PE Raw and PE Replacement
+                    validity_analyzer = SplitSeqValidityAnalyzer(
+                        dataset['seqproc_maps'][2],  # bc1
+                        dataset['seqproc_maps'][1],  # bc2
+                        dataset['seqproc_maps'][0]   # bc3
+                    )
+                    validity_analyzer.analyze_fastqs(str(dataset['r1']), str(dataset['r2']))
+                else:
+                    # SE Long Read
+                    validity_analyzer = SplitSeqSingleEndValidityAnalyzer(
+                        dataset['seqproc_maps'][2],  # bc1
+                        dataset['seqproc_maps'][1],  # bc2
+                        dataset['seqproc_maps'][0]   # bc3
+                    )
+                    validity_analyzer.analyze_fastqs(str(dataset['r1']))
+        
+        elif dataset_key.startswith('10x_'):
+            # 10x datasets
+            is_short = (dataset_key == '10x_short')
+            validity_analyzer = TenXValidityAnalyzer(is_short_read=is_short)
+            validity_analyzer.analyze_fastqs(str(dataset['r1']))
+        
+        elif dataset_key == 'sciseq':
+            # Sci-Seq dataset
+            validity_analyzer = SciSeqValidityAnalyzer()
+            validity_analyzer.analyze_fastqs(str(dataset['r1']))
+        
         for rep in range(1, replicates + 1):
             print(f"\n  Replicate {rep}/{replicates}:")
             
-            # Instantiate validity analyzer based on dataset type
-            validity_analyzer = None
-            
-            if 'splitseq' in dataset_key:
-                # SPLiT-seq datasets
-                if 'seqproc_maps' in dataset:
-                    if dataset['mode'] == 'paired':
-                        # PE Raw and PE Replacement
-                        validity_analyzer = SplitSeqValidityAnalyzer(
-                            dataset['seqproc_maps'][2],  # bc1
-                            dataset['seqproc_maps'][1],  # bc2
-                            dataset['seqproc_maps'][0]   # bc3
-                        )
-                        validity_analyzer.analyze_fastqs(str(dataset['r1']), str(dataset['r2']))
-                    else:
-                        # SE Long Read
-                        validity_analyzer = SplitSeqSingleEndValidityAnalyzer(
-                            dataset['seqproc_maps'][2],  # bc1
-                            dataset['seqproc_maps'][1],  # bc2
-                            dataset['seqproc_maps'][0]   # bc3
-                        )
-                        validity_analyzer.analyze_fastqs(str(dataset['r1']))
-            
-            elif dataset_key.startswith('10x_'):
-                # 10x datasets
-                is_short = (dataset_key == '10x_short')
-                validity_analyzer = TenXValidityAnalyzer(is_short_read=is_short)
-                validity_analyzer.analyze_fastqs(str(dataset['r1']))
-            
-            elif dataset_key == 'sciseq':
-                # Sci-Seq dataset
-                validity_analyzer = SciSeqValidityAnalyzer()
-                validity_analyzer.analyze_fastqs(str(dataset['r1']))
-            
-            with tempfile.TemporaryDirectory() as tmpdir:
+            with tempfile.TemporaryDirectory(dir=TMPDIR_BASE) as tmpdir:
                 for tool in dataset['tools']:
                     print(f"    {tool}...", end=" ", flush=True)
                     
+                    if _checkpoint_has(results, dataset_key, tool, rep):
+                        prev = [r for r in results if r.dataset == dataset_key and r.tool == tool and r.replicate == rep][0]
+                        print(f"[CHECKPOINT SKIP] {prev.runtime:.2f}s, {prev.memory_mb:.1f}MB, {prev.reads_out:,} reads")
+                        continue
+
                     if tool == 'seqproc':
                         runtime, memory, reads = run_seqproc(dataset, tmpdir, threads)
                     elif tool == 'matchbox':
@@ -740,9 +969,8 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                         if not h: break
                                         f.readline(); f.readline(); f.readline()
                                         output_ids.add(h.strip().split()[0].replace('@', ''))
-                                        
+
                         elif tool == 'splitcode':
-                            # Splitcode logic
                             if dataset['mode'] == 'paired':
                                 out_file = f"{tmpdir}/splitcode_R2.fq"
                             else:
@@ -755,14 +983,11 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                         if not h: break
                                         f.readline(); f.readline(); f.readline()
                                         output_ids.add(h.strip().split()[0].replace('@', ''))
-                                        
+
                         elif tool == 'matchbox':
-                            # Check for FASTQ outputs first
                             mb_fq_files = [f for f in [f"{tmpdir}/mb_r1.fq", f"{tmpdir}/mb_r2.fq"] if os.path.exists(f)]
                             
                             if mb_fq_files:
-                                # Read IDs from the output FASTQ
-                                # Use the first available one
                                 with open(mb_fq_files[0]) as f:
                                     while True:
                                         h = f.readline()
@@ -770,7 +995,6 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                         f.readline(); f.readline(); f.readline()
                                         output_ids.add(h.strip().split()[0].replace('@', ''))
                             else:
-                                # Fallback to TSV
                                 out_file = f"{tmpdir}/matchbox_out.tsv"
                                 if os.path.exists(out_file):
                                     with open(out_file) as f:
@@ -778,13 +1002,20 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                                             parts = line.strip().split('\t')
                                             if parts:
                                                 output_ids.add(parts[0])
-                        
+
                         reads_valid = len(output_ids.intersection(validity_analyzer.valid_ids))
                         print(f"{runtime:.2f}s, {memory:.1f}MB, {reads:,} reads ({reads_valid:,} valid)")
                     else:
                         print(f"{runtime:.2f}s, {memory:.1f}MB, {reads:,} reads")
                         
-                    results.append(BenchmarkResult(
+                    # Sanity guard: don't checkpoint obviously bad results.
+                    # If a tool produces fewer than 100 reads on a dataset
+                    # with millions of inputs, something went wrong.
+                    if reads < 100 and dataset.get('reads', 0) > 10000:
+                        print(f"\n    [SKIP CHECKPOINT] {tool} produced only {reads} reads (expected millions) -- will retry on next run")
+                        continue
+
+                    result = BenchmarkResult(
                         dataset=dataset_key,
                         tool=tool,
                         runtime=runtime,
@@ -792,7 +1023,9 @@ def run_benchmarks(threads: int, replicates: int) -> List[BenchmarkResult]:
                         reads_out=reads,
                         reads_valid=reads_valid,
                         replicate=rep
-                    ))
+                    )
+                    results.append(result)
+                    _save_checkpoint(results)
     
     return results
 
@@ -821,19 +1054,13 @@ def generate_all_figures(results: List[BenchmarkResult], output_dir: Path):
     all_datasets = [k for k in DATASETS.keys() if k in data]
     
     if all_datasets:
-        fig, axes = plt.subplots(len(all_datasets), 2, figsize=(12, 4 * len(all_datasets)))
-        if len(all_datasets) == 1:
-            axes = [axes]
+        fig, axes = plt.subplots(len(all_datasets), 2, figsize=(12, 4 * len(all_datasets)),
+                                  squeeze=False)
         
         for idx, ds_key in enumerate(all_datasets):
             ds_info = DATASETS[ds_key]
-            # Handle 1D axes array if only 1 dataset
-            if len(all_datasets) == 1:
-                 ax_runtime = axes[0]
-                 ax_memory = axes[1]
-            else:
-                 ax_runtime = axes[idx][0]
-                 ax_memory = axes[idx][1]
+            ax_runtime = axes[idx][0]
+            ax_memory = axes[idx][1]
             
             tools = [t for t in ['seqproc', 'matchbox', 'splitcode'] if t in data[ds_key]]
             runtime_data = [[r['runtime'] for r in data[ds_key][t]] for t in tools]
@@ -875,13 +1102,21 @@ def generate_all_figures(results: List[BenchmarkResult], output_dir: Path):
     # Figure 2: Read Recovery Table
     # ========================================================================
     if all_datasets:
+        # Pre-build valid reads lookup to avoid O(n^2) scan
+        valid_lookup = defaultdict(list)
+        for r in results:
+            valid_lookup[(r.dataset, r.tool)].append(r.reads_valid)
+        
         # Prepare table data
-        columns = ['Dataset', 'Tool', 'Total Input', 'Output Reads', 'Recovery %', 'Valid Reads (d≤1)', 'Valid %', 'Filtered Out']
+        columns = ['Dataset', 'Tool', 'Total Input', 'Output Reads', 'Recovery %', 'Valid Reads (d<=1)', 'Valid %', 'Filtered Out']
         cell_text = []
         
         for ds_key in all_datasets:
             ds_info = DATASETS[ds_key]
-            total_input = ds_info['reads']
+            # Count actual FASTQ reads (SRA metadata can be wrong)
+            total_input = count_fastq_reads(str(ds_info['r1']))
+            if total_input == 0:
+                total_input = ds_info['reads']
             
             for tool in ['seqproc', 'matchbox', 'splitcode']:
                 if tool in data[ds_key]:
@@ -889,7 +1124,7 @@ def generate_all_figures(results: List[BenchmarkResult], output_dir: Path):
                     mean_out = np.mean([r['reads'] for r in runs])
                     
                     # Get valid counts if available
-                    valid_counts = [getattr(r, 'reads_valid', 0) for r in results if r.dataset == ds_key and r.tool == tool]
+                    valid_counts = valid_lookup.get((ds_key, tool), [])
                     if any(v > 0 for v in valid_counts):
                         mean_valid = np.mean(valid_counts)
                         valid_pct = (mean_valid / total_input) * 100
@@ -991,23 +1226,31 @@ def save_results_json(results: List[BenchmarkResult], output_dir: Path):
             'runtime': r.runtime,
             'memory_mb': r.memory_mb,
             'reads_out': r.reads_out,
+            'reads_valid': r.reads_valid,
             'replicate': r.replicate
         })
     
     summary = {}
     for ds_key, tool_data in data.items():
+        # Count actual FASTQ reads (SRA metadata can be wrong)
+        actual_input = count_fastq_reads(str(DATASETS[ds_key]['r1']))
+        if actual_input == 0:
+            actual_input = DATASETS[ds_key]['reads']
         summary[ds_key] = {
             'name': DATASETS[ds_key]['name'],
-            'total_reads': DATASETS[ds_key]['reads'],
+            'total_reads': actual_input,
             'tools': {}
         }
         for tool, runs in tool_data.items():
+            mean_valid = float(np.mean([r['reads_valid'] for r in runs]))
             summary[ds_key]['tools'][tool] = {
                 'mean_runtime': float(np.mean([r['runtime'] for r in runs])),
                 'std_runtime': float(np.std([r['runtime'] for r in runs])),
                 'mean_memory_mb': float(np.mean([r['memory_mb'] for r in runs])),
                 'mean_reads_out': int(np.mean([r['reads_out'] for r in runs])),
-                'recovery_rate': float(np.mean([r['reads_out'] for r in runs]) / DATASETS[ds_key]['reads'] * 100)
+                'mean_reads_valid': int(mean_valid),
+                'recovery_rate': float(np.mean([r['reads_out'] for r in runs]) / actual_input * 100),
+                'valid_rate': float(mean_valid / actual_input * 100) if mean_valid > 0 else 0.0
             }
     
     with open(output_dir / 'benchmark_results.json', 'w') as f:
@@ -1019,14 +1262,126 @@ def save_results_json(results: List[BenchmarkResult], output_dir: Path):
 # Main
 # ============================================================================
 
+def _apply_reads_level(reads_level: str):
+    """Override DATASETS file paths and read counts based on --reads level.
+
+    Maps the benchmark DATASETS keys to data_config's canonical dataset keys
+    and replaces r1, r2, reads for each matching entry.
+    """
+    from data_config import resolve_datasets as _resolve
+
+    resolved = _resolve(reads_level)
+
+    # Mapping from benchmark DATASETS keys to data_config canonical keys.
+    # Multiple benchmark entries can map to the same canonical dataset
+    # (e.g. splitseq_pe_raw and splitseq_pe_replacement both use SRR6750041).
+    _KEY_MAP = {
+        "splitseq_pe_raw": "splitseq_pe",
+        "splitseq_pe_replacement": "splitseq_pe",
+        "splitseq_se_raw": "lr_splitseq",
+        "10x_short": "10x_short",
+        "sciseq": "sciseq",
+        # gridion/promethion are not in data_config (supplementary); skip them.
+    }
+
+    for bench_key, canon_key in _KEY_MAP.items():
+        if bench_key in DATASETS and canon_key in resolved:
+            src = resolved[canon_key]
+            DATASETS[bench_key]["r1"] = src["r1"]
+            DATASETS[bench_key]["r2"] = src["r2"]
+            DATASETS[bench_key]["reads"] = src["reads"]
+
+
+def _validate_environment(dataset_filter=None):
+    """Check that tool binaries and data files exist before running benchmarks.
+
+    Exits with a clear error message if anything is missing, so the user
+    doesn't waste hours waiting for a failure mid-pipeline.
+    """
+    errors = []
+
+    # Check tool binaries
+    for label, path in [("seqproc", SEQPROC_BIN), ("matchbox", MATCHBOX_BIN),
+                        ("splitcode", SPLITCODE_BIN)]:
+        if not os.path.isfile(path) or not os.access(path, os.X_OK):
+            errors.append(f"  [MISSING] {label} binary: {path}")
+
+    # Check data files for requested datasets
+    for ds_key, ds in DATASETS.items():
+        if dataset_filter and ds_key not in dataset_filter:
+            continue
+        if not os.path.exists(ds['r1']):
+            errors.append(f"  [MISSING] {ds_key} R1: {ds['r1']}")
+        if ds.get('r2') and not os.path.exists(ds['r2']):
+            errors.append(f"  [MISSING] {ds_key} R2: {ds['r2']}")
+
+    if errors:
+        print("=" * 70)
+        print("ENVIRONMENT VALIDATION FAILED")
+        print("=" * 70)
+        for e in errors:
+            print(e)
+        print()
+        print("Hints:")
+        if not _data_dir:
+            print("  - SEQPROC_DATA_DIR is not set. Export it to point at the data directory.")
+            print("    Example: export SEQPROC_DATA_DIR=/fs/nexus-projects/seqproc/bench/data")
+        print("  - Set SEQPROC_BIN, MATCHBOX_BIN, SPLITCODE_BIN env vars, OR")
+        print("    set SEQPROC_DATA_DIR so binaries can be found relative to its parent.")
+        print("  - Or run via setup_and_run.sh which sets all env vars automatically.")
+        sys.exit(1)
+
+    # Print resolved paths for transparency
+    print("  [ENV] seqproc:   " + SEQPROC_BIN)
+    print("  [ENV] matchbox:  " + MATCHBOX_BIN)
+    print("  [ENV] splitcode: " + SPLITCODE_BIN)
+    if _data_dir:
+        print(f"  [ENV] data dir:  {_data_dir}")
+    if TMPDIR_BASE:
+        print(f"  [ENV] tmp dir:   {TMPDIR_BASE}")
+
+
 def main():
     parser = argparse.ArgumentParser(description='Run all paper benchmarks')
     parser.add_argument('--threads', type=int, default=4, help='Number of threads')
     parser.add_argument('--replicates', type=int, default=3, help='Number of replicates')
     parser.add_argument('--output', type=str, default=None, help='Output directory')
+    parser.add_argument('--datasets', type=str, nargs='+', default=None,
+                        help='Specific dataset keys to run (default: all)')
+    parser.add_argument('--reads', type=str, choices=['1m', 'full'], default='1m',
+                        help="Dataset size: '1m' (default) or 'full'")
+    parser.add_argument('--fresh', action='store_true',
+                        help='Clear checkpoint and re-run all benchmarks from scratch')
+    parser.add_argument('--purge', type=str, nargs='+', metavar='DATASET:TOOL:REP',
+                        help='Remove specific checkpoint entries (e.g. splitseq_pe_replacement:matchbox:2)')
     args = parser.parse_args()
+
+    if args.purge:
+        existing = _load_checkpoint()
+        before = len(existing)
+        for spec in args.purge:
+            parts = spec.split(':')
+            if len(parts) != 3:
+                print(f"  [PURGE] Invalid format '{spec}', expected DATASET:TOOL:REP")
+                continue
+            ds, tool, rep = parts[0], parts[1], int(parts[2])
+            existing = [r for r in existing if not (r.dataset == ds and r.tool == tool and r.replicate == rep)]
+            print(f"  [PURGE] Removed {ds}/{tool}/rep{rep}")
+        _save_checkpoint(existing)
+        print(f"  [PURGE] {before} -> {len(existing)} entries")
+        return
+
+    if args.fresh and CHECKPOINT_FILE.exists():
+        CHECKPOINT_FILE.unlink()
+        print("  [CHECKPOINT] Cleared -- starting fresh")
+
+    # Override file paths for the requested reads level
+    _apply_reads_level(args.reads)
     
     output_dir = Path(args.output) if args.output else RESULTS_DIR
+    
+    # Validate environment before starting expensive work
+    _validate_environment(args.datasets)
     
     print("=" * 70)
     print("SEQPROC PAPER BENCHMARKS")
@@ -1035,8 +1390,14 @@ def main():
     print(f"Replicates: {args.replicates}")
     print(f"Output: {output_dir}")
     
+    if args.datasets:
+        print(f"Datasets: {', '.join(args.datasets)}")
+    
+    # Count checkpoint entries before running so we can detect if new work was done
+    pre_count = len(_load_checkpoint())
+
     # Run benchmarks
-    results = run_benchmarks(args.threads, args.replicates)
+    results = run_benchmarks(args.threads, args.replicates, dataset_filter=args.datasets)
     
     if not results:
         print("\nNo benchmark results collected. Check that data files exist.")
@@ -1048,6 +1409,13 @@ def main():
     print("=" * 70)
     generate_all_figures(results, output_dir)
     save_results_json(results, output_dir)
+
+    # Never clear the checkpoint -- it allows re-runs to skip completed work
+    # (e.g. after purging a single bad entry).  Results are already persisted
+    # in benchmark_results.json and the generated figures.
+    if CHECKPOINT_FILE.exists():
+        new_count = len(results) - pre_count
+        print(f"  [CHECKPOINT] Kept ({len(results)} total entries, {new_count} new this run)")
     
     print("\n" + "=" * 70)
     print("COMPLETE")
