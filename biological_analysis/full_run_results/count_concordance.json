@@ -1,0 +1,22 @@
+{
+  "per_barcode_umi_pearson_logspace": {
+    "seqproc|splitcode": 0.9756,
+    "seqproc|matchbox": 0.9901,
+    "splitcode|matchbox": 0.971
+  },
+  "per_barcode_umi_spearman": {
+    "seqproc|splitcode": 0.9009,
+    "seqproc|matchbox": 0.9641,
+    "splitcode|matchbox": 0.8878
+  },
+  "per_gene_total_pearson_logspace": {
+    "seqproc|splitcode": 0.9938,
+    "seqproc|matchbox": 0.9989,
+    "splitcode|matchbox": 0.9935
+  },
+  "per_gene_total_spearman": {
+    "seqproc|splitcode": 0.9934,
+    "seqproc|matchbox": 0.9989,
+    "splitcode|matchbox": 0.9931
+  }
+}
