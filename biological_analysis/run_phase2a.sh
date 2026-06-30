@@ -26,6 +26,7 @@ ROOT=$(cd "$HERE/.." && pwd)
 SEQPROC=${SEQPROC_BIN:-$ROOT/../combine-lab/seqproc/target/release/seqproc}
 SPLITCODE=${SPLITCODE_BIN:-$ROOT/../splitcode/build/src/splitcode}
 MATCHBOX=${MATCHBOX_BIN:-$ROOT/../matchbox/target/release/matchbox}
+STARBIN=${STAR_BIN:-STAR}     # override if STAR is not on PATH (e.g. a downloaded 2.7.11b binary)
 WL=$HERE/configs/splitseq_bc_whitelist_96.txt
 [ -n "$PYBIN" ] || PYBIN=$HERE/.venv_phase2a/bin/python
 mkdir -p "$OUT"
@@ -65,7 +66,7 @@ echo "[4/7] STARsolo (identical CB_UMI_Complex config for all three tools)"
 declare -A TOOLNAME=( [sp]=seqproc [sc]=splitcode [mb]=matchbox )
 for tool in sp sc mb; do
   TF=$(mktemp); t0=$(now)
-  /usr/bin/time -v STAR --runThreadN "$THREADS" --genomeDir "$GENOME" \
+  /usr/bin/time -v "$STARBIN" --runThreadN "$THREADS" --genomeDir "$GENOME" \
     --soloType CB_UMI_Complex \
     --readFilesIn "$OUT/${tool}_cdna.fq" "$OUT/${tool}_bc.fq" \
     --soloCBwhitelist "$WL" "$WL" "$WL" \
