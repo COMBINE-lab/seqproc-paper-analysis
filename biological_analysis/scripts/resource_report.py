@@ -31,7 +31,7 @@ def main():
     colors = [tool_color(t, i) for i, t in enumerate(TOOLS)]
 
     # ---- figure: read-processing runtime, peak RAM, and total pipeline runtime ----
-    fig, ax = plt.subplots(1, 3, figsize=(14, 4.2))
+    fig, ax = plt.subplots(1, 3, figsize=(15.5, 4.6))
     x = np.arange(len(TOOLS))
     b0 = ax[0].bar(x, bc_t, 0.6, color=colors)
     ax[0].set_xticks(x); ax[0].set_xticklabels(TOOLS); ax[0].set_ylabel("Runtime (s)")
@@ -51,8 +51,8 @@ def main():
     for xi, tv in zip(x, tot):
         ax[2].text(xi, tv + max(tot) * 0.012, f"{tv:.1f}", ha="center", va="bottom")
     ax[2].set_xticks(x); ax[2].set_xticklabels(TOOLS); ax[2].set_ylabel("Runtime (s)")
-    ax[2].set_title("Total runtime per tool"); ax[2].set_ylim(0, max(tot) * 1.25)
-    ax[2].legend(loc="upper left"); panel(ax[2], "C")
+    ax[2].set_title("Total runtime per tool"); ax[2].set_ylim(0, max(tot) * 1.34)
+    ax[2].legend(loc="upper left", framealpha=0.9); panel(ax[2], "C")
     fig.tight_layout()
     print("saved", save(fig, os.path.join(outdir, "resource_usage")), "(+ .pdf)")
 
