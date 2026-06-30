@@ -51,8 +51,8 @@ def main():
     for xi, tv in zip(x, tot):
         ax[2].text(xi, tv + max(tot) * 0.012, f"{tv:.1f}", ha="center", va="bottom")
     ax[2].set_xticks(x); ax[2].set_xticklabels(TOOLS); ax[2].set_ylabel("Runtime (s)")
-    ax[2].set_title("Total runtime per tool"); ax[2].set_ylim(0, max(tot) * 1.2)
-    ax[2].legend(loc="upper center"); panel(ax[2], "C")
+    ax[2].set_title("Total runtime per tool"); ax[2].set_ylim(0, max(tot) * 1.25)
+    ax[2].legend(loc="upper left"); panel(ax[2], "C")
     fig.tight_layout()
     print("saved", save(fig, os.path.join(outdir, "resource_usage")), "(+ .pdf)")
 
