@@ -1,22 +1,22 @@
 {
   "per_barcode_umi_pearson_logspace": {
-    "seqproc|splitcode": 0.9756,
-    "seqproc|matchbox": 0.9901,
-    "splitcode|matchbox": 0.971
+    "seqproc|splitcode": 0.9782,
+    "seqproc|matchbox": 0.9919,
+    "splitcode|matchbox": 0.9742
   },
   "per_barcode_umi_spearman": {
-    "seqproc|splitcode": 0.9009,
-    "seqproc|matchbox": 0.9641,
-    "splitcode|matchbox": 0.8878
+    "seqproc|splitcode": 0.9108,
+    "seqproc|matchbox": 0.9709,
+    "splitcode|matchbox": 0.9004
   },
   "per_gene_total_pearson_logspace": {
-    "seqproc|splitcode": 0.9938,
-    "seqproc|matchbox": 0.9989,
-    "splitcode|matchbox": 0.9935
+    "seqproc|splitcode": 0.9942,
+    "seqproc|matchbox": 0.999,
+    "splitcode|matchbox": 0.9939
   },
   "per_gene_total_spearman": {
-    "seqproc|splitcode": 0.9934,
-    "seqproc|matchbox": 0.9989,
-    "splitcode|matchbox": 0.9931
+    "seqproc|splitcode": 0.9939,
+    "seqproc|matchbox": 0.999,
+    "splitcode|matchbox": 0.9935
   }
 }
