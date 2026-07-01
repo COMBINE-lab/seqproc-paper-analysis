@@ -168,32 +168,41 @@ def main():
           "| co-clustering", metrics["joint_coclustering_agreement"],
           "| tool-mixing", metrics["tool_mixing_entropy"])
 
-    # ---- figure: cell-type composition + quantitative concordance scorecard (no embedding) ----
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.6))
+    # ---- Jaccard supplement table (per cell type, for the supplement) ----
+    with open(os.path.join(outdir, "jaccard_supplement.md"), "w") as fh:
+        fh.write("| Cell type | mean pairwise Jaccard |\n|---|---|\n")
+        for ct in MARKERS:
+            v = ct_jac.get(ct)
+            fh.write(f"| {ct} | {v:.3f} |\n" if v is not None else f"| {ct} | n/a |\n")
+        fh.write(f"| **Mean** | **{mean_ct_jac:.3f}** |\n")
+    print("saved", os.path.join(outdir, "jaccard_supplement.md"))
 
-    ax = axes[0]
-    cts = list(MARKERS.keys()); x = np.arange(len(cts)); w = 0.8 / len(names)
-    for i, n in enumerate(names):
-        ax.bar(x + i * w - 0.4 + w / 2, [fracs[n][c] for c in cts], w, label=n, color=tool_color(n, i))
-    ax.set_xticks(x); ax.set_xticklabels(cts, rotation=35, ha="right")
-    ax.set_ylabel("Fraction of cells"); ax.set_title("Cell-type composition")
-    ax.legend(loc="upper right"); panel(ax, "A")
+    # ---- figure: cell-type composition + concordance scorecard, two variants ----
+    def sc_bars(ax, labels, vals):
+        yb = np.arange(len(labels))[::-1]
+        ax.barh(yb, vals, color="#1b7837", height=0.55)
+        ax.axvline(1.0, color="0.5", ls="--", lw=1)
+        for y_, v in zip(yb, vals):
+            if v == v:
+                ax.text(min(v, 0.97) - 0.02, y_, f"{v:.3f}", va="center", ha="right", color="white", fontweight="bold")
+        ax.set_yticks(yb); ax.set_yticklabels(labels); ax.set_xlim(0, 1.08); ax.set_xlabel("Score (1 = identical)")
+        ax.set_title(f"Tool concordance\nshared cells n={len(shared)}, {len(names)} tools")
+        ax.spines["left"].set_visible(False)
 
-    ax = axes[1]
-    labels = ["Cell-type\nagreement", "Cell-type\nJaccard (mean)", "Cluster ARI\n(mean)", "Co-clustering\n(joint)"]
-    vals = [type_agree, mean_ct_jac, mean_ari, co_cluster]
-    yb = np.arange(len(labels))[::-1]
-    ax.barh(yb, vals, color="#1b7837", height=0.55)
-    ax.axvline(1.0, color="0.5", ls="--", lw=1)
-    for y_, v in zip(yb, vals):
-        if v == v:
-            ax.text(min(v, 0.97) - 0.02, y_, f"{v:.3f}", va="center", ha="right", color="white", fontweight="bold")
-    ax.set_yticks(yb); ax.set_yticklabels(labels); ax.set_xlim(0, 1.08); ax.set_xlabel("Score (1 = identical)")
-    ax.set_title(f"Tool concordance\nshared cells n={len(shared)}, {len(names)} tools")
-    ax.spines["left"].set_visible(False); panel(ax, "B")
-
-    fig.tight_layout()
-    print("saved", save(fig, os.path.join(outdir, "biological_analysis")), "(+ .pdf)")
+    base = [("Cell-type\nagreement", type_agree), ("Cluster ARI\n(mean)", mean_ari), ("Co-clustering\n(joint)", co_cluster)]
+    with_jac = [base[0], ("Cell-type\nJaccard (mean)", mean_ct_jac), base[1], base[2]]
+    for suffix, sc in [("", base), ("_jaccard", with_jac)]:
+        fig, axes = plt.subplots(1, 2, figsize=(11, 4.6))
+        ax = axes[0]
+        cts = list(MARKERS.keys()); x = np.arange(len(cts)); w = 0.8 / len(names)
+        for i, n in enumerate(names):
+            ax.bar(x + i * w - 0.4 + w / 2, [fracs[n][c] for c in cts], w, label=n, color=tool_color(n, i))
+        ax.set_xticks(x); ax.set_xticklabels(cts, rotation=35, ha="right")
+        ax.set_ylabel("Fraction of cells"); ax.set_title("Cell-type composition")
+        ax.legend(loc="upper right"); panel(ax, "A")
+        sc_bars(axes[1], [l for l, _ in sc], [v for _, v in sc]); panel(axes[1], "B")
+        fig.tight_layout()
+        print("saved", save(fig, os.path.join(outdir, "biological_analysis" + suffix)), "(+ .pdf)")
 
 if __name__ == "__main__":
     main()
