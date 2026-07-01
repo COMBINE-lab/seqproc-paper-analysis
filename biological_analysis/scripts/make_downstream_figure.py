@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""Merged downstream-concordance figure (fig:downstream) for the paper, in one 2x2 panel:
-(A) barcode-rank knee, (B) per-gene total concordance, (C) joint embedding by tool,
-(D) cell-type composition. Reuses the exact logic of count_concordance.py and
-biological_analysis.py so the merged figure matches the standalone panels.
+"""Merged downstream-concordance figure (fig:downstream), one 2x2 panel, NO UMAP/embedding:
+(A) barcode-rank knee, (B) per-gene total concordance, (C) quantitative concordance scorecard,
+(D) cell-type composition. Panels A/B come from the STARsolo matrices; C/D are read from
+biological_metrics.json (written by biological_analysis.py into the same outdir), so run that
+first.
 
   make_downstream_figure.py <outdir> <min_umi> <name1>:<Gene_dir1> <name2>:<dir2> [<name3>:<dir3> ...]
 """
-import sys, os
+import sys, os, json
 sys.path.insert(0, os.path.dirname(__file__))
 import matplotlib; matplotlib.use("Agg")
 import numpy as np, matplotlib.pyplot as plt
 from numpy import log1p, corrcoef
 from scipy.stats import spearmanr
 from concordance_helpers import load_star_raw, barcode_rank
-from biological_analysis import load, process, joint_embedding, MARKERS
 from paper_style import set_paper_style, tool_color, panel, save
 
 def main():
@@ -24,18 +24,13 @@ def main():
     names = [n for n, _ in tools]
     ref = names[0]
 
-    # count-level inputs (knee + per-gene totals)
     M = {}
     for n, d in tools:
         M[n], _, _ = load_star_raw(d)
     pgt = {n: np.asarray(M[n].sum(0)).ravel() for n in names}
 
-    # biological inputs (cell calling, typing, joint embedding)
-    proc = {n: process(load(d), min_umi=min_umi) for n, d in tools}
-    raw = {n: load(d) for n, d in tools}
-    shared = sorted(set.intersection(*[set(proc[n].obs_names) for n in names]))
-    fracs = {n: {ct: float((proc[n].obs["cell_type"] == ct).mean()) for ct in MARKERS} for n in names}
-    comb, co, _mix = joint_embedding(raw, shared, min_umi)
+    mj = os.path.join(outdir, "biological_metrics.json")
+    bm = json.load(open(mj)) if os.path.exists(mj) else {}
 
     fig, axes = plt.subplots(2, 2, figsize=(11, 9))
 
@@ -60,20 +55,29 @@ def main():
     ax.set_title("Per-gene total"); ax.legend(loc="upper left", handletextpad=0.2)
     ax.set_aspect("equal", adjustable="box"); panel(ax, "B")
 
-    # (C) joint embedding colored by tool
-    ax = axes[1, 0]; u = comb.obsm["X_umap"]
-    for i, n in enumerate(names):
-        m = comb.obs["tool"].values == n
-        ax.scatter(u[m, 0], u[m, 1], s=10, alpha=0.7, label=n, color=tool_color(n, i), edgecolors="none")
-    ax.legend(loc="best", markerscale=1.6)
-    ax.set_xlabel("UMAP-1"); ax.set_ylabel("UMAP-2"); ax.set_xticks([]); ax.set_yticks([])
-    ax.set_title(f"Joint embedding by tool  (co-clustering = {co:.3f})"); panel(ax, "C")
+    # (C) quantitative concordance scorecard (no embedding, no visual judgment)
+    ax = axes[1, 0]
+    labels = ["Cell-type\nagreement", "Cell-type\nJaccard (mean)", "Cluster ARI\n(mean)", "Co-clustering\n(joint)"]
+    vals = [bm.get("celltype_agreement_shared"), bm.get("celltype_jaccard_mean"),
+            bm.get("cluster_ari_mean"), bm.get("joint_coclustering_agreement")]
+    vals = [v if isinstance(v, (int, float)) else float("nan") for v in vals]
+    yb = np.arange(len(labels))[::-1]
+    ax.barh(yb, vals, color="#1b7837", height=0.55)
+    ax.axvline(1.0, color="0.5", ls="--", lw=1)
+    for y_, v in zip(yb, vals):
+        if v == v:
+            ax.text(min(v, 0.97) - 0.02, y_, f"{v:.3f}", va="center", ha="right", color="white", fontweight="bold")
+    ax.set_yticks(yb); ax.set_yticklabels(labels); ax.set_xlim(0, 1.08); ax.set_xlabel("Score (1 = identical)")
+    ax.set_title(f"Tool concordance  (n={bm.get('shared_cells', '?')} shared cells)")
+    ax.spines["left"].set_visible(False); panel(ax, "C")
 
     # (D) cell-type composition
     ax = axes[1, 1]
-    cts = list(MARKERS.keys()); x = np.arange(len(cts)); w = 0.8 / len(names)
+    fr = bm.get("celltype_fractions", {})
+    cts = list(next(iter(fr.values())).keys()) if fr else []
+    x = np.arange(len(cts)); w = 0.8 / max(len(names), 1)
     for i, n in enumerate(names):
-        ax.bar(x + i * w - 0.4 + w / 2, [fracs[n][c] for c in cts], w, label=n, color=tool_color(n, i))
+        ax.bar(x + i * w - 0.4 + w / 2, [fr.get(n, {}).get(c, 0) for c in cts], w, label=n, color=tool_color(n, i))
     ax.set_xticks(x); ax.set_xticklabels(cts, rotation=35, ha="right")
     ax.set_ylabel("Fraction of cells"); ax.set_title("Cell-type composition")
     ax.legend(loc="upper right"); panel(ax, "D")
