@@ -23,6 +23,12 @@ recovery metric (see *Recovery metrics* below).
 | **Supplementary Figure S1** (Discordant read recovery breakdown) | `discordant_analysis.py` + `generate_figures.py` | `results/paper_figures/fig_discordant_summary.{pdf,png}`, `results/paper_figures/discordant_analysis.json` |
 | **Supplementary Note S2** (V_total methodology) | `validate_lr_recall_against_vtotal.py` (LR) + `validate_pe_recall_against_vtotal.py` (PE) | JSON outputs listed in Table 3 row above |
 | **Appendix B Table** (LR-SPLiT-seq optimization progression on 1M-read subset) | `lr_perf_rerun.py` | `results/lr_perf/lr_perf_rerun_results.json` |
+| **`fig:count_concordance`** (downstream quantification concordance: knee, per-barcode, per-gene) | `biological_analysis/scripts/count_concordance.py` (driven by `run_phase2a.sh`) | `biological_analysis/full_run_results/count_concordance.{pdf,png,json}` |
+| **`sec:downstream` metrics + `tab:pairwise_concordance`** (cell-type agreement, per-type + read-set Jaccard, cluster ARI, co-clustering) | `biological_analysis/scripts/biological_analysis.py` + `read_set_jaccard.py` | `biological_analysis/full_run_results/biological_metrics.json`, `read_set_jaccard.json` |
+| **Merged `fig:downstream`** (knee, per-gene, scorecard, cell-type composition) | `biological_analysis/scripts/make_downstream_figure.py` | `biological_analysis/full_run_results/downstream_concordance{,_jaccard}.{pdf,png}` |
+| **Supplementary `tab:jaccard`** (per-cell-type Jaccard) | `biological_analysis/scripts/biological_analysis.py` (emits `jaccard_supplement.md`) | `biological_analysis/full_run_results/jaccard_supplement.md` |
+| **Tolerance sensitivity** (yield and concordance vs linker tolerance) | `biological_analysis/scripts/tolerance_sweep.sh` | `biological_analysis/full_run_results/tolerance_sensitivity.{pdf,png}`, `yield_by_tolerance.csv`, `concordance_by_tolerance.csv` |
+| **Downstream pipeline driver** (STARsolo quantification + all downstream outputs, one command) | `biological_analysis/run_phase2a.sh` (see `biological_analysis/CLUSTER_RUN.md`) | `phase2a_out/analysis/` |
 
 The corresponding LaTeX in the paper repo cites the figure and JSON paths
 listed above; regenerating the JSONs and figures from this repo regenerates
