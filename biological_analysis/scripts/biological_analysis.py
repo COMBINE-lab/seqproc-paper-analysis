@@ -121,6 +121,8 @@ def main():
 
     # cell-type agreement: fraction of shared cells with the same label in EVERY tool
     type_agree = float(np.mean([all(type_lab[n][c] == type_lab[ref][c] for n in names) for c in shared])) if shared else float("nan")
+    # pairwise cell-type agreement: fraction of shared cells each tool pair labels the same
+    ct_agree_pw = {f"{a}|{b}": round(float(np.mean([type_lab[a][c] == type_lab[b][c] for c in shared])), 4) for a, b in pairs} if shared else {}
 
     # per-cell-type Jaccard across tool pairs (label-set overlap; no embedding)
     ct_jac = {}
@@ -153,6 +155,7 @@ def main():
         "cells": {n: int(proc[n].n_obs) for n in names},
         "shared_cells": len(shared),
         "celltype_agreement_shared": round(type_agree, 4),
+        "celltype_agreement_pairwise": ct_agree_pw,
         "celltype_jaccard_per_type": ct_jac,
         "celltype_jaccard_mean": mean_ct_jac,
         "celltype_fractions": {n: {k: round(v, 4) for k, v in fracs[n].items()} for n in names},
