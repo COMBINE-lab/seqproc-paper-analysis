@@ -45,6 +45,34 @@ STAR and the three tool binaries must be on PATH or pointed at via the `*_BIN` e
 scp <OUT>/phase2a_bundle.tar.gz  <your machine or the box>
 ```
 
+## 5. Refresh downstream metrics/figures without re-aligning
+When only the analysis code changed (a new metric, a relabelled figure), re-run the analysis
+scripts on the STARsolo matrices already on disk. This is a ~1 minute step and does not re-run
+STARsolo. `biological_analysis.py` must run before `make_downstream_figure.py` (the latter reads
+its JSON).
+```bash
+cd /nfshomes/ejfisher/seqproc-paper-analysis && git pull
+PY=biological_analysis/.venv_phase2a/bin/python
+OUT=/fs/nexus-projects/seqproc/bench/phase2a_out
+$PY biological_analysis/scripts/biological_analysis.py $OUT/analysis 200 \
+  seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene
+$PY biological_analysis/scripts/count_concordance.py $OUT/analysis \
+  seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene
+$PY biological_analysis/scripts/make_downstream_figure.py $OUT/analysis 200 \
+  seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene
+$PY biological_analysis/scripts/read_set_jaccard.py $OUT/analysis/read_set_jaccard.json \
+  seqproc:$OUT/sp_bc.fq splitcode:$OUT/sc_bc.fq matchbox:$OUT/mb_bc.fq
+```
+Then commit the refreshed outputs back to the repo:
+```bash
+cp $OUT/analysis/biological_metrics.json $OUT/analysis/count_concordance.json \
+   $OUT/analysis/read_set_jaccard.json $OUT/analysis/jaccard_supplement.md \
+   biological_analysis/full_run_results/
+git add biological_analysis/full_run_results/
+git commit --no-verify -m "refresh downstream metrics from cluster"
+git push origin biological-validation
+```
+
 ## Notes
 - Full 86.8M-read STARsolo is the long step. If your interactive `srun` might disconnect, wrap the
   step 3 command in an `sbatch` script instead so it survives the session ending.
