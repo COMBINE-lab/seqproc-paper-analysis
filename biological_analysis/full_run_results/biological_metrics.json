@@ -12,6 +12,11 @@
   },
   "shared_cells": 220,
   "celltype_agreement_shared": 0.8909,
+  "celltype_agreement_pairwise": {
+    "seqproc|splitcode": 0.9273,
+    "seqproc|matchbox": 0.9364,
+    "splitcode|matchbox": 0.9136
+  },
   "celltype_jaccard_per_type": {
     "Neuron": 0.9586,
     "Astrocyte": 0.9118,
