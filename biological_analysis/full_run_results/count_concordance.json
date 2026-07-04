@@ -1,4 +1,24 @@
 {
+  "barcode_rank_knee": {
+    "seqproc": {
+      "n_barcodes": 14857,
+      "top_umi": 19511.0,
+      "knee_rank": 58,
+      "umi_at_knee": 2100.0
+    },
+    "splitcode": {
+      "n_barcodes": 14434,
+      "top_umi": 18847.0,
+      "knee_rank": 60,
+      "umi_at_knee": 1932.0
+    },
+    "matchbox": {
+      "n_barcodes": 14936,
+      "top_umi": 19644.0,
+      "knee_rank": 58,
+      "umi_at_knee": 2109.0
+    }
+  },
   "per_barcode_umi_pearson_logspace": {
     "seqproc|splitcode": 0.9782,
     "seqproc|matchbox": 0.9919,
