@@ -54,6 +54,18 @@ def test_edge_cases():
     assert knee_point(np.full(1000, 5.0))[0] is not None            # flat curve, no crash
     assert knee_point(np.array([9., 8, 7, 3, 2, 1])) == (None, None)  # too few barcodes
 
+def test_barcoderanks_inflection_on_known_cliff():
+    """The DropletUtils barcodeRanks port: its inflection lands within 10% of the true cliff."""
+    from knee_barcoderanks import barcode_ranks
+    for n_cells in (220, 500, 1000):
+        r = barcode_ranks(_mixture(n_cells, seed=7))
+        assert 0.9 <= r["infl_rank"] / n_cells <= 1.1, (n_cells, r["infl_rank"])
+
+def test_barcoderanks_three_tool():
+    from knee_barcoderanks import barcode_ranks
+    ks = [barcode_ranks(_mixture(220, noise=0.05, seed=s))["infl_rank"] for s in range(3)]
+    assert max(ks) - min(ks) <= 15, ks
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):
