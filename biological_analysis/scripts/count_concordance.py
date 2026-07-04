@@ -51,13 +51,15 @@ def main():
     assert all(list(G[n]) == list(G[ref]) for n in names), "gene order differs across tools"
     pgt = {n: np.asarray(M[n].sum(0)).ravel() for n in names}
 
-    # barcode-rank knee per tool (kneedle on the log-log rank/UMI curve)
+    # barcode-rank summary per tool. kneedle is reported but is typically degenerate on a
+    # cell/ambient curve (a few hundred called cells over a tail of thousands of empty barcodes),
+    # so top_umi and n_barcodes are the robust cross-tool summary of the curve shape.
     knees = {}
     for n in names:
         r = barcode_rank(M[n]); r = r[r > 0]
         kr, ku = knee_point(r)
-        knees[n] = {"knee_rank": kr, "umi_at_knee": (round(ku, 1) if ku is not None else None),
-                    "n_barcodes": int(len(r))}
+        knees[n] = {"n_barcodes": int(len(r)), "top_umi": round(float(r[0]), 1),
+                    "knee_rank": kr, "umi_at_knee": (round(ku, 1) if ku is not None else None)}
 
     def pair_r(a, b, per_barcode):
         if per_barcode:
@@ -86,7 +88,9 @@ def main():
     json.dump(res, open(os.path.join(outdir, "count_concordance.json"), "w"), indent=2)
     print("per-barcode  pearson(log):", res["per_barcode_umi_pearson_logspace"], "| spearman:", res["per_barcode_umi_spearman"])
     print("per-gene     pearson(log):", res["per_gene_total_pearson_logspace"], "| spearman:", res["per_gene_total_spearman"])
-    print("barcode-rank knee (rank, UMI):", {n: (knees[n]["knee_rank"], knees[n]["umi_at_knee"]) for n in names})
+    print("barcode-rank: top_umi", {n: knees[n]["top_umi"] for n in names},
+          "| n_barcodes", {n: knees[n]["n_barcodes"] for n in names},
+          "| kneedle rank (often degenerate)", {n: knees[n]["knee_rank"] for n in names})
 
     fig, ax = plt.subplots(1, 3, figsize=(13.5, 4.2))
 
