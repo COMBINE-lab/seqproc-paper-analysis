@@ -14,26 +14,25 @@ from concordance_helpers import load_star_raw, per_barcode_umi, barcode_rank
 from paper_style import set_paper_style, tool_color, panel, save
 
 def knee_point(r):
-    """Barcode-rank knee via the kneedle algorithm on the log-log rank/UMI curve.
-    r: total UMI per barcode, sorted descending and positive. Returns (knee_rank, umi_at_knee),
-    or (None, None) if undetermined. Falls back to a chord-distance knee if `kneed` is absent."""
+    """Barcode-rank knee via the Kneedle max-distance criterion computed directly on the log-log
+    rank/UMI curve, i.e. the point of greatest perpendicular distance from the chord joining the
+    endpoints. The `kneed` package itself is unreliable on this curve shape: a short high-UMI cell
+    head sitting over a long flat tail of 1-UMI empties collapses its normalized-distance heuristic
+    to an endpoint (rank 1 or rank N) for every curve/direction setting, so we compute the criterion
+    directly on the UMI>1 head (which also stabilizes the chord against differing tail lengths).
+    r: total UMI per barcode, sorted descending and positive. Returns (knee_rank, umi_at_knee)."""
     r = np.asarray(r, float); r = r[r > 0]
-    if len(r) < 10:
+    if len(r) < 20:
         return None, None
     ranks = np.arange(1, len(r) + 1, dtype=float)
-    x, y = np.log10(ranks), np.log10(r)
-    kr = None
-    try:
-        from kneed import KneeLocator
-        kl = KneeLocator(x, y, curve="convex", direction="decreasing", S=1.0)
-        if kl.knee is not None:
-            kr = int(round(10.0 ** kl.knee))
-    except Exception:
-        kr = None
-    if kr is None:  # fallback: farthest point below the chord joining the endpoints (log-log)
-        chord = y[0] + (y[-1] - y[0]) * (x - x[0]) / (x[-1] - x[0])
-        kr = int(ranks[int(np.argmax(chord - y))])
-    kr = min(max(kr, 1), len(r))
+    head = r > 1
+    if head.sum() < 20:
+        head = np.ones(len(r), bool)
+    x, y = np.log10(ranks[head]), np.log10(r[head])
+    xn = (x - x.min()) / (x.max() - x.min()); yn = (y - y.min()) / (y.max() - y.min())
+    x0, y0, x1, y1 = xn[0], yn[0], xn[-1], yn[-1]
+    dist = np.abs((y1 - y0) * xn - (x1 - x0) * yn + x1 * y0 - y1 * x0) / np.hypot(y1 - y0, x1 - x0)
+    kr = int(ranks[head][int(np.argmax(dist))])
     return kr, float(r[kr - 1])
 
 def main():
@@ -51,9 +50,8 @@ def main():
     assert all(list(G[n]) == list(G[ref]) for n in names), "gene order differs across tools"
     pgt = {n: np.asarray(M[n].sum(0)).ravel() for n in names}
 
-    # barcode-rank summary per tool. kneedle is reported but is typically degenerate on a
-    # cell/ambient curve (a few hundred called cells over a tail of thousands of empty barcodes),
-    # so top_umi and n_barcodes are the robust cross-tool summary of the curve shape.
+    # barcode-rank summary per tool: knee (max-distance criterion on the log-log curve), plus
+    # top_umi and n_barcodes as method-independent cross-tool summaries of the curve shape.
     knees = {}
     for n in names:
         r = barcode_rank(M[n]); r = r[r > 0]
@@ -90,7 +88,7 @@ def main():
     print("per-gene     pearson(log):", res["per_gene_total_pearson_logspace"], "| spearman:", res["per_gene_total_spearman"])
     print("barcode-rank: top_umi", {n: knees[n]["top_umi"] for n in names},
           "| n_barcodes", {n: knees[n]["n_barcodes"] for n in names},
-          "| kneedle rank (often degenerate)", {n: knees[n]["knee_rank"] for n in names})
+          "| knee rank", {n: knees[n]["knee_rank"] for n in names})
 
     fig, ax = plt.subplots(1, 3, figsize=(13.5, 4.2))
 
