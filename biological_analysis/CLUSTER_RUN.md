@@ -73,6 +73,36 @@ git commit --no-verify -m "refresh downstream metrics from cluster"
 git push origin biological-validation
 ```
 
+## 6. Barcode-rank knee + cluster-ARI stability
+`count_concordance.py` now reports the barcode-rank knee per tool (kneedle on the log-log curve; a
+chord-distance fallback runs if `kneed` is absent). The knee lands in `count_concordance.json` under
+`barcode_rank_knee`. `ari_stability.py` reclusters across many Leiden seeds (and resolutions) to test
+whether the pairwise cluster-ARI gap is a real effect or run-to-run noise; its `reference_seed0_res1.0`
+values should reproduce the paper table (0.909 / 0.644 / 0.627).
+```bash
+cd /nfshomes/ejfisher/seqproc-paper-analysis && git pull
+PY=biological_analysis/.venv_phase2a/bin/python
+OUT=/fs/nexus-projects/seqproc/bench/phase2a_out
+biological_analysis/.venv_phase2a/bin/pip install kneed        # canonical kneedle (one time)
+
+# knee: re-run count_concordance.py (also part of the section-5 refresh)
+$PY biological_analysis/scripts/count_concordance.py $OUT/analysis \
+  seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene
+
+# cluster-ARI stability: 50 seeds at res 1.0 plus a resolution sweep (~a few minutes)
+$PY biological_analysis/scripts/ari_stability.py $OUT/analysis 50 200 \
+  seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene \
+  --res=0.5,1.0,1.5,2.0
+```
+Then commit the outputs back:
+```bash
+cp $OUT/analysis/count_concordance.json $OUT/analysis/ari_stability.json \
+   biological_analysis/full_run_results/
+git add biological_analysis/full_run_results/
+git commit --no-verify -m "add barcode-rank knee + cluster-ARI stability from cluster"
+git push origin biological-validation
+```
+
 ## Notes
 - Full 86.8M-read STARsolo is the long step. If your interactive `srun` might disconnect, wrap the
   step 3 command in an `sbatch` script instead so it survives the session ending.
