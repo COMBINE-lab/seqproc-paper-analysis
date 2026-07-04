@@ -13,26 +13,30 @@ from scipy.stats import spearmanr
 from concordance_helpers import load_star_raw, per_barcode_umi, barcode_rank
 from paper_style import set_paper_style, tool_color, panel, save
 
-def knee_point(r):
-    """Barcode-rank knee via the Kneedle max-distance criterion computed directly on the log-log
-    rank/UMI curve, i.e. the point of greatest perpendicular distance from the chord joining the
-    endpoints. The `kneed` package itself is unreliable on this curve shape: a short high-UMI cell
-    head sitting over a long flat tail of 1-UMI empties collapses its normalized-distance heuristic
-    to an endpoint (rank 1 or rank N) for every curve/direction setting, so we compute the criterion
-    directly on the UMI>1 head (which also stabilizes the chord against differing tail lengths).
-    r: total UMI per barcode, sorted descending and positive. Returns (knee_rank, umi_at_knee)."""
+def knee_point(r, umi_floor=10):
+    """Barcode-rank knee = the inflection of the log-log rank/UMI curve, i.e. the point of steepest
+    descent (most negative first derivative of the lightly smoothed curve). This is the top of the
+    cell/empty cliff, the feature a reader identifies visually and the boundary separating called
+    cells from ambient barcodes. Both `kneed` and a max-distance-from-chord criterion fail here, they
+    place the knee up on the high-UMI plateau instead of at the cliff, so we detect steepest descent
+    directly, restricted to barcodes with UMI>=umi_floor to keep the noisy low tail out of the
+    derivative. r: total UMI per barcode, sorted descending and positive. Returns (knee_rank,
+    umi_at_knee)."""
     r = np.asarray(r, float); r = r[r > 0]
-    if len(r) < 20:
+    if len(r) < 30:
         return None, None
     ranks = np.arange(1, len(r) + 1, dtype=float)
-    head = r > 1
-    if head.sum() < 20:
+    head = r >= umi_floor
+    if head.sum() < 30:
         head = np.ones(len(r), bool)
     x, y = np.log10(ranks[head]), np.log10(r[head])
-    xn = (x - x.min()) / (x.max() - x.min()); yn = (y - y.min()) / (y.max() - y.min())
-    x0, y0, x1, y1 = xn[0], yn[0], xn[-1], yn[-1]
-    dist = np.abs((y1 - y0) * xn - (x1 - x0) * yn + x1 * y0 - y1 * x0) / np.hypot(y1 - y0, x1 - x0)
-    kr = int(ranks[head][int(np.argmax(dist))])
+    w = int(min(31, max(5, len(y) // 5)))
+    ys = np.convolve(y, np.ones(w) / w, mode="same")
+    d1 = np.gradient(ys, x)
+    lo, hi = w, len(x) - w
+    if hi <= lo:
+        lo, hi = 1, len(x)
+    kr = int(ranks[head][lo + int(np.argmin(d1[lo:hi]))])
     return kr, float(r[kr - 1])
 
 def main():
@@ -50,8 +54,8 @@ def main():
     assert all(list(G[n]) == list(G[ref]) for n in names), "gene order differs across tools"
     pgt = {n: np.asarray(M[n].sum(0)).ravel() for n in names}
 
-    # barcode-rank summary per tool: knee (max-distance criterion on the log-log curve), plus
-    # top_umi and n_barcodes as method-independent cross-tool summaries of the curve shape.
+    # barcode-rank summary per tool: knee (steepest-descent inflection of the log-log curve, i.e. the
+    # cell/empty cliff), plus top_umi and n_barcodes as method-independent cross-tool summaries.
     knees = {}
     for n in names:
         r = barcode_rank(M[n]); r = r[r > 0]
