@@ -97,14 +97,12 @@ def main():
     fig, ax = plt.subplots(1, 3, figsize=(13.5, 4.2))
 
     # (A) barcode-rank knee, all tools
+    # panel A shows the three superimposed barcode-rank curves only; the knee/inflection is
+    # reported separately by knee_barcoderanks.py (DropletUtils barcodeRanks), not marked here.
     for i, n in enumerate(names):
         r = barcode_rank(M[n]); r = r[r > 0]
-        kr = knees[n]["knee_rank"]
-        lbl = f"{n} (n={len(r):,}" + (f", knee@{kr})" if kr else ")")
-        ax[0].loglog(np.arange(1, len(r) + 1), r, label=lbl, color=tool_color(n, i), lw=1.8)
-        if kr:
-            ax[0].scatter([kr], [r[kr - 1]], color=tool_color(n, i), s=30, zorder=5,
-                          edgecolors="k", linewidths=0.5)
+        ax[0].loglog(np.arange(1, len(r) + 1), r, label=f"{n} (n={len(r):,})",
+                     color=tool_color(n, i), lw=1.8)
     ax[0].set_xlabel("Barcode rank"); ax[0].set_ylabel("Total UMI per barcode")
     ax[0].set_title("Barcode rank"); ax[0].legend(loc="lower left")
     ax[0].grid(True, which="major", alpha=0.25, lw=0.5); panel(ax[0], "A")
