@@ -222,10 +222,31 @@ def run_matchbox(dataset: dict, outdir: Path,
     return ids, runtime, mem
 
 
+def _revcomp_fastq(in_path, out_path, threads):
+    """Reverse-complement every record in a FASTQ (seqkit if present, else Python)."""
+    rc = subprocess.run(
+        f"seqkit seq -r -p -t dna -j {threads} {in_path} -o {out_path}",
+        shell=True, capture_output=True, text=True)
+    if rc.returncode == 0:
+        return
+    comp = str.maketrans("ACGTNacgtn", "TGCANtgcan")
+    with open(in_path) as fi, open(out_path, "w") as fo:
+        while True:
+            h = fi.readline()
+            if not h:
+                break
+            s = fi.readline().rstrip("\n"); p = fi.readline(); q = fi.readline().rstrip("\n")
+            fo.write(h); fo.write(s.translate(comp)[::-1] + "\n"); fo.write(p); fo.write(q[::-1] + "\n")
+
+
 def run_splitcode(dataset: dict, outdir: Path,
                   threads: int) -> Tuple[Set[str], float, float]:
-    """Run splitcode and return (read_id_set, runtime, memory_mb)."""
-    # Detect assign flag
+    """Run splitcode and return (read_id_set, runtime, memory_mb).
+
+    For LR-SPLiT-seq (single-end, random orientation) splitcode is run twice, on
+    the forward input and on its reverse-complement, and the recovered read IDs are
+    unioned, matching the dual-pass row of the main results table.
+    """
     with open(dataset['splitcode_config']) as f:
         config_text = f.read()
     has_tags = False
@@ -237,35 +258,46 @@ def run_splitcode(dataset: dict, outdir: Path,
         if len(fields) >= 3 and fields[0] not in ('ID', 'group'):
             has_tags = True
             break
-
     assign_flag = "--assign" if has_tags else ""
+
+    def _single_pass(input_fq, tag):
+        out_fq = outdir / f"splitcode_{tag}.fq"
+        mp = outdir / f"splitcode_{tag}_mapping.txt"
+        mflag = f"-m {mp}" if has_tags else ""
+        cmd = (f"{SPLITCODE_BIN} -c {dataset['splitcode_config']} "
+               f"{assign_flag} -N 1 -t {threads} {mflag} -o {out_fq} {input_fq}")
+        rt, mem, rc, stderr = run_cmd(cmd, PROJECT_ROOT)
+        if rc != 0:
+            print(f"    [ERROR] splitcode ({tag}) failed (rc={rc})")
+            print(f"    stderr: {stderr[-500:]}")
+            return set(), rt, mem
+        return extract_fastq_ids(str(out_fq)), rt, mem
+
+    # LR-SPLiT-seq: dual-pass (forward + reverse-complement), union IDs.
+    if dataset['mode'] == 'single' and 'LR' in dataset.get('name', ''):
+        rc_fq = outdir / "input_revcomp.fq"
+        _revcomp_fastq(dataset['r1'], rc_fq, threads)
+        ids_fwd, rt_f, mem_f = _single_pass(dataset['r1'], "fwd")
+        ids_rev, rt_r, mem_r = _single_pass(rc_fq, "rev")
+        return ids_fwd | ids_rev, rt_f + rt_r, max(mem_f, mem_r)
+
+    # Single-end, non-LR: one forward pass.
+    if dataset['mode'] == 'single':
+        return _single_pass(dataset['r1'], "out")
+
+    # Paired-end.
     mapping = outdir / "splitcode_mapping.txt"
     mapping_flag = f"-m {mapping}" if has_tags else ""
-
-    if dataset['mode'] == 'single':
-        out_fq = outdir / "splitcode_out.fq"
-        cmd = (f"{SPLITCODE_BIN} -c {dataset['splitcode_config']} "
-               f"{assign_flag} -N 1 -t {threads} {mapping_flag} "
-               f"-o {out_fq} {dataset['r1']}")
-    else:
-        out1 = outdir / "splitcode_R1.fq"
-        out2 = outdir / "splitcode_R2.fq"
-        cmd = (f"{SPLITCODE_BIN} -c {dataset['splitcode_config']} "
-               f"{assign_flag} -N 2 -t {threads} {mapping_flag} "
-               f"-o {out1},{out2} {dataset['r1']} {dataset['r2']}")
-
+    out1 = outdir / "splitcode_R1.fq"; out2 = outdir / "splitcode_R2.fq"
+    cmd = (f"{SPLITCODE_BIN} -c {dataset['splitcode_config']} "
+           f"{assign_flag} -N 2 -t {threads} {mapping_flag} "
+           f"-o {out1},{out2} {dataset['r1']} {dataset['r2']}")
     runtime, mem, rc, stderr = run_cmd(cmd, PROJECT_ROOT)
     if rc != 0:
         print(f"    [ERROR] splitcode failed (rc={rc})")
         print(f"    stderr: {stderr[-500:]}")
         return set(), runtime, mem
-
-    if dataset['mode'] == 'single':
-        ids = extract_fastq_ids(str(out_fq))
-    else:
-        ids = extract_fastq_ids(str(outdir / "splitcode_R2.fq"))
-
-    return ids, runtime, mem
+    return extract_fastq_ids(str(outdir / "splitcode_R2.fq")), runtime, mem
 
 
 # ============================================================================
