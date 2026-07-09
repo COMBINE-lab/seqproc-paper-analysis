@@ -20,8 +20,17 @@ Usage:
 import sys, os, argparse, json
 import edlib
 
-L1 = "GTGGCCGCTGTTTCGCATCGGCGTACGACT"   # 30 bp
-L2 = "ATCCACGTGCTTGAGAGGCCAGAGCATTCG"   # 30 bp
+# Linker sequences per chemistry. PE and LR-SPLiT-seq differ (LR L1 has an A at
+# position 8; LR L2 is the shorter 22 bp variant).
+LINKERS = {
+    "pe": ("GTGGCCGCTGTTTCGCATCGGCGTACGACT", "ATCCACGTGCTTGAGAGGCCAGAGCATTCG"),
+    "lr": ("GTGGCCGATGTTTCGCATCGGCGTACGACT", "ATCCACGTGCTTGAGACTGTGG"),
+}
+_COMP = str.maketrans("ACGTNacgtn", "TGCANtgcan")
+
+
+def revcomp(s):
+    return s.translate(_COMP)[::-1]
 
 
 def ham1_set(path):
@@ -42,14 +51,36 @@ def find(query, target, max_edit):
     return r["locations"][0]                       # (start, end) inclusive, best match
 
 
+def genuine(seq, L1, L2, bc23, bc1s, n23, n1, max_edit):
+    """True if seq carries linker1 -> bc2 -> linker2 -> bc1 with a whitelist-valid
+    bc3 (before L1), bc2 (after L1) and bc1 (after L2), linkers within edit<=max_edit."""
+    l1 = find(L1, seq, max_edit)
+    if not l1:
+        return False
+    s1, e1 = l1
+    bc3 = seq[s1 - n23:s1]
+    bc2 = seq[e1 + 1:e1 + 1 + n23]
+    if len(bc3) != n23 or len(bc2) != n23 or bc3 not in bc23 or bc2 not in bc23:
+        return False
+    l2 = find(L2, seq[e1 + 1:], max_edit)
+    if not l2:
+        return False
+    e2 = l2[1] + e1 + 1
+    bc1 = seq[e2 + 1:e2 + 1 + n1]
+    return len(bc1) == n1 and bc1 in bc1s
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("fastq")
+    ap.add_argument("--chem", choices=["pe", "lr"], default="pe",
+                    help="pe: check forward only. lr: check both orientations (PacBio).")
     ap.add_argument("--out", default=None)
     ap.add_argument("--sample", type=int, default=0)
     ap.add_argument("--max-linker-edit", type=int, default=6)
     a = ap.parse_args()
 
+    L1, L2 = LINKERS[a.chem]
     wl = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "configs", "seqproc")
     bc23, n23 = ham1_set(os.path.join(wl, "splitseq_bc23_whitelist.txt"))
     bc1s, n1 = ham1_set(os.path.join(wl, "splitseq_bc1_whitelist_6bp.txt"))
@@ -65,26 +96,13 @@ def main():
                 break
             total += 1
             rid = h[1:].split()[0]
+            ok = genuine(seq, L1, L2, bc23, bc1s, n23, n1, a.max_linker_edit)
+            if not ok and a.chem == "lr":
+                ok = genuine(revcomp(seq), L1, L2, bc23, bc1s, n23, n1, a.max_linker_edit)
+            if ok:
+                valid.add(rid)
 
-            l1 = find(L1, seq, a.max_linker_edit)
-            if not l1:
-                continue
-            s1, e1 = l1
-            bc3 = seq[s1 - n23:s1]
-            bc2 = seq[e1 + 1:e1 + 1 + n23]
-            if len(bc3) != n23 or len(bc2) != n23 or bc3 not in bc23 or bc2 not in bc23:
-                continue
-
-            l2 = find(L2, seq[e1 + 1:], a.max_linker_edit)
-            if not l2:
-                continue
-            e2 = l2[1] + e1 + 1
-            bc1 = seq[e2 + 1:e2 + 1 + n1]
-            if len(bc1) != n1 or bc1 not in bc1s:
-                continue
-            valid.add(rid)
-
-    print(json.dumps({"fastq": os.path.basename(a.fastq), "total": total,
+    print(json.dumps({"fastq": os.path.basename(a.fastq), "chem": a.chem, "total": total,
                       "valid": len(valid),
                       "pct_of_scanned": round(100 * len(valid) / total, 2) if total else 0.0}))
     if a.out:
