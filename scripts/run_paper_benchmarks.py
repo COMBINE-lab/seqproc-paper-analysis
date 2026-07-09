@@ -1004,6 +1004,10 @@ def run_benchmarks(threads: int, replicates: int, dataset_filter=None) -> List[B
                                                 output_ids.add(parts[0])
 
                         reads_valid = len(output_ids.intersection(validity_analyzer.valid_ids))
+                        # Count unique emitted reads, not raw output lines. matchbox can emit a
+                        # read once per matching barcode combination, so its line count exceeds
+                        # its read count; seqproc/splitcode emit one line per read (no change).
+                        reads = len(output_ids)
                         print(f"{runtime:.2f}s, {memory:.1f}MB, {reads:,} reads ({reads_valid:,} valid)")
                     else:
                         print(f"{runtime:.2f}s, {memory:.1f}MB, {reads:,} reads")
