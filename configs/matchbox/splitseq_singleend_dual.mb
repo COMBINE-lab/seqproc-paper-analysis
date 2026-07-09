@@ -3,15 +3,16 @@
 # ATCCACGTGCTTGAGACTGTGG. These are the sequences actually present in the LR reads;
 # the PE linkers (used previously here) are absent from SRR13948564 (L2 matched 0
 # of 2M reads), which was crippling matchbox's LR recovery.
-# bc1 (round-1 RT barcode) is the full 8bp on long reads; the 6bp form is the PE
-# truncation (94bp read has no room). seqproc/splitcode already use 8bp; this fixes
-# matchbox to match, so the LR comparison extracts the same barcode for all tools.
+# bc1 (round-1 RT barcode) is 6bp of variable identity followed by a constant "GA"
+# spacer (verified on SRR13948564: the 2 bases after the 6bp barcode are GA in ~71% of
+# reads, the rest carrying sequencing errors). The 96 round-1 barcodes are unique in 6bp,
+# so 6bp is the cell identity; requiring the constant GA only penalizes GA read errors.
 linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
 linker2 = ATCCACGTGCTTGAGACTGTGG
 
 if read matches {
-    [_ umi:|10| bc3:|8| linker1 bc2:|8| linker2 bc1:|8| rest:_] =>
+    [_ umi:|10| bc3:|8| linker1 bc2:|8| linker2 bc1:|6| rest:_] =>
         '{read.id}\t{bc1.seq}\t{bc2.seq}\t{bc3.seq}\t{umi.seq}'.stdout!()
-    [rest:_ bc1:|8| -linker2 bc2:|8| -linker1 bc3:|8| umi:|10| _] =>
+    [rest:_ bc1:|6| -linker2 bc2:|8| -linker1 bc3:|8| umi:|10| _] =>
         '{read.id}\t{-bc1.seq}\t{-bc2.seq}\t{-bc3.seq}\t{-umi.seq}'.stdout!()
 }
