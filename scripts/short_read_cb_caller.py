@@ -45,8 +45,10 @@ def main():
     wl1 = load(os.path.join(wl, "splitseq_bc1_whitelist_6bp.txt")); n1 = len(wl1[0])
     m23, m1 = snap_dict(wl23), snap_dict(wl1)
 
+    import gzip
+    opener = gzip.open if a.fastq.endswith(".gz") else open
     cb = Counter(); total = seen = 0
-    with open(a.fastq) as f:
+    with opener(a.fastq, "rt") as f:
         while True:
             h = f.readline()
             if not h:
