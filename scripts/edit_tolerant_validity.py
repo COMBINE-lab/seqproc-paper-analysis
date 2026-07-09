@@ -83,7 +83,11 @@ def main():
     L1, L2 = LINKERS[a.chem]
     wl = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "configs", "seqproc")
     bc23, n23 = ham1_set(os.path.join(wl, "splitseq_bc23_whitelist.txt"))
-    bc1s, n1 = ham1_set(os.path.join(wl, "splitseq_bc1_whitelist_6bp.txt"))
+    # LR round-1 barcode is the full 8bp (same pool as bc2/bc3); PE uses the 6bp truncation.
+    if a.chem == "lr":
+        bc1s, n1 = bc23, n23
+    else:
+        bc1s, n1 = ham1_set(os.path.join(wl, "splitseq_bc1_whitelist_6bp.txt"))
 
     valid, total = set(), 0
     with open(a.fastq) as f:
