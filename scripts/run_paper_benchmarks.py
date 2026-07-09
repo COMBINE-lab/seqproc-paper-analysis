@@ -138,7 +138,7 @@ DATASETS = {
         'r2': None,
         'mode': 'single',
         'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_singleend_edit_ann.geom',
-        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_singleend.mb',
+        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_singleend_dual.mb',
         'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_singleend.config',
         'seqproc_maps': [
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc3_seq2seq.tsv',
