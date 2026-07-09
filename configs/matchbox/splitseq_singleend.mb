@@ -2,12 +2,14 @@
 # Dataset: SRR13948564
 # Structure: [UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:30][BC1:8][rest]
 #
-# Linker sequences:
-#   Linker1: GTGGCCGCTGTTTCGCATCGGCGTACGACT (30bp)
-#   Linker2: ATCCACGTGCTTGAGAGGCCAG (22bp, truncated -- see dual config comment)
+# Linker sequences (micro-SPLiT LR variant, present in SRR13948564):
+#   Linker1: GTGGCCGATGTTTCGCATCGGCGTACGACT (30bp)
+#   Linker2: ATCCACGTGCTTGAGACTGTGG (22bp)
+# NOTE: single-orientation and superseded by splitseq_singleend_dual.mb (correct
+# linkers + both orientations); the benchmark and concordance both use the dual one.
 
-linker1 = GTGGCCGCTGTTTCGCATCGGCGTACGACT
-linker2 = ATCCACGTGCTTGAGAGGCCAG
+linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGACTGTGG
 
 if read matches [umi:|10| bc3:|8| linker1 bc2:|8| linker2 bc1:|6| _] => {
     '{read.id}\t{bc1.seq}\t{bc2.seq}\t{bc3.seq}\t{umi.seq}'.stdout!()
