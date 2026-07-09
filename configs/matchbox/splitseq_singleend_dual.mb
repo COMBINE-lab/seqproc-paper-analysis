@@ -1,7 +1,10 @@
-linker1 = GTGGCCGCTGTTTCGCATCGGCGTACGACT
-# L2 truncated to 22bp -- matchbox global -e 0.2 cannot match full 30bp on
-# noisy PacBio long reads (1K vs 355K recovered). First 22bp is sufficient anchor.
-linker2 = ATCCACGTGCTTGAGAGGCCAG
+# LR-SPLiT-seq (micro-SPLiT) uses different linker sequences than the PE protocol.
+# L1 has an A at position 8 (GTGGCCGAT..., not the PE GTGGCCGCT...), and L2 is
+# ATCCACGTGCTTGAGACTGTGG. These are the sequences actually present in the LR reads;
+# the PE linkers (used previously here) are absent from SRR13948564 (L2 matched 0
+# of 2M reads), which was crippling matchbox's LR recovery.
+linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGACTGTGG
 
 if read matches {
     [_ umi:|10| bc3:|8| linker1 bc2:|8| linker2 bc1:|6| rest:_] =>
