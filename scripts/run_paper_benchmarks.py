@@ -515,15 +515,26 @@ class SciSeqValidityAnalyzer:
         return sum(a != b for a, b in zip(s1, s2))
         
     def analyze_fastqs(self, r1_path, r2_path=None):
-        """Analyze R1 FASTQ for validity."""
-        cached = _load_validity_cache(r1_path, "sciseq")
+        """Analyze R1 FASTQ for validity (full sci-RNA-seq3 structural check).
+
+        The sci-RNA-seq3 R1 layout is [brc1: 9-10 bp][CAGAGC][umi: 8 bp][brc2: 10 bp].
+        The previous check only required the CAGAGC anchor to appear somewhere near the
+        start (offsets 8-11), which accepts reads that merely contain the hairpin and does
+        not confirm the surrounding barcode structure. This full check requires the anchor
+        to sit at offset 9 or 10 (the two allowed brc1 lengths, within Hamming 1) AND the
+        read to be long enough to contain the umi and brc2 that follow, so all three fields
+        (brc1, umi, brc2) are actually present, not just the hairpin.
+        """
+        cached = _load_validity_cache(r1_path, "sciseq_full")
         if cached is not None:
             self.valid_ids = cached
             return cached
 
-        print(f"    Analyzing Sci-Seq input for validity (Anchor Check)...")
+        print(f"    Analyzing Sci-Seq input for validity (full structural check)...")
         valid_ids = set()
-        
+        A = len(self.ANCHOR)                       # CAGAGC = 6 bp
+        TRAIL = 8 + 10                             # umi(8) + brc2(10)
+
         with open(r1_path, 'r') as f:
             while True:
                 header = f.readline()
@@ -531,23 +542,14 @@ class SciSeqValidityAnalyzer:
                 seq = f.readline().strip()
                 f.readline()
                 f.readline()
-                
-                # Check for anchor CAGAGC
-                # BC1 is 9-10bp, so Anchor should be around index 9 or 10
-                # Search window: 9 to 11 (0-indexed)
-                found = False
-                for i in range(8, 12): 
-                    if i + len(self.ANCHOR) <= len(seq):
-                        dist = self._hamming(seq[i:i+len(self.ANCHOR)], self.ANCHOR)
-                        if dist <= 1:
-                            found = True
-                            break
-                
-                if found:
-                    valid_ids.add(header.strip().split()[0].replace('@', ''))
-                    
+
+                for i in (9, 10):                  # brc1 is 9 or 10 bp
+                    if i + A + TRAIL <= len(seq) and self._hamming(seq[i:i+A], self.ANCHOR) <= 1:
+                        valid_ids.add(header.strip().split()[0].replace('@', ''))
+                        break
+
         print(f"    Found {len(valid_ids):,} valid reads in input.")
-        _save_validity_cache(r1_path, "sciseq", valid_ids)
+        _save_validity_cache(r1_path, "sciseq_full", valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
