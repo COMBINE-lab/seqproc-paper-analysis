@@ -3,8 +3,8 @@
 # The real cluster run uses a full GRCm38 index instead. chr19 is too small
 # for trustworthy cell calling and is only for proving the pipeline runs.
 set -euo pipefail
-FASTA=${1:-/home/ubuntu/Mus_musculus.GRCm38.dna.chromosome.19.fa}
-GTF=${2:-/home/ubuntu/Mus_musculus.GRCm38.102.chr19.gtf}
+FASTA=${1:?usage: build_chr19_index.sh <chr19.fa> <chr19.gtf> [outdir]}
+GTF=${2:?usage: build_chr19_index.sh <chr19.fa> <chr19.gtf> [outdir]}
 OUT=${3:-biological_analysis/refs/star_chr19}
 mkdir -p "$OUT"
 # chr19 ~61 Mb, so genomeSAindexNbases is reduced per STAR's small-genome rule.

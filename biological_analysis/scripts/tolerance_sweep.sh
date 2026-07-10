@@ -2,12 +2,12 @@
 # Pairwise concordance by linker tolerance: run the full pipeline at tolerances 1-4 (seqproc edit,
 # matchbox edit, splitcode Hamming) and record per-gene Pearson(log) between tool pairs.
 set -uo pipefail
-cd /home/ubuntu/seqproc-paper-analysis-clean
-SP=/home/ubuntu/combine-lab/seqproc/target/release/seqproc
-MB=/home/ubuntu/matchbox/target/release/matchbox
-SC=/home/ubuntu/splitcode/build/src/splitcode
-STAR=/usr/lib/rna-star/bin/STAR-avx2
-PY=/home/ubuntu/.venv_nb/bin/python
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"   # repo root
+SP=${SEQPROC_BIN:-seqproc}
+MB=${MATCHBOX_BIN:-matchbox}
+SC=${SPLITCODE_BIN:-splitcode}
+STAR=${STAR_BIN:-STAR}
+PY=${PYTHON:-python3}
 IDX=biological_analysis/refs/star_GRCm38
 WL=biological_analysis/configs/splitseq_bc_whitelist_96.txt
 R1=data/SRR6750041_1M_R1.fastq; R2=data/SRR6750041_1M_R2.fastq
