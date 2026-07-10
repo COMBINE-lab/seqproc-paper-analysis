@@ -60,6 +60,9 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--chemistry", required=True, choices=["10x", "sci"])
     ap.add_argument("--reads", default="full", choices=["1m", "full"])
+    ap.add_argument("--r1", default=None,
+                    help="override R1 FASTQ path (FASTQs may live off the project root, e.g. /fs)")
+    ap.add_argument("--r2", default=None, help="override R2 FASTQ path")
     ap.add_argument("--outdir", required=True)
     args = ap.parse_args()
 
@@ -70,8 +73,10 @@ def main():
     else:
         ds_key, cdir_name = "sciseq", "sciseq"
         analyzer = rpb.SciSeqValidityAnalyzer()
-    # resolve_datasets returns a merged config dict with r1/r2/reads keys
-    r1, r2 = datasets[ds_key]["r1"], datasets[ds_key]["r2"]
+    # resolve_datasets returns a merged config dict with r1/r2/reads keys; allow explicit
+    # override since the FASTQs may live off the project root (cluster keeps them on /fs).
+    r1 = args.r1 or datasets[ds_key]["r1"]
+    r2 = args.r2 or datasets[ds_key]["r2"]
     total = datasets[ds_key].get("reads")
     gt = lambda: analyzer.analyze_fastqs(str(r1), str(r2))
 
