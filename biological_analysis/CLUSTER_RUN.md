@@ -1,4 +1,4 @@
-# Cluster run (Phase 2A) on UMIACS nexus
+# Cluster run (Phase 2A)
 
 You drive this. The sandbox box cannot reach the cluster (VPN plus your credentials), so the code
 is pushed to GitHub from the box and you pull it on the cluster, then run the one command. Paste
@@ -6,7 +6,7 @@ the run log back and I debug from there.
 
 ## 0. Get on the cluster (your VPN, then ssh, then an interactive node)
 ```bash
-ssh ejfisher@nexuscbcb.umiacs.umd.edu
+ssh <user>@<cluster-host>
 # request a node with enough RAM for STARsolo + the full genome index (~30GB),
 # and enough wall time for full-data STARsolo. Adjust partition to your cluster.
 srun --pty -c 8 --mem=48G -t 8:00:00 bash
@@ -14,7 +14,7 @@ srun --pty -c 8 --mem=48G -t 8:00:00 bash
 
 ## 1. Pull the latest code
 ```bash
-cd /nfshomes/ejfisher/seqproc-paper-analysis-clean   # wherever the repo lives
+cd /path/to/seqproc-paper-analysis   # wherever the repo lives
 git pull
 ```
 
@@ -51,9 +51,9 @@ scripts on the STARsolo matrices already on disk. This is a ~1 minute step and d
 STARsolo. `biological_analysis.py` must run before `make_downstream_figure.py` (the latter reads
 its JSON).
 ```bash
-cd /nfshomes/ejfisher/seqproc-paper-analysis && git pull
+cd /path/to/seqproc-paper-analysis && git pull
 PY=biological_analysis/.venv_phase2a/bin/python
-OUT=/fs/nexus-projects/seqproc/bench/phase2a_out
+OUT="${WORK:?set WORK to your project scratch space}/phase2a_out"
 $PY biological_analysis/scripts/biological_analysis.py $OUT/analysis 200 \
   seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene
 $PY biological_analysis/scripts/count_concordance.py $OUT/analysis \
@@ -78,9 +78,9 @@ git push origin biological-validation
 chord-distance fallback runs if `kneed` is absent). The knee lands in `count_concordance.json` under
 `barcode_rank_knee` and feeds the inflection ranks reported in Supplementary Note~S2.
 ```bash
-cd /nfshomes/ejfisher/seqproc-paper-analysis && git pull
+cd /path/to/seqproc-paper-analysis && git pull
 PY=biological_analysis/.venv_phase2a/bin/python
-OUT=/fs/nexus-projects/seqproc/bench/phase2a_out
+OUT="${WORK:?set WORK to your project scratch space}/phase2a_out"
 biological_analysis/.venv_phase2a/bin/pip install kneed        # canonical kneedle (one time)
 
 # knee: re-run count_concordance.py (also part of the section-5 refresh)

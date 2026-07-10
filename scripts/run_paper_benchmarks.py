@@ -571,8 +571,10 @@ class TenXValidityAnalyzer:
     def _load_whitelist(self):
         # Prefer v3 whitelist if available
         wl_paths = [
-            "/home/ubuntu/3M-february-2018.txt.gz",
-            "/home/ubuntu/737K-august-2016.txt"
+            os.environ.get("TENX_WHITELIST_V3", ""),
+            os.environ.get("TENX_WHITELIST_V2", ""),
+            "data/3M-february-2018.txt.gz",
+            "data/737K-august-2016.txt",
         ]
         wl = set()
         for path in wl_paths:
@@ -1334,7 +1336,7 @@ def _validate_environment(dataset_filter=None):
         print("Hints:")
         if not _data_dir:
             print("  - SEQPROC_DATA_DIR is not set. Export it to point at the data directory.")
-            print("    Example: export SEQPROC_DATA_DIR=/fs/nexus-projects/seqproc/bench/data")
+            print("    Example: export SEQPROC_DATA_DIR=/path/to/data")
         print("  - Set SEQPROC_BIN, MATCHBOX_BIN, SPLITCODE_BIN env vars, OR")
         print("    set SEQPROC_DATA_DIR so binaries can be found relative to its parent.")
         print("  - Or run via setup_and_run.sh which sets all env vars automatically.")
