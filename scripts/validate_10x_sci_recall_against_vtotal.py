@@ -66,14 +66,14 @@ def main():
     datasets = data_config.resolve_datasets(args.reads)
     if args.chemistry == "10x":
         ds_key, cdir_name = "10x_short", "10x_short"
-        r1, r2, total = datasets["10x_short"][args.reads] if args.reads in datasets["10x_short"] else (None, None, None)
         analyzer = rpb.TenXValidityAnalyzer(is_short_read=True)
-        gt = lambda: analyzer.analyze_fastqs(str(r1), str(r2))
     else:
         ds_key, cdir_name = "sciseq", "sciseq"
-        r1, r2, total = datasets["sciseq"][args.reads] if args.reads in datasets["sciseq"] else (None, None, None)
         analyzer = rpb.SciSeqValidityAnalyzer()
-        gt = lambda: analyzer.analyze_fastqs(str(r1), str(r2))
+    # resolve_datasets returns a merged config dict with r1/r2/reads keys
+    r1, r2 = datasets[ds_key]["r1"], datasets[ds_key]["r2"]
+    total = datasets[ds_key].get("reads")
+    gt = lambda: analyzer.analyze_fastqs(str(r1), str(r2))
 
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
