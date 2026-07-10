@@ -33,6 +33,13 @@ from pathlib import Path
 PROJECT_ROOT = Path(os.environ.get("SEQPROC_PROJECT_ROOT", Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
+# run_paper_benchmarks imports numpy/matplotlib at load, but this script only needs its
+# validity analyzers; stub the plotting stack so it can run under a minimal env (e.g. one
+# that has edlib for the edit-tolerant sci analyzer but not numpy/matplotlib).
+import unittest.mock as _mock  # noqa: E402
+for _m in ('numpy', 'matplotlib', 'matplotlib.pyplot', 'matplotlib.patches', 'matplotlib.gridspec'):
+    sys.modules.setdefault(_m, _mock.MagicMock())
+
 import data_config  # noqa: E402
 import run_paper_benchmarks as rpb  # noqa: E402
 

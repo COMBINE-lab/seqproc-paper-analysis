@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Tests for SciSeqValidityAnalyzer (full sci-RNA-seq3 structural check).
+"""Tests for SciSeqValidityAnalyzer (edit-tolerant sci-RNA-seq3 structural check).
 
 sci-RNA-seq3 R1 layout: [brc1: 9-10 bp][CAGAGC][umi: 8 bp][brc2: 10 bp].
-A read is valid iff the CAGAGC anchor sits at offset 9 or 10 (the two allowed
-brc1 lengths, within Hamming 1) AND the read is long enough to contain the
-umi(8) and brc2(10) that follow. These tests verify the offsets, the Hamming-1
-anchor tolerance, the length boundary, and read-id parsing.
+A read is valid iff the CAGAGC anchor's best EDIT-distance-<=1 match sits at offset
+9 or 10 (the two allowed brc1 lengths) AND the read is long enough to contain the
+umi(8) and brc2(10) that follow. Edit tolerance (not Hamming) means a 1bp indel
+inside the anchor is accepted, matching how the tools match the anchor. These tests
+verify the offsets, the edit-1 anchor tolerance (subs AND indels), the length
+boundary, and read-id parsing.
 """
 import os
 import sys
@@ -69,6 +71,16 @@ def test_anchor_1_mismatch_accepted():
 
 def test_anchor_2_mismatch_rejected():
     assert run_analyzer([("r", sci(brc1=9, anchor="CAGTTC"))]) == set()   # 2 subs
+
+
+def test_anchor_1bp_deletion_accepted():
+    # CAGAGC with the 2nd A deleted -> CAGGC (5bp); edit distance 1 -> valid (edit-tolerant)
+    assert run_analyzer([("r", sci(brc1=9, anchor="CAGGC"))]) == {"r"}
+
+
+def test_anchor_1bp_insertion_accepted():
+    # CAGAGC with an extra A inserted -> CAGAAGC (7bp); edit distance 1 -> valid
+    assert run_analyzer([("r", sci(brc1=9, anchor="CAGAAGC"))]) == {"r"}
 
 
 # --- length / trailing-structure requirement ---
