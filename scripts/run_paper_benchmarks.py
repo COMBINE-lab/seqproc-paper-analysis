@@ -515,24 +515,25 @@ class SciSeqValidityAnalyzer:
         return sum(a != b for a, b in zip(s1, s2))
         
     def analyze_fastqs(self, r1_path, r2_path=None):
-        """Analyze R1 FASTQ for validity (full sci-RNA-seq3 structural check).
+        """Analyze R1 FASTQ for validity (edit-tolerant sci-RNA-seq3 structural check).
 
         The sci-RNA-seq3 R1 layout is [brc1: 9-10 bp][CAGAGC][umi: 8 bp][brc2: 10 bp].
-        The previous check only required the CAGAGC anchor to appear somewhere near the
-        start (offsets 8-11), which accepts reads that merely contain the hairpin and does
-        not confirm the surrounding barcode structure. This full check requires the anchor
-        to sit at offset 9 or 10 (the two allowed brc1 lengths, within Hamming 1) AND the
-        read to be long enough to contain the umi and brc2 that follow, so all three fields
-        (brc1, umi, brc2) are actually present, not just the hairpin.
+        The anchor is located with EDIT distance <= 1 (via edlib), not Hamming, so that a
+        1 bp indel inside the anchor is tolerated -- matching how the tools match the anchor
+        (seqproc #[edit(1)], matchbox primer~0.17). Otherwise the reference would penalize
+        the edit-distance tools for indel recoveries the Hamming tool cannot make. A read is
+        valid only when the anchor's best match lands at offset 9 or 10 (the two allowed
+        brc1 lengths) -- this credits an in-anchor indel but does NOT admit chance CAGAGC
+        hits at other offsets -- and the umi(8)+brc2(10) must follow.
         """
-        cached = _load_validity_cache(r1_path, "sciseq_full")
+        import edlib
+        cached = _load_validity_cache(r1_path, "sciseq_edit")
         if cached is not None:
             self.valid_ids = cached
             return cached
 
-        print(f"    Analyzing Sci-Seq input for validity (full structural check)...")
+        print(f"    Analyzing Sci-Seq input for validity (edit-tolerant anchor)...")
         valid_ids = set()
-        A = len(self.ANCHOR)                       # CAGAGC = 6 bp
         TRAIL = 8 + 10                             # umi(8) + brc2(10)
 
         with open(r1_path, 'r') as f:
@@ -543,13 +544,15 @@ class SciSeqValidityAnalyzer:
                 f.readline()
                 f.readline()
 
-                for i in (9, 10):                  # brc1 is 9 or 10 bp
-                    if i + A + TRAIL <= len(seq) and self._hamming(seq[i:i+A], self.ANCHOR) <= 1:
-                        valid_ids.add(header.strip().split()[0].replace('@', ''))
-                        break
+                r = edlib.align(self.ANCHOR, seq[:18], mode="HW", task="locations")
+                if 0 <= r["editDistance"] <= 1 and r["locations"]:
+                    for s, e in r["locations"]:    # (start, end) inclusive, best matches
+                        if s in (9, 10) and e + 1 + TRAIL <= len(seq):
+                            valid_ids.add(header.strip().split()[0].replace('@', ''))
+                            break
 
         print(f"    Found {len(valid_ids):,} valid reads in input.")
-        _save_validity_cache(r1_path, "sciseq_full", valid_ids)
+        _save_validity_cache(r1_path, "sciseq_edit", valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
