@@ -1,0 +1,326 @@
+[
+  {
+    "dataset": "splitseq_pe_raw",
+    "tool": "seqproc",
+    "runtime": 95.02594820658366,
+    "memory_mb": 175.94270833333334,
+    "reads_out": 65705225,
+    "reads_valid": 56307906,
+    "replicate": 1
+  },
+  {
+    "dataset": "splitseq_pe_raw",
+    "tool": "seqproc",
+    "runtime": 95.02594820658366,
+    "memory_mb": 175.94270833333334,
+    "reads_out": 65705225,
+    "reads_valid": 56307906,
+    "replicate": 2
+  },
+  {
+    "dataset": "splitseq_pe_raw",
+    "tool": "seqproc",
+    "runtime": 95.02594820658366,
+    "memory_mb": 175.94270833333334,
+    "reads_out": 65705225,
+    "reads_valid": 56307906,
+    "replicate": 3
+  },
+  {
+    "dataset": "splitseq_pe_raw",
+    "tool": "matchbox",
+    "runtime": 1290.8682777881622,
+    "memory_mb": 23048.6328125,
+    "reads_out": 62238959,
+    "reads_valid": 53339721,
+    "replicate": 1
+  },
+  {
+    "dataset": "splitseq_pe_raw",
+    "tool": "matchbox",
+    "runtime": 1290.8682777881622,
+    "memory_mb": 23048.6328125,
+    "reads_out": 62238959,
+    "reads_valid": 53339721,
+    "replicate": 2
+  },
+  {
+    "dataset": "splitseq_pe_raw",
+    "tool": "matchbox",
+    "runtime": 1290.8682777881622,
+    "memory_mb": 23048.6328125,
+    "reads_out": 62238959,
+    "reads_valid": 53339721,
+    "replicate": 3
+  },
+  {
+    "dataset": "splitseq_pe_raw",
+    "tool": "splitcode",
+    "runtime": 114.69862826665242,
+    "memory_mb": 1293.2200520833333,
+    "reads_out": 71290130,
+    "reads_valid": 56316300,
+    "replicate": 1
+  },
+  {
+    "dataset": "splitseq_pe_raw",
+    "tool": "splitcode",
+    "runtime": 114.69862826665242,
+    "memory_mb": 1293.2200520833333,
+    "reads_out": 71290130,
+    "reads_valid": 56316300,
+    "replicate": 2
+  },
+  {
+    "dataset": "splitseq_pe_raw",
+    "tool": "splitcode",
+    "runtime": 114.69862826665242,
+    "memory_mb": 1293.2200520833333,
+    "reads_out": 71290130,
+    "reads_valid": 56316300,
+    "replicate": 3
+  },
+  {
+    "dataset": "10x_short",
+    "tool": "seqproc",
+    "runtime": 429.4990903536479,
+    "memory_mb": 140.10677083333334,
+    "reads_out": 234382218,
+    "reads_valid": 234382218,
+    "replicate": 1
+  },
+  {
+    "dataset": "10x_short",
+    "tool": "seqproc",
+    "runtime": 429.4990903536479,
+    "memory_mb": 140.10677083333334,
+    "reads_out": 234382218,
+    "reads_valid": 234382218,
+    "replicate": 2
+  },
+  {
+    "dataset": "10x_short",
+    "tool": "seqproc",
+    "runtime": 429.4990903536479,
+    "memory_mb": 140.10677083333334,
+    "reads_out": 234382218,
+    "reads_valid": 234382218,
+    "replicate": 3
+  },
+  {
+    "dataset": "10x_short",
+    "tool": "matchbox",
+    "runtime": 634.9644951025645,
+    "memory_mb": 42585.389322916664,
+    "reads_out": 234382218,
+    "reads_valid": 234382218,
+    "replicate": 1
+  },
+  {
+    "dataset": "10x_short",
+    "tool": "matchbox",
+    "runtime": 634.9644951025645,
+    "memory_mb": 42585.389322916664,
+    "reads_out": 234382218,
+    "reads_valid": 234382218,
+    "replicate": 2
+  },
+  {
+    "dataset": "10x_short",
+    "tool": "matchbox",
+    "runtime": 634.9644951025645,
+    "memory_mb": 42585.389322916664,
+    "reads_out": 234382218,
+    "reads_valid": 234382218,
+    "replicate": 3
+  },
+  {
+    "dataset": "10x_short",
+    "tool": "splitcode",
+    "runtime": 416.73244341214496,
+    "memory_mb": 1258.7955729166667,
+    "reads_out": 234382218,
+    "reads_valid": 234382218,
+    "replicate": 1
+  },
+  {
+    "dataset": "10x_short",
+    "tool": "splitcode",
+    "runtime": 416.73244341214496,
+    "memory_mb": 1258.7955729166667,
+    "reads_out": 234382218,
+    "reads_valid": 234382218,
+    "replicate": 2
+  },
+  {
+    "dataset": "10x_short",
+    "tool": "splitcode",
+    "runtime": 416.73244341214496,
+    "memory_mb": 1258.7955729166667,
+    "reads_out": 234382218,
+    "reads_valid": 234382218,
+    "replicate": 3
+  },
+  {
+    "dataset": "sciseq",
+    "tool": "seqproc",
+    "runtime": 26.762993733088177,
+    "memory_mb": 137.64453125,
+    "reads_out": 19879895,
+    "reads_valid": 19807968,
+    "replicate": 1
+  },
+  {
+    "dataset": "sciseq",
+    "tool": "seqproc",
+    "runtime": 26.762993733088177,
+    "memory_mb": 137.64453125,
+    "reads_out": 19879895,
+    "reads_valid": 19807968,
+    "replicate": 2
+  },
+  {
+    "dataset": "sciseq",
+    "tool": "seqproc",
+    "runtime": 26.762993733088177,
+    "memory_mb": 137.64453125,
+    "reads_out": 19879895,
+    "reads_valid": 19807968,
+    "replicate": 3
+  },
+  {
+    "dataset": "sciseq",
+    "tool": "splitcode",
+    "runtime": 32.42997066179911,
+    "memory_mb": 1849.5091145833333,
+    "reads_out": 19695955,
+    "reads_valid": 19695955,
+    "replicate": 1
+  },
+  {
+    "dataset": "sciseq",
+    "tool": "splitcode",
+    "runtime": 32.42997066179911,
+    "memory_mb": 1849.5091145833333,
+    "reads_out": 19695955,
+    "reads_valid": 19695955,
+    "replicate": 2
+  },
+  {
+    "dataset": "sciseq",
+    "tool": "splitcode",
+    "runtime": 32.42997066179911,
+    "memory_mb": 1849.5091145833333,
+    "reads_out": 19695955,
+    "reads_valid": 19695955,
+    "replicate": 3
+  },
+  {
+    "dataset": "splitseq_se_raw",
+    "tool": "seqproc",
+    "runtime": 45.958534479141235,
+    "memory_mb": 157.49609375,
+    "reads_out": 1350434,
+    "reads_valid": 261203,
+    "replicate": 1
+  },
+  {
+    "dataset": "splitseq_se_raw",
+    "tool": "matchbox",
+    "runtime": 18.83365297317505,
+    "memory_mb": 639.21484375,
+    "reads_out": 1381694,
+    "reads_valid": 239331,
+    "replicate": 1
+  },
+  {
+    "dataset": "splitseq_se_raw",
+    "tool": "splitcode",
+    "runtime": 27.778945922851562,
+    "memory_mb": 549.1640625,
+    "reads_out": 1583449,
+    "reads_valid": 263499,
+    "replicate": 1
+  },
+  {
+    "dataset": "splitseq_se_raw",
+    "tool": "seqproc",
+    "runtime": 10.200851440429688,
+    "memory_mb": 157.14453125,
+    "reads_out": 1350434,
+    "reads_valid": 261203,
+    "replicate": 2
+  },
+  {
+    "dataset": "splitseq_se_raw",
+    "tool": "matchbox",
+    "runtime": 20.0413715839386,
+    "memory_mb": 637.10546875,
+    "reads_out": 1381694,
+    "reads_valid": 239331,
+    "replicate": 2
+  },
+  {
+    "dataset": "splitseq_se_raw",
+    "tool": "splitcode",
+    "runtime": 27.958937406539917,
+    "memory_mb": 536.2578125,
+    "reads_out": 1583449,
+    "reads_valid": 263499,
+    "replicate": 2
+  },
+  {
+    "dataset": "splitseq_se_raw",
+    "tool": "seqproc",
+    "runtime": 10.239004611968994,
+    "memory_mb": 159.0625,
+    "reads_out": 1350434,
+    "reads_valid": 261203,
+    "replicate": 3
+  },
+  {
+    "dataset": "splitseq_se_raw",
+    "tool": "matchbox",
+    "runtime": 18.287655353546143,
+    "memory_mb": 639.421875,
+    "reads_out": 1381694,
+    "reads_valid": 239331,
+    "replicate": 3
+  },
+  {
+    "dataset": "splitseq_se_raw",
+    "tool": "splitcode",
+    "runtime": 28.10547113418579,
+    "memory_mb": 536.3671875,
+    "reads_out": 1583449,
+    "reads_valid": 263499,
+    "replicate": 3
+  },
+  {
+    "dataset": "sciseq",
+    "tool": "matchbox",
+    "runtime": 199.34962272644043,
+    "memory_mb": 3198.17578125,
+    "reads_out": 19980569,
+    "reads_valid": 19901467,
+    "replicate": 1
+  },
+  {
+    "dataset": "sciseq",
+    "tool": "matchbox",
+    "runtime": 198.95396828651428,
+    "memory_mb": 3197.65625,
+    "reads_out": 19980569,
+    "reads_valid": 19901467,
+    "replicate": 2
+  },
+  {
+    "dataset": "sciseq",
+    "tool": "matchbox",
+    "runtime": 196.81719160079956,
+    "memory_mb": 3197.42578125,
+    "reads_out": 19980569,
+    "reads_valid": 19901467,
+    "replicate": 3
+  }
+]

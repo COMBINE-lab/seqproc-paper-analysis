@@ -29,8 +29,8 @@ Inputs consumed (all on cluster, no re-benchmarking needed):
 
 Usage:
     python3 scripts/validate_lr_recall_against_vtotal.py \\
-        --dual-pass-fq results/splitcode_lr_dual/splitcode_dual_combined_out.fq \\
-        --outdir results/lr_recall_vtotal
+        --dual-pass-fq /fs/nexus-projects/seqproc/bench/results/splitcode_lr_dual/splitcode_dual_combined_out.fq \\
+        --outdir /fs/nexus-projects/seqproc/bench/results/lr_recall_vtotal
 
 Expected runtime: ~3 minutes (V_total recompute ~150s + intersection ~30s).
 """

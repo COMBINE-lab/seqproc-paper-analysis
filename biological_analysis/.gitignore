@@ -1,9 +1,0 @@
-# large / regenerable artifacts, not committed
-refs/
-results/
-*.bam
-*.mtx
-*.fastq
-*.fq
-*.fastq.gz
-*.fq.gz
