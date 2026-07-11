@@ -6,7 +6,7 @@
 # Turnkey: validated on the sandbox box; on the cluster it is ONE command pointed at the larger
 # dataset + the cluster's full-genome index.
 #
-#   run_phase2a.sh --r1 R1.fastq --r2 R2.fastq --genome STAR_INDEX --outdir OUT \
+#   run_downstream.sh --r1 R1.fastq --r2 R2.fastq --genome STAR_INDEX --outdir OUT \
 #                  [--threads 8] [--min-umi 200] [--python PYBIN]
 #
 # Env overrides (optional): SEQPROC_BIN, SPLITCODE_BIN, MATCHBOX_BIN.
@@ -19,7 +19,7 @@ while [ $# -gt 0 ]; do case "$1" in
   --outdir) OUT=$2; shift 2;; --threads) THREADS=$2; shift 2;;
   --min-umi) MIN_UMI=$2; shift 2;; --python) PYBIN=$2; shift 2;;
   *) echo "unknown arg: $1" >&2; exit 1;; esac; done
-[ -n "$R1$R2$GENOME$OUT" ] || { echo "usage: run_phase2a.sh --r1 --r2 --genome --outdir [--threads --min-umi --python]"; exit 1; }
+[ -n "$R1$R2$GENOME$OUT" ] || { echo "usage: run_downstream.sh --r1 --r2 --genome --outdir [--threads --min-umi --python]"; exit 1; }
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/.." && pwd)
@@ -28,7 +28,7 @@ SPLITCODE=${SPLITCODE_BIN:-$ROOT/../splitcode/build/src/splitcode}
 MATCHBOX=${MATCHBOX_BIN:-$ROOT/../matchbox/target/release/matchbox}
 STARBIN=${STAR_BIN:-STAR}     # override if STAR is not on PATH (e.g. a downloaded 2.7.11b binary)
 WL=$HERE/configs/splitseq_bc_whitelist_96.txt
-[ -n "$PYBIN" ] || PYBIN=$HERE/.venv_phase2a/bin/python
+[ -n "$PYBIN" ] || PYBIN=$HERE/.venv_downstream/bin/python
 mkdir -p "$OUT"
 # resolve inputs to absolute paths, then run from the repo root so the seqproc geom's
 # repo-relative whitelist path (configs/seqproc/...) resolves no matter where this is invoked.
@@ -91,7 +91,7 @@ echo "[6/7] resource report (figure + table)"
 "$PYBIN" "$HERE/scripts/resource_report.py" "$RES" "$OUT/analysis"
 
 echo "[7/7] bundle results for transfer back"
-BUNDLE="$OUT/phase2a_bundle.tar.gz"
+BUNDLE="$OUT/downstream_bundle.tar.gz"
 tar -czf "$BUNDLE" -C "$OUT" \
   analysis resources.csv \
   sp_Solo.out/Gene/Summary.csv sc_Solo.out/Gene/Summary.csv mb_Solo.out/Gene/Summary.csv \

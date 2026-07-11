@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
-"""Count-level concordance across N tools: barcode-rank (knee), per-barcode UMI and per-gene
+"""Count-level concordance across N tools: barcode-rank inflection, per-barcode UMI and per-gene
 total Pearson correlation computed on log1p values (not raw counts). Reports every pairwise r.
+
+The reported barcode-rank inflection comes from the DropletUtils barcodeRanks port
+(knee_barcoderanks.barcode_ranks), which is the single source of truth used in the paper. The local
+knee_point() below is a steepest-descent cross-check retained only for the ground-truth tests.
 
   count_concordance.py <outdir> <name1>:<Gene_dir1> <name2>:<Gene_dir2> [<name3>:<dir3> ...]
 """
@@ -11,6 +15,7 @@ import numpy as np, matplotlib.pyplot as plt
 from numpy import log1p, corrcoef
 from scipy.stats import spearmanr
 from concordance_helpers import load_star_raw, per_barcode_umi, barcode_rank
+from knee_barcoderanks import barcode_ranks
 from paper_style import set_paper_style, tool_color, panel, save
 
 def knee_point(r, umi_floor=10):
@@ -54,14 +59,16 @@ def main():
     assert all(list(G[n]) == list(G[ref]) for n in names), "gene order differs across tools"
     pgt = {n: np.asarray(M[n].sum(0)).ravel() for n in names}
 
-    # barcode-rank summary per tool: knee (steepest-descent inflection of the log-log curve, i.e. the
-    # cell/empty cliff), plus top_umi and n_barcodes as method-independent cross-tool summaries.
+    # barcode-rank summary per tool: the inflection reported everywhere (main text, supplement, and
+    # here) comes from the DropletUtils barcodeRanks port (barcode_ranks), the single source of truth.
+    # top_umi and n_barcodes are method-independent cross-tool summaries. knee_point() is not used here.
     knees = {}
     for n in names:
         r = barcode_rank(M[n]); r = r[r > 0]
-        kr, ku = knee_point(r)
+        br = barcode_ranks(per_barcode_umi(M[n]))
         knees[n] = {"n_barcodes": int(len(r)), "top_umi": round(float(r[0]), 1),
-                    "knee_rank": kr, "umi_at_knee": (round(ku, 1) if ku is not None else None)}
+                    "infl_rank": (br["infl_rank"] if br else None),
+                    "umi_at_infl": (round(br["infl_umi"], 1) if br else None)}
 
     def pair_r(a, b, per_barcode):
         if per_barcode:
@@ -81,7 +88,7 @@ def main():
     pb = {f"{a}|{b}": pair_r(a, b, True) for a, b in pairs}
     pg = {f"{a}|{b}": pair_r(a, b, False) for a, b in pairs}
     res = {
-        "barcode_rank_knee": knees,
+        "barcode_rank_inflection": knees,
         "per_barcode_umi_pearson_logspace": {k: round(v[0], 4) for k, v in pb.items()},
         "per_barcode_umi_spearman":        {k: round(v[1], 4) for k, v in pb.items()},
         "per_gene_total_pearson_logspace": {k: round(v[0], 4) for k, v in pg.items()},
@@ -92,7 +99,7 @@ def main():
     print("per-gene     pearson(log):", res["per_gene_total_pearson_logspace"], "| spearman:", res["per_gene_total_spearman"])
     print("barcode-rank: top_umi", {n: knees[n]["top_umi"] for n in names},
           "| n_barcodes", {n: knees[n]["n_barcodes"] for n in names},
-          "| knee rank", {n: knees[n]["knee_rank"] for n in names})
+          "| inflection rank", {n: knees[n]["infl_rank"] for n in names})
 
     fig, ax = plt.subplots(1, 3, figsize=(13.5, 4.2))
 
