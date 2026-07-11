@@ -1,18 +1,18 @@
-# Biological validation (Phase 2)
+# Biological validation
 
 Downstream, biology-level validation of seqproc. See
 `paper/biological_validation_prd.md` for the full plan.
 
-Workflow: develop each phase here on a small sample with the chr19 reference,
-prove the pipeline runs, then run the real full-data analysis on the cluster
-with the full GRCm38 reference. One phase at a time.
+Workflow: the analysis runs on the cluster against the full GRCm38 reference.
+(An earlier chr19 dev-index rehearsal step was removed once the full-data run
+was in place.)
 
-## Phase 2A. SPLiT-seq, are splitcode's extra reads real or junk
+## Downstream validation: SPLiT-seq, are splitcode's extra reads real or junk
 
 Run seqproc and splitcode output through one STARsolo and compare the count
 matrices, plus an isolated-extras analysis on the reads only splitcode keeps.
 
-Status: scaffolding. chr19 dev index built. Tool configs in progress.
+Status: complete. Full-data results in `full_run_results/` feed the paper's `sec:downstream`, `fig:count_concordance`, and `tab:jaccard`.
 
 ## Layout
 - `configs/`  tool and STARsolo configs (committed)

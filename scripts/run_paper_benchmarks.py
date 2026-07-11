@@ -109,25 +109,6 @@ DATASETS = {
         'tools': ['seqproc', 'matchbox', 'splitcode'],
     },
 
-    # SPLiT-seq PE -- replacement + edit distance (supplementary config)
-    'splitseq_pe_replacement': {
-        'name': 'SPLiT-seq PE (Replacement)',
-        'short_name': 'SPLiT-seq PE Replace',
-        'category': 'replacement',
-        'r1': PROJECT_ROOT / 'data/SRR6750041_10M_R1.fastq',
-        'r2': PROJECT_ROOT / 'data/SRR6750041_10M_R2.fastq',
-        'mode': 'paired',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_replacement_edit.geom',
-        'seqproc_maps': [
-            PROJECT_ROOT / 'configs/seqproc/splitseq_bc3_seq2seq.tsv',
-            PROJECT_ROOT / 'configs/seqproc/splitseq_bc2_seq2seq.tsv',
-            PROJECT_ROOT / 'configs/seqproc/splitseq_bc1_seq2seq.tsv',
-        ],
-        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_replacement.mb',
-        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_paper.config',
-        'reads': 10_000_000,
-        'tools': ['seqproc', 'matchbox', 'splitcode'],
-    },
     
     # LR-SPLiT-seq (PacBio Sequel II long-read)
     'splitseq_se_raw': {
@@ -571,8 +552,10 @@ class TenXValidityAnalyzer:
     def _load_whitelist(self):
         # Prefer v3 whitelist if available
         wl_paths = [
-            "/home/ubuntu/3M-february-2018.txt.gz",
-            "/home/ubuntu/737K-august-2016.txt"
+            os.environ.get("TENX_WHITELIST_V3", ""),
+            os.environ.get("TENX_WHITELIST_V2", ""),
+            "data/3M-february-2018.txt.gz",
+            "data/737K-august-2016.txt",
         ]
         wl = set()
         for path in wl_paths:
@@ -1283,10 +1266,8 @@ def _apply_reads_level(reads_level: str):
 
     # Mapping from benchmark DATASETS keys to data_config canonical keys.
     # Multiple benchmark entries can map to the same canonical dataset
-    # (e.g. splitseq_pe_raw and splitseq_pe_replacement both use SRR6750041).
     _KEY_MAP = {
         "splitseq_pe_raw": "splitseq_pe",
-        "splitseq_pe_replacement": "splitseq_pe",
         "splitseq_se_raw": "lr_splitseq",
         "10x_short": "10x_short",
         "sciseq": "sciseq",
@@ -1334,7 +1315,7 @@ def _validate_environment(dataset_filter=None):
         print("Hints:")
         if not _data_dir:
             print("  - SEQPROC_DATA_DIR is not set. Export it to point at the data directory.")
-            print("    Example: export SEQPROC_DATA_DIR=/fs/nexus-projects/seqproc/bench/data")
+            print("    Example: export SEQPROC_DATA_DIR=/path/to/data")
         print("  - Set SEQPROC_BIN, MATCHBOX_BIN, SPLITCODE_BIN env vars, OR")
         print("    set SEQPROC_DATA_DIR so binaries can be found relative to its parent.")
         print("  - Or run via setup_and_run.sh which sets all env vars automatically.")
@@ -1362,7 +1343,7 @@ def main():
     parser.add_argument('--fresh', action='store_true',
                         help='Clear checkpoint and re-run all benchmarks from scratch')
     parser.add_argument('--purge', type=str, nargs='+', metavar='DATASET:TOOL:REP',
-                        help='Remove specific checkpoint entries (e.g. splitseq_pe_replacement:matchbox:2)')
+                        help='Remove specific checkpoint entries (e.g. splitseq_pe:matchbox:2)')
     args = parser.parse_args()
 
     if args.purge:

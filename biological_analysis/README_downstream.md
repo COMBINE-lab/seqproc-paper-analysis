@@ -1,4 +1,4 @@
-# Phase 2A downstream biological validation (seqproc, splitcode, matchbox)
+# Downstream biological validation (seqproc, splitcode, matchbox)
 
 End-to-end, all three tools emit **symmetric** SPLiT-seq barcode reads (UMI 10 + bc3 8 + bc2 8 +
 bc1 8 = 34bp, observed barcodes), then the **same** STARsolo `CB_UMI_Complex` config quantifies all
@@ -20,7 +20,7 @@ STAR --runMode genomeGenerate --genomeDir <INDEX_DIR> \
 
 ## Run (one command)
 ```bash
-biological_analysis/run_phase2a.sh \
+biological_analysis/run_downstream.sh \
   --r1 <cDNA_R1.fastq> --r2 <barcode_R2.fastq> \
   --genome <INDEX_DIR> --outdir <OUT> --threads 8
 ```
@@ -30,16 +30,17 @@ biological_analysis/run_phase2a.sh \
 ## Outputs (and what to copy back)
 - `<OUT>/analysis/count_concordance.png` shows the barcode-rank knee and the per-barcode and per-gene
   correlations (Pearson on log1p, plus Spearman).
-- `<OUT>/analysis/biological_analysis.png` shows the joint-embedding UMAPs, cell-type fractions, and
-  the robust concordance metrics.
-- `<OUT>/analysis/resource_usage.png` shows read-processing runtime and peak memory per tool, with
-  `resource_table.md` and `resources.csv` carrying the numbers.
+- `<OUT>/analysis/biological_analysis.png` (cell-type fractions + concordance scorecard) and
+  `<OUT>/analysis/resource_usage.png` (read-processing runtime + peak memory, with `resource_table.md`
+  and `resources.csv` carrying the numbers) are run-time diagnostics: the driver regenerates them, but
+  they are not committed and are not paper figures (the preprint's only downstream figure is
+  `count_concordance`).
 - `<OUT>/analysis/biological_metrics.json` and `count_concordance.json` hold the metrics.
-- `<OUT>/phase2a_bundle.tar.gz` bundles all of the above. Copy it back to the box and open the PNGs
+- `<OUT>/downstream_bundle.tar.gz` bundles all of the above. Copy it back to the box and open the PNGs
   or the notebook.
 
 ## Notebook
-`notebooks/phase2a_tool_concordance.ipynb` reproduces the count-level concordance interactively
+`notebooks/downstream_tool_concordance.ipynb` reproduces the count-level concordance interactively
 (point `RES` at `<OUT>`); run it with the venv kernel from `setup_env.sh`.
 
 ## Validated on
