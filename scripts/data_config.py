@@ -86,7 +86,7 @@ SRA_INFO = {
     },
     "SRR7827254": {
         "description": "sci-RNA-seq3 (short-read paired-end)",
-        "full_reads": 10_177_866,
+        "full_reads": 22_088_821,
         "download_cmd": "fasterq-dump --split-files SRR7827254",
     },
 }
@@ -179,7 +179,7 @@ TOOL_CONFIGS = {
         "seqproc_hamming_geom": CONFIGS / "seqproc/splitseq_singleend_ann.geom",
         "seqproc_fw_edit_geom": CONFIGS / "seqproc/splitseq_singleend_edit.geom",
         "seqproc_fw_hamming_geom": CONFIGS / "seqproc/splitseq_singleend.geom",
-        "seqproc_geom": CONFIGS / "seqproc/splitseq_singleend_primer_edit.geom",
+        "seqproc_geom": CONFIGS / "seqproc/splitseq_singleend_edit_ann.geom",
         "seqproc_maps": [
             CONFIGS / "seqproc/splitseq_bc3_seq2seq.tsv",
             CONFIGS / "seqproc/splitseq_bc2_seq2seq.tsv",
