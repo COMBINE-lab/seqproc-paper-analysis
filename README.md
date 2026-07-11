@@ -1,11 +1,8 @@
 # seqproc Paper Analysis
 
-Reproducibility repository for the seqproc preprint. Every number, table cell,
+The full source repository housing the code used for the seqproc paper. Every number, table cell,
 and figure in the paper is produced by a script in this repository, applied to
-the publicly available SRA datasets listed below. This branch (`paper-submission`)
-contains only the scripts, configs, and tests needed to reproduce the paper.
-Wider development history (exploratory scripts, abandoned chemistries,
-intermediate findings docs) lives on the main development branch.
+the publicly available SRA datasets listed below.
 
 The paper benchmarks **seqproc** against **matchbox** and **splitcode** on four
 single-cell RNA-seq chemistries, measuring runtime, memory, and a per-chemistry
@@ -17,16 +14,28 @@ recovery metric (see *Recovery metrics* below).
 
 | Paper artifact | Produced by (in this repo) | Key output files |
 |---|---|---|
-| **Table 3** (cross-chemistry benchmark — Total / Emitted / Validated / Recovery / Runtime / Memory) | `run_paper_benchmarks.py` + `concordance_analysis.py` + `splitcode_lr_dual_validate.py` + `validate_lr_recall_against_vtotal.py` + `validate_pe_recall_against_vtotal.py` | `results/paper_figures/benchmark_results.json`, `results/concordance/<chemistry>/results.json`, `results/lr_recall_vtotal/lr_recall_vtotal_results.json`, `results/pe_recall_vtotal/pe_recall_vtotal_results.json`, `results/splitcode_lr_dual/splitcode_lr_dual_results.json` |
-| **Figure 3** (Recovery by Dataset and Tool — grouped bar chart) | `generate_figures.py` consuming the benchmark and V_total JSONs | `results/paper_figures/fig_recovery_comparison.{pdf,png}` |
-| **Figure 4** (Hamming vs Edit Distance — relative recovery gain) | `concordance_analysis.py` (hamming_vs_edit subset) + `generate_figures.py` | `results/paper_figures/fig_hamming_vs_edit.{pdf,png}` |
-| **Supplementary Figure S1** (Discordant read recovery breakdown) | `discordant_analysis.py` + `generate_figures.py` | `results/paper_figures/fig_discordant_summary.{pdf,png}`, `results/paper_figures/discordant_analysis.json` |
+| **Table 3** (cross-chemistry benchmark — Emitted / Precision / Recall / F1 / Runtime / Memory) | `run_paper_benchmarks.py` + `concordance_analysis.py` + `splitcode_lr_dual_validate.py` + `validate_lr_recall_against_vtotal.py` + `validate_pe_recall_against_vtotal.py` | `results/paper_figures/benchmark_results.json`, `results/concordance/<chemistry>/results.json`, `results/lr_recall_vtotal/lr_recall_vtotal_results.json`, `results/pe_recall_vtotal/pe_recall_vtotal_results.json`, `results/splitcode_lr_dual/splitcode_lr_dual_results.json` |
+| **Pairwise read-set Jaccard** (results.tex prose: 0.926 PE, 0.796 LR, >0.985 sci) | `concordance_analysis.py` | `results/concordance/<chemistry>/results.json` |
+| **99.2% discordant-reads figure** (results.tex prose — splitcode-unique reads that are structurally invalid) | `discordant_analysis.py` | `results/paper_figures/discordant_analysis.json` |
 | **Supplementary Note S2** (V_total methodology) | `validate_lr_recall_against_vtotal.py` (LR) + `validate_pe_recall_against_vtotal.py` (PE) | JSON outputs listed in Table 3 row above |
 | **Appendix B Table** (LR-SPLiT-seq optimization progression on 1M-read subset) | `lr_perf_rerun.py` | `results/lr_perf/lr_perf_rerun_results.json` |
+| **`fig:count_concordance`** (downstream quantification concordance: knee, per-barcode, per-gene) | `biological_analysis/scripts/count_concordance.py` (driven by `run_downstream.sh`) | `biological_analysis/full_run_results/count_concordance.{pdf,png,json}` |
+| **`sec:downstream` metrics + `tab:pairwise_concordance`** (cell-type agreement, per-type + read-set Jaccard) | `biological_analysis/scripts/biological_analysis.py` + `read_set_jaccard.py` | `biological_analysis/full_run_results/biological_metrics.json`, `read_set_jaccard.json` |
+| **Supplementary `tab:jaccard`** (per-cell-type Jaccard; the 22/25 & 19/28 OPC↔microglia confusion) | `biological_analysis/scripts/biological_analysis.py` (`jaccard_supplement.md`) + `jaccard_confusion.py` | `biological_analysis/full_run_results/jaccard_supplement.md` |
+| **Tolerance footnote** (results.tex:91 — raising tolerance 3→6 has negligible impact) | `biological_analysis/scripts/tolerance_sweep.sh` | `biological_analysis/full_run_results/yield_by_tolerance.csv`, `concordance_by_tolerance.csv` |
+| **Downstream pipeline driver** (STARsolo quantification + all downstream outputs, one command) | `biological_analysis/run_downstream.sh` (see `biological_analysis/CLUSTER_RUN.md`) | `downstream_out/analysis/` |
 
-The corresponding LaTeX in the paper repo cites the figure and JSON paths
-listed above; regenerating the JSONs and figures from this repo regenerates
-those exact files.
+The corresponding LaTeX in the paper cites the JSON and figure paths listed
+above; regenerating them from this repo regenerates those exact files.
+
+**Figures.** The preprint displays only three figures: two hand-drawn schematics
+(`paper/Figures/seqproc_flow.pdf`, `antisequence_graph.pdf`, not generated here)
+and **`fig:count_concordance`** (from `count_concordance.py`). The recovery /
+Hamming-vs-edit / discordant bar charts that `generate_figures.py` renders were
+**thesis figures** (`Thesis/ch6_results.tex`); their committed snapshots have
+been removed from this repo, but the underlying numbers survive in the JSONs
+above and in the preprint's tables and prose. `generate_figures.py` still
+re-renders them into the gitignored `results/paper_figures/` on demand.
 
 ---
 
@@ -101,9 +110,10 @@ python3 scripts/concordance_analysis.py --datasets lr_splitseq splitseq_pe
 holding the actual emitted-read ID sets. The latter are the inputs to the
 V_total intersection scripts below.
 
-**Paper artifacts:** the `hamming_vs_edit` subsection of each chemistry's JSON
-feeds Figure 4 (Hamming vs Edit Distance). The ID-set caches are used by the
-discordant-analysis and V_total scripts.
+**Paper artifacts:** the pairwise Jaccard indices in each chemistry's JSON
+(0.926 PE, 0.796 LR, >0.985 sci) appear in the results.tex prose. The
+`hamming_vs_edit` subsection backs a thesis-only figure, not shown in the
+preprint. The ID-set caches are used by the discordant-analysis and V_total scripts.
 
 #### `discordant_analysis.py` — structural validation of tool-unique reads
 
@@ -120,8 +130,9 @@ python3 scripts/discordant_analysis.py
 **Output:** `results/paper_figures/discordant_analysis.json` with per-tool,
 per-chemistry breakdown of unique-emit validity rates.
 
-**Paper artifacts:** Supplementary Figure S1, and the prose at
-`results.tex:53` ("99.2% lacked valid linker sequences").
+**Paper artifacts:** the "99.2% lacked valid linker sequences" figure in the
+results.tex prose. (The thesis Supplementary Figure S1 built from this JSON was
+removed from this repo; the JSON that backs the prose number is kept.)
 
 #### `splitcode_lr_dual_validate.py` — splitcode dual-pass on LR-SPLiT-seq + raw V_total_LR
 
@@ -207,10 +218,11 @@ figures.
 python3 scripts/generate_figures.py
 ```
 
-**Output:** under `results/paper_figures/`:
-- `fig_recovery_comparison.{pdf,png}` (Figure 3)
-- `fig_hamming_vs_edit.{pdf,png}` (Figure 4)
-- `fig_discordant_summary.{pdf,png}` (Supplementary Figure S1)
+**Output:** under the gitignored `results/paper_figures/`:
+`fig_recovery_comparison.{pdf,png}`, `fig_hamming_vs_edit.{pdf,png}`, and
+`fig_discordant_summary.{pdf,png}` — these are **thesis** figures
+(`Thesis/ch6_results.tex`), not displayed in the preprint. Their committed
+snapshots were removed from the repo; re-run this script to regenerate them.
 
 ### Supporting modules (do not run directly)
 
@@ -268,7 +280,7 @@ If the environment is already configured (binaries on path, FASTQs in
 # 2. Main benchmark (Table 3 short-read rows + runtime/memory for all)
 python3 scripts/run_paper_benchmarks.py --threads 32 --replicates 3
 
-# 3. Pairwise concordance + Hamming-vs-edit data (Figure 4)
+# 3. Pairwise concordance + Hamming-vs-edit data
 python3 scripts/concordance_analysis.py --threads 32 --datasets all
 
 # 4. Discordant-read structural validation (Supp Fig S1)
@@ -325,13 +337,11 @@ FASTQ files are gitignored. Download with `fasterq-dump <accession>` into
 configs/
   seqproc/
     splitseq_filter_edit.geom         # SPLiT-seq PE, edit distance + whitelist
-    splitseq_filter_hamming6.geom     # SPLiT-seq PE, Hamming baseline (Fig 4)
-    splitseq_replacement_edit.geom    # SPLiT-seq PE, replacement-mode variant
+    splitseq_filter_hamming6.geom     # SPLiT-seq PE, Hamming baseline (appendix hamming-vs-edit)
     splitseq_singleend_edit_ann.geom  # LR-SPLiT-seq, orientation + edit (canonical)
     splitseq_singleend_ann.geom       # LR-SPLiT-seq, orientation + Hamming
     splitseq_singleend_edit.geom      # LR-SPLiT-seq, forward-only + edit
     splitseq_singleend.geom           # LR-SPLiT-seq, forward-only + Hamming
-    splitseq_singleend_primer_edit.geom  # LR-SPLiT-seq, primer-based variant
     10x_v2.geom                       # 10x Chromium v2
     sciseq3.geom                      # sci-RNA-seq3, Hamming
     sciseq3_edit.geom                 # sci-RNA-seq3, edit distance
@@ -391,10 +401,10 @@ before every commit; commits failing the suite are rejected.
 
 ```
 scripts/
-  run_paper_benchmarks.py             # main benchmark runner (Table 3)
-  concordance_analysis.py             # pairwise concordance + hamming-vs-edit (Fig 4)
-  discordant_analysis.py              # unique-read structural validation (Supp Fig S1)
-  generate_figures.py                 # render publication figures
+  run_paper_benchmarks.py             # main benchmark runner (main results table)
+  concordance_analysis.py             # pairwise concordance + hamming-vs-edit
+  discordant_analysis.py              # unique-read structural validation (99.2% figure)
+  generate_figures.py                 # render figures (thesis only; not in preprint)
   splitcode_lr_dual_validate.py       # splitcode dual-pass + V_total_LR (Table 3 LR rows)
   validate_lr_recall_against_vtotal.py  # exact LR Validated cells (Table 3)
   validate_pe_recall_against_vtotal.py  # exact PE Validated cells (Table 3)

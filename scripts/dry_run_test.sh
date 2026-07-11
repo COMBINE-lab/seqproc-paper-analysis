@@ -3,8 +3,8 @@
 # and Python imports resolve correctly WITHOUT running any benchmarks.
 # Run this on the cluster BEFORE the full setup_and_run.sh to catch errors fast.
 #
-# Usage:  SEQPROC_DATA_DIR=/fs/nexus-projects/seqproc/bench/data \
-#         SEQPROC_PROJECT_ROOT=/nfshomes/ejfisher/seqproc-paper-analysis \
+# Usage:  SEQPROC_DATA_DIR=/path/to/data \
+#         SEQPROC_PROJECT_ROOT=/path/to/seqproc-paper-analysis \
 #         bash scripts/dry_run_test.sh
 #
 # Or: source the env from setup_and_run.sh logic below.
@@ -25,8 +25,6 @@ ANALYSIS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 # ── Detect WORKDIR (same logic as setup_and_run.sh) ──
 if [ -n "${WORKDIR:-}" ]; then
     : # user-provided
-elif [ -d "/fs/nexus-projects/seqproc" ] && [ -w "/fs/nexus-projects/seqproc" ]; then
-    WORKDIR="/fs/nexus-projects/seqproc/bench"
 elif [ -d "/scratch0" ] && [ -w "/scratch0" ]; then
     WORKDIR="/scratch0/$USER/seqproc-bench"
 elif [ -d "/scratch1" ] && [ -w "/scratch1" ]; then
@@ -97,8 +95,6 @@ echo ""
 echo "--- 3. Config files ---"
 CONFIG_FILES=(
     "configs/seqproc/splitseq_filter_edit.geom"
-    "configs/seqproc/splitseq_replacement_edit.geom"
-    "configs/seqproc/splitseq_singleend_primer_edit.geom"
     "configs/seqproc/10x_v2.geom"
     "configs/seqproc/sciseq3_edit.geom"
     "configs/seqproc/splitseq_bc1_seq2seq.tsv"
