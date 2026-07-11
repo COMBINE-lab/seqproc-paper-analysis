@@ -20,8 +20,6 @@ ANALYSIS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 # WORKDIR: override with env var, or auto-detect project/scratch space, or fall back to $HOME
 if [ -n "${WORKDIR:-}" ]; then
     : # user-provided, keep it
-elif [ -d "/fs/nexus-projects/seqproc" ] && [ -w "/fs/nexus-projects/seqproc" ]; then
-    WORKDIR="/fs/nexus-projects/seqproc/bench"
 elif [ -d "/scratch0" ] && [ -w "/scratch0" ]; then
     WORKDIR="/scratch0/$USER/seqproc-bench"
 elif [ -d "/scratch1" ] && [ -w "/scratch1" ]; then

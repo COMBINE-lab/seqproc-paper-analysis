@@ -54,7 +54,6 @@ if not SPLITCODE_BIN:
     # Fall back to common locations
     for candidate in [
         PROJECT_ROOT.parent / "splitcode/build/src/splitcode",
-        Path("/fs/nexus-projects/seqproc/bench/splitcode/build/src/splitcode"),
     ]:
         if candidate.exists():
             SPLITCODE_BIN = str(candidate)
