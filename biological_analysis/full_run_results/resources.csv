@@ -1,0 +1,9 @@
+step,tool,seconds,peak_ram_mb
+barcode,seqproc,164.53,49.6
+barcode,splitcode,877.26,432.9
+barcode,matchbox,523.53,23351.4
+starsolo,seqproc,314.36,26414.0
+starsolo,splitcode,248.65,26412.0
+starsolo,matchbox,280.01,26422.3
+analysis,biological,59.57,1181.2
+analysis,count,17.50,1130.0
