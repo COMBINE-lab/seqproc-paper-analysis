@@ -31,7 +31,7 @@ and recall percentages.
 
 Usage:
     python3 scripts/validate_pe_recall_against_vtotal.py \\
-        --outdir results/pe_recall_vtotal
+        --outdir /fs/nexus-projects/seqproc/bench/results/pe_recall_vtotal
 
 Expected runtime: ~25-40 min (V_total recompute on 86.8M PE reads is the
 bottleneck; intersections are ~30 seconds).

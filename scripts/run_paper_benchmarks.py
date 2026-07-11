@@ -109,6 +109,25 @@ DATASETS = {
         'tools': ['seqproc', 'matchbox', 'splitcode'],
     },
 
+    # SPLiT-seq PE -- replacement + edit distance (supplementary config)
+    'splitseq_pe_replacement': {
+        'name': 'SPLiT-seq PE (Replacement)',
+        'short_name': 'SPLiT-seq PE Replace',
+        'category': 'replacement',
+        'r1': PROJECT_ROOT / 'data/SRR6750041_10M_R1.fastq',
+        'r2': PROJECT_ROOT / 'data/SRR6750041_10M_R2.fastq',
+        'mode': 'paired',
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_replacement_edit.geom',
+        'seqproc_maps': [
+            PROJECT_ROOT / 'configs/seqproc/splitseq_bc3_seq2seq.tsv',
+            PROJECT_ROOT / 'configs/seqproc/splitseq_bc2_seq2seq.tsv',
+            PROJECT_ROOT / 'configs/seqproc/splitseq_bc1_seq2seq.tsv',
+        ],
+        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_replacement.mb',
+        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_paper.config',
+        'reads': 10_000_000,
+        'tools': ['seqproc', 'matchbox', 'splitcode'],
+    },
     
     # LR-SPLiT-seq (PacBio Sequel II long-read)
     'splitseq_se_raw': {
@@ -119,7 +138,7 @@ DATASETS = {
         'r2': None,
         'mode': 'single',
         'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_singleend_edit_ann.geom',
-        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_singleend_dual.mb',
+        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_singleend.mb',
         'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_singleend.config',
         'seqproc_maps': [
             PROJECT_ROOT / 'configs/seqproc/splitseq_bc3_seq2seq.tsv',
@@ -496,27 +515,15 @@ class SciSeqValidityAnalyzer:
         return sum(a != b for a, b in zip(s1, s2))
         
     def analyze_fastqs(self, r1_path, r2_path=None):
-        """Analyze R1 FASTQ for validity (edit-tolerant sci-RNA-seq3 structural check).
-
-        The sci-RNA-seq3 R1 layout is [brc1: 9-10 bp][CAGAGC][umi: 8 bp][brc2: 10 bp].
-        The anchor is located with EDIT distance <= 1 (via edlib), not Hamming, so that a
-        1 bp indel inside the anchor is tolerated -- matching how the tools match the anchor
-        (seqproc #[edit(1)], matchbox primer~0.17). Otherwise the reference would penalize
-        the edit-distance tools for indel recoveries the Hamming tool cannot make. A read is
-        valid only when the anchor's best match lands at offset 9 or 10 (the two allowed
-        brc1 lengths) -- this credits an in-anchor indel but does NOT admit chance CAGAGC
-        hits at other offsets -- and the umi(8)+brc2(10) must follow.
-        """
-        import edlib
-        cached = _load_validity_cache(r1_path, "sciseq_edit")
+        """Analyze R1 FASTQ for validity."""
+        cached = _load_validity_cache(r1_path, "sciseq")
         if cached is not None:
             self.valid_ids = cached
             return cached
 
-        print(f"    Analyzing Sci-Seq input for validity (edit-tolerant anchor)...")
+        print(f"    Analyzing Sci-Seq input for validity (Anchor Check)...")
         valid_ids = set()
-        TRAIL = 8 + 10                             # umi(8) + brc2(10)
-
+        
         with open(r1_path, 'r') as f:
             while True:
                 header = f.readline()
@@ -524,16 +531,23 @@ class SciSeqValidityAnalyzer:
                 seq = f.readline().strip()
                 f.readline()
                 f.readline()
-
-                r = edlib.align(self.ANCHOR, seq[:18], mode="HW", task="locations")
-                if 0 <= r["editDistance"] <= 1 and r["locations"]:
-                    for s, e in r["locations"]:    # (start, end) inclusive, best matches
-                        if s in (9, 10) and e + 1 + TRAIL <= len(seq):
-                            valid_ids.add(header.strip().split()[0].replace('@', ''))
+                
+                # Check for anchor CAGAGC
+                # BC1 is 9-10bp, so Anchor should be around index 9 or 10
+                # Search window: 9 to 11 (0-indexed)
+                found = False
+                for i in range(8, 12): 
+                    if i + len(self.ANCHOR) <= len(seq):
+                        dist = self._hamming(seq[i:i+len(self.ANCHOR)], self.ANCHOR)
+                        if dist <= 1:
+                            found = True
                             break
-
+                
+                if found:
+                    valid_ids.add(header.strip().split()[0].replace('@', ''))
+                    
         print(f"    Found {len(valid_ids):,} valid reads in input.")
-        _save_validity_cache(r1_path, "sciseq_edit", valid_ids)
+        _save_validity_cache(r1_path, "sciseq", valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
@@ -552,10 +566,8 @@ class TenXValidityAnalyzer:
     def _load_whitelist(self):
         # Prefer v3 whitelist if available
         wl_paths = [
-            os.environ.get("TENX_WHITELIST_V3", ""),
-            os.environ.get("TENX_WHITELIST_V2", ""),
-            "data/3M-february-2018.txt.gz",
-            "data/737K-august-2016.txt",
+            "/home/ubuntu/3M-february-2018.txt.gz",
+            "/home/ubuntu/737K-august-2016.txt"
         ]
         wl = set()
         for path in wl_paths:
@@ -992,10 +1004,6 @@ def run_benchmarks(threads: int, replicates: int, dataset_filter=None) -> List[B
                                                 output_ids.add(parts[0])
 
                         reads_valid = len(output_ids.intersection(validity_analyzer.valid_ids))
-                        # Count unique emitted reads, not raw output lines. matchbox can emit a
-                        # read once per matching barcode combination, so its line count exceeds
-                        # its read count; seqproc/splitcode emit one line per read (no change).
-                        reads = len(output_ids)
                         print(f"{runtime:.2f}s, {memory:.1f}MB, {reads:,} reads ({reads_valid:,} valid)")
                     else:
                         print(f"{runtime:.2f}s, {memory:.1f}MB, {reads:,} reads")
@@ -1266,8 +1274,10 @@ def _apply_reads_level(reads_level: str):
 
     # Mapping from benchmark DATASETS keys to data_config canonical keys.
     # Multiple benchmark entries can map to the same canonical dataset
+    # (e.g. splitseq_pe_raw and splitseq_pe_replacement both use SRR6750041).
     _KEY_MAP = {
         "splitseq_pe_raw": "splitseq_pe",
+        "splitseq_pe_replacement": "splitseq_pe",
         "splitseq_se_raw": "lr_splitseq",
         "10x_short": "10x_short",
         "sciseq": "sciseq",
@@ -1315,7 +1325,7 @@ def _validate_environment(dataset_filter=None):
         print("Hints:")
         if not _data_dir:
             print("  - SEQPROC_DATA_DIR is not set. Export it to point at the data directory.")
-            print("    Example: export SEQPROC_DATA_DIR=/path/to/data")
+            print("    Example: export SEQPROC_DATA_DIR=/fs/nexus-projects/seqproc/bench/data")
         print("  - Set SEQPROC_BIN, MATCHBOX_BIN, SPLITCODE_BIN env vars, OR")
         print("    set SEQPROC_DATA_DIR so binaries can be found relative to its parent.")
         print("  - Or run via setup_and_run.sh which sets all env vars automatically.")
@@ -1343,7 +1353,7 @@ def main():
     parser.add_argument('--fresh', action='store_true',
                         help='Clear checkpoint and re-run all benchmarks from scratch')
     parser.add_argument('--purge', type=str, nargs='+', metavar='DATASET:TOOL:REP',
-                        help='Remove specific checkpoint entries (e.g. splitseq_pe:matchbox:2)')
+                        help='Remove specific checkpoint entries (e.g. splitseq_pe_replacement:matchbox:2)')
     args = parser.parse_args()
 
     if args.purge:
