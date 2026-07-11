@@ -3,7 +3,7 @@
 
   resource_report.py <resources.csv> <outdir>
 
-resources.csv (written by run_phase2a.sh) has columns: step,tool,seconds,peak_ram_mb.
+resources.csv (written by run_downstream.sh) has columns: step,tool,seconds,peak_ram_mb.
 Produces a paper-ready figure (read-processing runtime and peak RAM per tool) and markdown +
 CSV tables (full per-step breakdown) for the supplement. RAM for a tool step is that tool
 executable's peak RSS; STARsolo RAM is dominated by the shared genome index.

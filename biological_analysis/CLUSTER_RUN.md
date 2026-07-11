@@ -1,4 +1,4 @@
-# Cluster run (Phase 2A)
+# Cluster run
 
 You drive this. The sandbox box cannot reach the cluster (VPN plus your credentials), so the code
 is pushed to GitHub from the box and you pull it on the cluster, then run the one command. Paste
@@ -33,7 +33,7 @@ STAR --runMode genomeGenerate --genomeDir <IDX> \
 SEQPROC_BIN=<path/to/seqproc> \
 SPLITCODE_BIN=<path/to/splitcode> \
 MATCHBOX_BIN=<path/to/matchbox> \
-biological_analysis/run_phase2a.sh \
+biological_analysis/run_downstream.sh \
   --r1 <full_R1.fastq> --r2 <full_R2.fastq> \
   --genome <IDX> --outdir <OUT> --threads 8
 ```
@@ -42,23 +42,20 @@ STAR and the three tool binaries must be on PATH or pointed at via the `*_BIN` e
 ## 4. Bring results back
 ```bash
 # the small bundle (figures, tables, metrics) is all you need to review:
-scp <OUT>/phase2a_bundle.tar.gz  <your machine or the box>
+scp <OUT>/downstream_bundle.tar.gz  <your machine or the box>
 ```
 
 ## 5. Refresh downstream metrics/figures without re-aligning
 When only the analysis code changed (a new metric, a relabelled figure), re-run the analysis
 scripts on the STARsolo matrices already on disk. This is a ~1 minute step and does not re-run
-STARsolo. `biological_analysis.py` must run before `make_downstream_figure.py` (the latter reads
-its JSON).
+STARsolo.
 ```bash
 cd /path/to/seqproc-paper-analysis && git pull
-PY=biological_analysis/.venv_phase2a/bin/python
-OUT="${WORK:?set WORK to your project scratch space}/phase2a_out"
+PY=biological_analysis/.venv_downstream/bin/python
+OUT="${WORK:?set WORK to your project scratch space}/downstream_out"
 $PY biological_analysis/scripts/biological_analysis.py $OUT/analysis 200 \
   seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene
 $PY biological_analysis/scripts/count_concordance.py $OUT/analysis \
-  seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene
-$PY biological_analysis/scripts/make_downstream_figure.py $OUT/analysis 200 \
   seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene
 $PY biological_analysis/scripts/read_set_jaccard.py $OUT/analysis/read_set_jaccard.json \
   seqproc:$OUT/sp_bc.fq splitcode:$OUT/sc_bc.fq matchbox:$OUT/mb_bc.fq
@@ -79,9 +76,9 @@ chord-distance fallback runs if `kneed` is absent). The knee lands in `count_con
 `barcode_rank_knee` and feeds the inflection ranks reported in Supplementary Note~S2.
 ```bash
 cd /path/to/seqproc-paper-analysis && git pull
-PY=biological_analysis/.venv_phase2a/bin/python
-OUT="${WORK:?set WORK to your project scratch space}/phase2a_out"
-biological_analysis/.venv_phase2a/bin/pip install kneed        # canonical kneedle (one time)
+PY=biological_analysis/.venv_downstream/bin/python
+OUT="${WORK:?set WORK to your project scratch space}/downstream_out"
+biological_analysis/.venv_downstream/bin/pip install kneed        # canonical kneedle (one time)
 
 # knee: re-run count_concordance.py (also part of the section-5 refresh)
 $PY biological_analysis/scripts/count_concordance.py $OUT/analysis \

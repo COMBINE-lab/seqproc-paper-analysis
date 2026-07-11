@@ -40,7 +40,7 @@ FASTQ files are stored in `../data/` (gitignored).
 | Dataset | Config |
 |---------|--------|
 | SPLiT-seq PE | [`configs/seqproc/splitseq_filter_edit.geom`](../configs/seqproc/splitseq_filter_edit.geom) |
-| LR-SPLiT-seq | [`configs/seqproc/splitseq_singleend_primer_edit.geom`](../configs/seqproc/splitseq_singleend_primer_edit.geom) |
+| LR-SPLiT-seq | [`configs/seqproc/splitseq_singleend_edit_ann.geom`](../configs/seqproc/splitseq_singleend_edit_ann.geom) |
 | 10x Chromium v2 | [`configs/seqproc/10x_v2.geom`](../configs/seqproc/10x_v2.geom) |
 | sci-RNA-seq3 | [`configs/seqproc/sciseq3_edit.geom`](../configs/seqproc/sciseq3_edit.geom) |
 
