@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 
-SCHEMA_VERSION = "1.1.0"
+SCHEMA_VERSION = "1.2.0"
 DEFAULT_ENV_ALLOWLIST = (
     "PATH",
     "LD_LIBRARY_PATH",
@@ -198,6 +198,33 @@ def resolve_executable(command0: str, cwd: Path, env: Mapping[str, str]) -> Path
     return path
 
 
+def describe_executable(
+    entry: str | Mapping[str, Any], cwd: Path, env: Mapping[str, str]
+) -> dict[str, Any]:
+    if isinstance(entry, str):
+        item: dict[str, Any] = {"path": entry, "verify": True}
+    elif isinstance(entry, Mapping):
+        item = dict(entry)
+    else:
+        raise HarnessError(f"executable entry must be a string or object, got {entry!r}")
+    if "path" not in item:
+        raise HarnessError(f"executable entry has no path: {entry!r}")
+    path = resolve_executable(str(item["path"]), cwd, env)
+    declared = item.get("sha256")
+    verify = bool(item.get("verify", declared is None))
+    observed = sha256_file(path) if verify or declared is None else str(declared)
+    if declared is not None and verify and observed != declared:
+        raise HarnessError(
+            f"SHA-256 mismatch for executable {path}: expected {declared}, observed {observed}"
+        )
+    return {
+        "path": str(path),
+        "bytes": path.stat().st_size,
+        "sha256": observed,
+        "digest_source": "verified" if verify else "declared",
+    }
+
+
 def build_environment(spec: Mapping[str, Any]) -> tuple[dict[str, str], dict[str, str]]:
     mode = spec.get("environment_mode", "allowlist")
     overrides = {str(k): str(v) for k, v in spec.get("environment", {}).items()}
@@ -284,7 +311,10 @@ def _substitute_run_dir(values: Iterable[str], run_dir: Path) -> list[str]:
 
 
 def _prepare_outputs(
-    entries: Iterable[str | Mapping[str, Any]], cwd: Path, run_dir: Path
+    entries: Iterable[str | Mapping[str, Any]],
+    cwd: Path,
+    run_dir: Path,
+    default_retain: bool,
 ) -> list[dict[str, Any]]:
     outputs: list[dict[str, Any]] = []
     for entry in entries:
@@ -301,10 +331,10 @@ def _prepare_outputs(
         if output_format not in (None, "fastq"):
             raise HarnessError(f"unsupported output format {output_format!r}")
         normalization = item.get("normalize")
-        if normalization not in (None, "fastq_multiset"):
+        if normalization not in (None, "fastq_multiset", "fastq_id_multiset"):
             raise HarnessError(f"unsupported output normalization {normalization!r}")
         if normalization is not None and output_format != "fastq":
-            raise HarnessError("fastq_multiset normalization requires format: fastq")
+            raise HarnessError("FASTQ normalization requires format: fastq")
         mate = int(item.get("mate", 0))
         if mate < 0:
             raise HarnessError("output mate cannot be negative")
@@ -318,6 +348,7 @@ def _prepare_outputs(
                 "format": output_format,
                 "normalize": normalization,
                 "mate": mate,
+                "retain": bool(item.get("retain", default_retain)),
             }
         )
     return outputs
@@ -375,13 +406,27 @@ def _normalized_fastq_line(lines: tuple[bytes, ...], mate: int) -> bytes:
     )
 
 
-def normalized_fastq_multiset_sha256(
-    path: Path, mate: int = 0, chunk_bytes: int = 64 * 1024 * 1024
+def _normalized_fastq_id_line(lines: tuple[bytes, ...], mate: int) -> bytes:
+    header = lines[0].rstrip(b"\r\n")
+    normalized_id = header[1:].split(None, 1)[0]
+    if normalized_id.endswith((b"/1", b"/2")):
+        normalized_id = normalized_id[:-2]
+    return base64.b64encode(normalized_id) + b"\t" + str(mate).encode() + b"\n"
+
+
+def _externally_sorted_fastq_digest(
+    path: Path,
+    mate: int,
+    encoder,
+    chunk_bytes: int,
+    temp_dir: Path | None,
 ) -> str:
-    """Hash complete FASTQ records after a bounded-memory external sort."""
     if chunk_bytes <= 0:
         raise HarnessError("normalization chunk_bytes must be positive")
-    with tempfile.TemporaryDirectory(prefix="seqproc-normalize-") as temporary:
+    with tempfile.TemporaryDirectory(
+        prefix="seqproc-normalize-",
+        dir=None if temp_dir is None else str(temp_dir),
+    ) as temporary:
         root = Path(temporary)
         chunks: list[Path] = []
         buffered: list[bytes] = []
@@ -400,7 +445,7 @@ def normalized_fastq_multiset_sha256(
             buffered_bytes = 0
 
         for lines in _fastq_records(path):
-            encoded = _normalized_fastq_line(lines, mate)
+            encoded = encoder(lines, mate)
             buffered.append(encoded)
             buffered_bytes += len(encoded)
             if buffered_bytes >= chunk_bytes:
@@ -416,6 +461,30 @@ def normalized_fastq_multiset_sha256(
             for handle in handles:
                 handle.close()
         return digest.hexdigest()
+
+
+def normalized_fastq_multiset_sha256(
+    path: Path,
+    mate: int = 0,
+    chunk_bytes: int = 64 * 1024 * 1024,
+    temp_dir: Path | None = None,
+) -> str:
+    """Hash complete FASTQ records after a bounded-memory external sort."""
+    return _externally_sorted_fastq_digest(
+        path, mate, _normalized_fastq_line, chunk_bytes, temp_dir
+    )
+
+
+def normalized_fastq_id_multiset_sha256(
+    path: Path,
+    mate: int = 0,
+    chunk_bytes: int = 64 * 1024 * 1024,
+    temp_dir: Path | None = None,
+) -> str:
+    """Hash normalized read IDs after a bounded-memory external sort."""
+    return _externally_sorted_fastq_digest(
+        path, mate, _normalized_fastq_id_line, chunk_bytes, temp_dir
+    )
 
 
 def _terminate_process_group(process: subprocess.Popen[bytes], sig: int) -> None:
@@ -448,23 +517,25 @@ def prepare_spec(spec: Mapping[str, Any]) -> dict[str, Any]:
 
     inputs = [describe_input(item, cwd) for item in spec.get("inputs", [])]
     configs = [describe_input(item, cwd) for item in spec.get("configs", [])]
-    executable = resolve_executable(spec["command"][0], cwd, execution_env)
-    binary = {
-        "path": str(executable),
-        "bytes": executable.stat().st_size,
-        "sha256": sha256_file(executable),
-    }
+    binary = describe_executable(spec["command"][0], cwd, execution_env)
+    executables = [binary]
+    for entry in spec.get("executables", []):
+        described = describe_executable(entry, cwd, execution_env)
+        if described["path"] not in {item["path"] for item in executables}:
+            executables.append(described)
     identity = {
         "schema_version": SCHEMA_VERSION,
         "name": str(spec.get("name", "benchmark")),
         "command_template": list(spec["command"]),
         "cwd": str(cwd),
         "binary": binary,
+        "executables": executables,
         "inputs": inputs,
         "configs": configs,
         "repositories": repositories,
         "environment": recorded_env,
         "output_contract": spec.get("outputs", []),
+        "retain_outputs": bool(spec.get("retain_outputs", True)),
         "timeout_seconds": spec.get("timeout_seconds"),
         "metadata": spec.get("metadata", {}),
     }
@@ -483,7 +554,18 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
     run_root = output_root.resolve() / run_id
     attempt, run_dir = _next_attempt(run_root)
     command = _substitute_run_dir(spec["command"], run_dir)
-    outputs = _prepare_outputs(spec.get("outputs", []), prepared["cwd"], run_dir)
+    outputs = _prepare_outputs(
+        spec.get("outputs", []),
+        prepared["cwd"],
+        run_dir,
+        bool(spec.get("retain_outputs", True)),
+    )
+    stale_outputs = [str(item["path"]) for item in outputs if item["path"].exists()]
+    if stale_outputs:
+        raise HarnessError(
+            "refusing to benchmark with pre-existing declared outputs: "
+            + ", ".join(stale_outputs)
+        )
 
     for name, snapshot in prepared["repository_snapshots"].items():
         safe_name = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in name)
@@ -562,7 +644,12 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
         output_error_count = len(invalid_outputs)
         if path.is_file():
             size = path.stat().st_size
-            record = {"path": str(path), "bytes": size, "sha256": sha256_file(path)}
+            record = {
+                "path": str(path),
+                "bytes": size,
+                "sha256": sha256_file(path),
+                "retained": True,
+            }
             output_records.append(record)
             if size < declaration["min_bytes"]:
                 invalid_outputs.append(
@@ -577,15 +664,18 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
                     output_counts.append(
                         {"path": str(path), "format": "fastq", "valid": False, "error": str(error)}
                     )
-            if (
-                declaration["normalize"] == "fastq_multiset"
-                and len(invalid_outputs) == output_error_count
-            ):
+            if declaration["normalize"] is not None and len(invalid_outputs) == output_error_count:
                 try:
-                    record["normalized_sha256"] = normalized_fastq_multiset_sha256(
-                        path, declaration["mate"]
-                    )
-                    record["normalization"] = "fastq_multiset_v1"
+                    if declaration["normalize"] == "fastq_multiset":
+                        record["normalized_sha256"] = normalized_fastq_multiset_sha256(
+                            path, declaration["mate"], temp_dir=run_dir
+                        )
+                        record["normalization"] = "fastq_multiset_v1"
+                    else:
+                        record["normalized_sha256"] = normalized_fastq_id_multiset_sha256(
+                            path, declaration["mate"], temp_dir=run_dir
+                        )
+                        record["normalization"] = "fastq_id_multiset_v1"
                     record["mate"] = declaration["mate"]
                 except (OSError, EOFError, HarnessError) as error:
                     invalid_outputs.append(str(error))
@@ -594,13 +684,24 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
 
     timing = parse_gnu_time(time_path)
     termination_signal = -exit_code if exit_code < 0 else None
-    success = (
+    preliminary_success = (
         exit_code == 0
         and not timed_out
         and not interrupted
         and not missing_outputs
         and not invalid_outputs
     )
+    if preliminary_success:
+        for declaration, record in zip(outputs, output_records):
+            if not declaration["retain"]:
+                try:
+                    declaration["path"].unlink()
+                    record["retained"] = False
+                except OSError as error:
+                    invalid_outputs.append(
+                        f"cannot remove generated output {declaration['path']}: {error}"
+                    )
+    success = preliminary_success and not invalid_outputs
     result = {
         "schema_version": SCHEMA_VERSION,
         "run_id": run_id,

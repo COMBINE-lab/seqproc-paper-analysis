@@ -14,6 +14,7 @@ from benchmark_harness import (
     HarnessError,
     execute_spec,
     inspect_fastq,
+    normalized_fastq_id_multiset_sha256,
     normalized_fastq_multiset_sha256,
     prepare_spec,
     sha256_file,
@@ -53,6 +54,35 @@ def test_success_records_timing_output_and_digest(tmp_path):
     assert json.loads((run_dir / "run.json").read_text())["run_id"] == result["run_id"]
 
 
+def test_launcher_and_tool_executables_are_both_fingerprinted(tmp_path):
+    spec = make_spec(tmp_path, "pass")
+    spec["executables"] = ["/usr/bin/time"]
+    identity = prepare_spec(spec)["identity"]
+
+    assert identity["binary"]["path"] == str(Path(sys.executable).resolve())
+    assert [item["path"] for item in identity["executables"]] == [
+        str(Path(sys.executable).resolve()),
+        str(Path("/usr/bin/time").resolve()),
+    ]
+
+
+def test_validated_output_can_be_removed_after_recording_digests(tmp_path):
+    spec = make_spec(
+        tmp_path,
+        "from pathlib import Path; import sys; "
+        "Path(sys.argv[1], 'result.fastq').write_text('@r1\\nAC\\n+\\nII\\n')",
+        [{"path": "{run_dir}/result.fastq", "format": "fastq", "min_bytes": 1}],
+    )
+    spec["retain_outputs"] = False
+    result, run_dir = execute_spec(spec, tmp_path / "runs")
+
+    assert result["success"] is True
+    assert result["outputs"][0]["retained"] is False
+    assert result["outputs"][0]["sha256"]
+    assert not (run_dir / "result.fastq").exists()
+    assert (run_dir / "outputs.sha256").read_text().strip()
+
+
 def test_nonzero_exit_is_preserved(tmp_path):
     spec = make_spec(tmp_path, "raise SystemExit(7)")
     result, run_dir = execute_spec(spec, tmp_path / "runs")
@@ -70,6 +100,15 @@ def test_missing_declared_output_fails_run(tmp_path):
     assert result["success"] is False
     assert result["exit_code"] == 0
     assert result["missing_outputs"]
+
+
+def test_preexisting_declared_output_is_refused(tmp_path):
+    stale = tmp_path / "stale.fastq"
+    stale.write_text("@old\nA\n+\nI\n")
+    spec = make_spec(tmp_path, "pass", [str(stale)])
+
+    with pytest.raises(HarnessError, match="pre-existing declared outputs"):
+        execute_spec(spec, tmp_path / "runs")
 
 
 def test_fastq_output_is_counted_and_validated(tmp_path):
@@ -112,6 +151,17 @@ def test_normalized_fastq_digest_is_order_independent_and_gzip_independent(tmp_p
     assert digest == normalized_fastq_multiset_sha256(path2, mate=1, chunk_bytes=10)
     assert digest == normalized_fastq_multiset_sha256(gzip_path, mate=1, chunk_bytes=10)
     assert digest != normalized_fastq_multiset_sha256(path2, mate=2, chunk_bytes=10)
+
+
+def test_read_id_digest_ignores_sequence_and_order_but_not_mate(tmp_path):
+    first = tmp_path / "first.fastq"
+    second = tmp_path / "second.fastq"
+    first.write_bytes(b"@a/1 extra\nAC\n+\nII\n@b/1\nGT\n+\nJJ\n")
+    second.write_bytes(b"@b/1\nTT\n+\nHH\n@a/1 other\nCC\n+\nGG\n")
+
+    digest = normalized_fastq_id_multiset_sha256(first, mate=1, chunk_bytes=5)
+    assert digest == normalized_fastq_id_multiset_sha256(second, mate=1, chunk_bytes=5)
+    assert digest != normalized_fastq_id_multiset_sha256(second, mate=2, chunk_bytes=5)
 
 
 def test_malformed_or_too_small_output_fails_run(tmp_path):

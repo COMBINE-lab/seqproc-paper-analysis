@@ -78,7 +78,7 @@ def _validate_sha256(value: Any, location: str) -> str:
 
 
 def _validate_publication_spec(spec: Mapping[str, Any], location: str) -> None:
-    for collection in ("inputs", "configs"):
+    for collection in ("inputs", "configs", "executables"):
         for index, entry in enumerate(spec.get(collection, [])):
             if not isinstance(entry, Mapping):
                 raise ScheduleError(
@@ -175,7 +175,7 @@ def validate_manifest(manifest: Mapping[str, Any], manifest_path: Path) -> list[
             raise ScheduleError(f"{location}: {error}") from error
         if mode == "publication":
             frozen_files = [
-                prepared["identity"]["binary"],
+                *prepared["identity"]["executables"],
                 *prepared["identity"]["inputs"],
                 *prepared["identity"]["configs"],
             ]

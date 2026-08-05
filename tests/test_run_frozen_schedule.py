@@ -128,6 +128,27 @@ def test_failed_attempt_is_preserved_and_retried(tmp_path):
     assert all((attempt / "run.json").is_file() for attempt in attempts)
 
 
+def test_cross_tool_difference_is_separate_from_within_tool_determinism():
+    rows = []
+    for tool, digest in (("alpha", "a" * 64), ("beta", "b" * 64)):
+        for replicate in (1, 2):
+            rows.append(
+                {
+                    "dataset": "dataset",
+                    "tool": tool,
+                    "execution_mode": "default",
+                    "replicate": replicate,
+                    "normalized_output_sha256": digest,
+                    "emitted_records": 10,
+                }
+            )
+    report = correctness(rows)
+
+    assert report["all_deterministic"] is True
+    assert report["all_identical"] is False
+    assert report["datasets"][0]["all_tools_modes_deterministic"] is True
+
+
 def test_concurrent_coordinator_is_refused(tmp_path):
     manifest, manifest_path = make_manifest(tmp_path)
     schedule = build_schedule(manifest, manifest_path)

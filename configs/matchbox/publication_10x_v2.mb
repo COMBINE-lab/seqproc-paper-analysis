@@ -1,0 +1,7 @@
+# Semantically aligned 10x v2 benchmark: emit BC+UMI in R1 and retain R2.
+if read.r1 matches {
+    [bc:|16| umi:|10|] => {
+        bc.concat(umi).out!('mb_r1.fq')
+        read.r2.out!('mb_r2.fq')
+    }
+}

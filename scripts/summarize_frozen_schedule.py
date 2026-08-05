@@ -15,7 +15,7 @@ from benchmark_harness import sha256_file
 from run_frozen_schedule import _load_mapping, build_schedule, load_verified_schedule
 
 
-AGGREGATE_SCHEMA_VERSION = "1.0.0"
+AGGREGATE_SCHEMA_VERSION = "1.1.0"
 
 
 def successful_attempts(run_root: Path) -> list[tuple[Path, dict[str, Any]]]:
@@ -132,6 +132,28 @@ def correctness(rows: list[dict[str, Any]]) -> dict[str, Any]:
     for dataset, values in sorted(groups.items()):
         digests = sorted({str(item["normalized_output_sha256"]) for item in values})
         emitted_counts = sorted({int(item["emitted_records"]) for item in values})
+        condition_groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+        for item in values:
+            condition_groups[(str(item["tool"]), str(item["execution_mode"]))].append(item)
+        determinism = []
+        for (tool, execution_mode), condition_values in sorted(condition_groups.items()):
+            condition_digests = sorted(
+                {str(item["normalized_output_sha256"]) for item in condition_values}
+            )
+            condition_counts = sorted(
+                {int(item["emitted_records"]) for item in condition_values}
+            )
+            determinism.append(
+                {
+                    "tool": tool,
+                    "execution_mode": execution_mode,
+                    "conditions": len(condition_values),
+                    "normalized_digest_count": len(condition_digests),
+                    "emitted_record_counts": condition_counts,
+                    "deterministic_across_threads_replicates": len(condition_digests) == 1
+                    and len(condition_counts) == 1,
+                }
+            )
         datasets.append(
             {
                 "dataset": dataset,
@@ -140,9 +162,17 @@ def correctness(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 "normalized_output_sha256": digests,
                 "emitted_record_counts": emitted_counts,
                 "identical_across_modes_threads_replicates": len(digests) == 1,
+                "all_tools_modes_deterministic": all(
+                    item["deterministic_across_threads_replicates"] for item in determinism
+                ),
+                "determinism": determinism,
             }
         )
+    all_deterministic = bool(datasets) and all(
+        item["all_tools_modes_deterministic"] for item in datasets
+    )
     return {
+        "all_deterministic": all_deterministic,
         "all_identical": bool(datasets)
         and all(item["identical_across_modes_threads_replicates"] for item in datasets),
         "datasets": datasets,
@@ -174,6 +204,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     rows, exclusions = collect_rows(manifest, schedule, args.runs.resolve())
     summaries = summarize(rows)
     correctness_report = correctness(rows)
+    require_cross_tool_identity = bool(
+        manifest.get("study", {}).get("require_cross_tool_identity", False)
+    )
     args.output.mkdir(parents=True, exist_ok=True)
     aggregate = {
         "schema_version": AGGREGATE_SCHEMA_VERSION,
@@ -183,6 +216,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "valid_conditions": len(rows),
         "excluded_conditions": len(exclusions),
         "correctness": correctness_report,
+        "require_cross_tool_identity": require_cross_tool_identity,
         "summaries": summaries,
         "exclusions": exclusions,
     }
@@ -195,7 +229,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     write_csv(args.output / "runs.csv", rows)
     write_csv(args.output / "summary.csv", summaries)
     print(json.dumps({"valid": len(rows), "excluded": len(exclusions), **correctness_report}))
-    return 0 if not exclusions and correctness_report["all_identical"] else 1
+    correctness_ok = correctness_report["all_deterministic"] and (
+        correctness_report["all_identical"] or not require_cross_tool_identity
+    )
+    return 0 if not exclusions and correctness_ok else 1
 
 
 if __name__ == "__main__":
