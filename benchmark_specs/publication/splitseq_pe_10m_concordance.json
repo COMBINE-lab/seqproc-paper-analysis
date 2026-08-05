@@ -1,0 +1,56 @@
+{
+  "inputs": [
+    {
+      "bytes": 1229099772,
+      "label": "seqproc",
+      "path": "/tmp/pe-real-pub-gate/seqproc-r1.fastq",
+      "sha256": "ccacdaac49cdfd728c2ed670d4d7bbbf95b4b1765cea4871908ea94338653221",
+      "unique_read_ids": 7414257
+    },
+    {
+      "bytes": 1176202994,
+      "label": "matchbox",
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/mb_r1.fq",
+      "sha256": "568832e5a92a4ebd2100d8e9607c8db565251029e97beb702a87effae985173c",
+      "unique_read_ids": 7095192
+    },
+    {
+      "bytes": 1336745812,
+      "label": "splitcode",
+      "path": "/tmp/pe-real-pub-gate/splitcode-window-r1.fastq",
+      "sha256": "b2d63dcf4055aaae8163da8c185a78e3828d472e9af4fd6e3b02fd6f5a14ddf6",
+      "unique_read_ids": 7114602
+    }
+  ],
+  "pairwise": [
+    {
+      "intersection": 6716875,
+      "jaccard": 0.8619584491594177,
+      "left": "seqproc",
+      "left_only": 697382,
+      "right": "matchbox",
+      "right_only": 378317,
+      "union": 7792574
+    },
+    {
+      "intersection": 6893273,
+      "jaccard": 0.9027824452504366,
+      "left": "seqproc",
+      "left_only": 520984,
+      "right": "splitcode",
+      "right_only": 221329,
+      "union": 7635586
+    },
+    {
+      "intersection": 6401146,
+      "jaccard": 0.8197508710854939,
+      "left": "matchbox",
+      "left_only": 694046,
+      "right": "splitcode",
+      "right_only": 713456,
+      "union": 7808648
+    }
+  ],
+  "schema_version": "1.0.0",
+  "universe_records": 10000000
+}

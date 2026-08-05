@@ -38,6 +38,22 @@ cross-tool concordance.
    Seqproc normalizes duplicate whitelist entries internally. Publication
    matchbox and splitcode configurations explicitly use one copy of each entry
    so duplicate input rows cannot create artificial ambiguity or work.
+7. The legacy paired-end splitcode tags had no `LOCATION` constraints. Splitcode
+   therefore searched both R1 and R2 and assigned 9,999,988/10,000,000 real
+   pairs when any tag-like sequence was sufficient. The publication config
+   restricts all tags to realistic R2 position windows and requires at least
+   one hit from each of the BC1, BC2, BC3, linker1, and linker2 groups. It emits
+   7,114,602/10,000,000 on the same subset.
+
+## Real 10M SPLiT-seq paired-end gate
+
+The corrected publication configurations emitted 7,414,257 seqproc, 7,095,192
+matchbox, and 7,114,602 splitcode read pairs. The exact pairwise intersections,
+unions, Jaccard indices, generated-output SHA-256 digests, and paths are in
+`splitseq_pe_10m_concordance.json`. Seqproc/splitcode had the highest Jaccard
+(0.9028), followed by seqproc/matchbox (0.8620) and matchbox/splitcode (0.8198).
+Thus similar output totals must not be presented as proof that tools select the
+same biological reads.
 
 ## Protocol-shaped audit inputs
 
