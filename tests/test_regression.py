@@ -251,6 +251,7 @@ def concordance_data():
 
 
 @pytest.mark.parametrize("ds_key", list(EXPECTED_RECOVERY.keys()))
+@pytest.mark.requires_cached_results
 def test_concordance_datasets_present(concordance_data, ds_key):
     """Each expected dataset must be present in concordance results."""
     assert ds_key in concordance_data, (
@@ -261,6 +262,7 @@ def test_concordance_datasets_present(concordance_data, ds_key):
     "ds_key,tool",
     [(ds, t) for ds, tools in EXPECTED_RECOVERY.items() for t in tools],
 )
+@pytest.mark.requires_cached_results
 def test_recovery_rates_in_range(concordance_data, ds_key, tool):
     """Recovery rates must fall within expected ranges (no regression)."""
     lo, hi = EXPECTED_RECOVERY[ds_key][tool]
@@ -269,6 +271,7 @@ def test_recovery_rates_in_range(concordance_data, ds_key, tool):
         f"{ds_key}/{tool}: recovery {actual:.1f}% outside [{lo}, {hi}]")
 
 
+@pytest.mark.requires_cached_results
 def test_hamming_vs_edit_present(concordance_data):
     """Hamming vs edit comparison must exist for PE, LR, and sci datasets."""
     for ds_key in ["splitseq_pe", "lr_splitseq", "sciseq"]:
@@ -286,6 +289,7 @@ EXPECTED_EDIT_GAIN = {
 
 
 @pytest.mark.parametrize("ds_key", list(EXPECTED_EDIT_GAIN.keys()))
+@pytest.mark.requires_cached_results
 def test_edit_distance_gain(concordance_data, ds_key):
     """Edit distance gain percentage must be within expected range."""
     hve = concordance_data[ds_key]["hamming_vs_edit"]
@@ -310,6 +314,7 @@ def benchmark_data():
         return json.load(f)
 
 
+@pytest.mark.requires_cached_results
 def test_benchmark_json_has_all_datasets(benchmark_data):
     """benchmark_results.json must contain all 4 datasets."""
     for ds_key in ["splitseq_pe", "lr_splitseq", "10x_short", "sciseq"]:
@@ -317,6 +322,7 @@ def test_benchmark_json_has_all_datasets(benchmark_data):
             f"Dataset '{ds_key}' missing from benchmark_results.json")
 
 
+@pytest.mark.requires_cached_results
 def test_benchmark_json_has_all_tools(benchmark_data):
     """Each dataset must have entries for all 3 tools."""
     for ds_key, entry in benchmark_data.items():
@@ -326,6 +332,7 @@ def test_benchmark_json_has_all_tools(benchmark_data):
                 f"{ds_key}: tool '{tool}' missing from benchmark_results.json")
 
 
+@pytest.mark.requires_cached_results
 def test_benchmark_perf_backup_matches():
     """benchmark_results_perf.json must be identical to benchmark_results.json
     (they are the same data, just the backup)."""
@@ -348,6 +355,7 @@ def test_benchmark_perf_backup_matches():
 # ============================================================================
 
 
+@pytest.mark.requires_cached_results
 def test_generate_figures_deterministic():
     """Running generate_figures.py must produce byte-identical JSON output."""
     json_path = RESULTS_DIR / "paper_figures" / "benchmark_results.json"
@@ -377,6 +385,7 @@ def test_generate_figures_deterministic():
 # ============================================================================
 
 
+@pytest.mark.requires_cached_results
 def test_concordance_skip_runs():
     """concordance_analysis.py --skip-runs must exit 0 with cached data."""
     conc_dir = RESULTS_DIR / "concordance"
@@ -400,6 +409,8 @@ def test_concordance_skip_runs():
 # ============================================================================
 
 
+@pytest.mark.requires_real_data
+@pytest.mark.requires_cached_results
 def test_discordant_analysis():
     """discordant_analysis.py must exit 0 and report the FP finding."""
     r2_path = PROJECT_ROOT / "data" / "SRR6750041_1M_R2.fastq"

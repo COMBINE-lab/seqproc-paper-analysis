@@ -1,4 +1,5 @@
 import json
+import gzip
 import os
 import subprocess
 import sys
@@ -9,7 +10,14 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from benchmark_harness import HarnessError, execute_spec, prepare_spec, sha256_file
+from benchmark_harness import (
+    HarnessError,
+    execute_spec,
+    inspect_fastq,
+    normalized_fastq_multiset_sha256,
+    prepare_spec,
+    sha256_file,
+)
 
 
 def make_spec(tmp_path: Path, code: str, outputs=None):
@@ -64,6 +72,72 @@ def test_missing_declared_output_fails_run(tmp_path):
     assert result["missing_outputs"]
 
 
+def test_fastq_output_is_counted_and_validated(tmp_path):
+    spec = make_spec(
+        tmp_path,
+        "from pathlib import Path; import sys; "
+        "Path(sys.argv[1], 'result.fastq').write_text('@r1\\nACGT\\n+\\nIIII\\n')",
+        [
+            {
+                "path": "{run_dir}/result.fastq",
+                "format": "fastq",
+                "normalize": "fastq_multiset",
+                "mate": 1,
+                "min_bytes": 1,
+            }
+        ],
+    )
+    result, run_dir = execute_spec(spec, tmp_path / "runs")
+
+    assert result["success"] is True
+    assert result["output_counts"][0]["records"] == 1
+    assert json.loads((run_dir / "output-counts.json").read_text())[0]["valid"] is True
+    assert inspect_fastq(run_dir / "result.fastq")["records"] == 1
+    assert result["outputs"][0]["normalized_sha256"]
+    assert (run_dir / "outputs.normalized.sha256").read_text().strip()
+
+
+def test_normalized_fastq_digest_is_order_independent_and_gzip_independent(tmp_path):
+    first = b"@a/1 extra\nAC\n+\nII\n@b/1\nGT\n+\nJJ\n"
+    reordered = b"@b/1\nGT\n+\nJJ\n@a/1 extra\nAC\n+\nII\n"
+    path1 = tmp_path / "first.fastq"
+    path2 = tmp_path / "second.fastq"
+    gzip_path = tmp_path / "second.fastq.gz"
+    path1.write_bytes(first)
+    path2.write_bytes(reordered)
+    with gzip.open(gzip_path, "wb") as handle:
+        handle.write(reordered)
+
+    digest = normalized_fastq_multiset_sha256(path1, mate=1, chunk_bytes=10)
+    assert digest == normalized_fastq_multiset_sha256(path2, mate=1, chunk_bytes=10)
+    assert digest == normalized_fastq_multiset_sha256(gzip_path, mate=1, chunk_bytes=10)
+    assert digest != normalized_fastq_multiset_sha256(path2, mate=2, chunk_bytes=10)
+
+
+def test_malformed_or_too_small_output_fails_run(tmp_path):
+    spec = make_spec(
+        tmp_path,
+        "from pathlib import Path; import sys; "
+        "Path(sys.argv[1], 'bad.fastq').write_text('@r1\\nACGT\\n+\\nIII\\n')",
+        [{"path": "{run_dir}/bad.fastq", "format": "fastq", "min_bytes": 100}],
+    )
+    result, _ = execute_spec(spec, tmp_path / "runs")
+
+    assert result["success"] is False
+    assert len(result["invalid_outputs"]) == 2
+
+
+def test_timeout_preserves_failed_attempt(tmp_path):
+    spec = make_spec(tmp_path, "import time; time.sleep(30)")
+    spec["timeout_seconds"] = 0.05
+    result, run_dir = execute_spec(spec, tmp_path / "runs")
+
+    assert result["success"] is False
+    assert result["timed_out"] is True
+    assert result["termination_signal"] is not None
+    assert json.loads((run_dir / "run.json").read_text())["timed_out"] is True
+
+
 def test_identical_spec_has_stable_run_id_and_new_attempt(tmp_path):
     spec = make_spec(tmp_path, "pass")
     first, first_dir = execute_spec(spec, tmp_path / "runs")
@@ -73,6 +147,16 @@ def test_identical_spec_has_stable_run_id_and_new_attempt(tmp_path):
     assert first["attempt"] == 1
     assert second["attempt"] == 2
     assert first_dir != second_dir
+
+
+def test_output_contract_and_timeout_are_part_of_run_identity(tmp_path):
+    spec = make_spec(tmp_path, "pass", ["{run_dir}/result.txt"])
+    original = prepare_spec(spec)["run_id"]
+    spec["outputs"] = [{"path": "{run_dir}/result.txt", "min_bytes": 10}]
+    assert prepare_spec(spec)["run_id"] != original
+    with_output_contract = prepare_spec(spec)["run_id"]
+    spec["timeout_seconds"] = 10
+    assert prepare_spec(spec)["run_id"] != with_output_contract
 
 
 def test_argv_is_not_interpreted_by_a_shell(tmp_path):
@@ -127,6 +211,24 @@ def test_dirty_repository_requires_explicit_opt_in(tmp_path):
     result, run_dir = execute_spec(spec, tmp_path / "runs")
     assert result["identity"]["repositories"][0]["dirty"] is True
     assert (run_dir / "repository-repo.diff").is_file()
+
+
+def test_repository_commit_must_match_when_declared(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.org"], check=True)
+    subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
+    (repo / "tracked.txt").write_text("tracked\n")
+    subprocess.run(["git", "-C", str(repo), "add", "tracked.txt"], check=True)
+    subprocess.run(["git", "-C", str(repo), "commit", "-qm", "baseline"], check=True)
+
+    spec = make_spec(tmp_path, "pass")
+    spec["repositories"] = [
+        {"name": "repo", "path": str(repo), "commit": "0" * 40}
+    ]
+    with pytest.raises(HarnessError, match="expected"):
+        prepare_spec(spec)
 
 
 def test_dirty_repository_archives_untracked_files(tmp_path):

@@ -16,6 +16,11 @@ import os
 import sys
 import tempfile
 
+import pytest
+
+
+pytestmark = pytest.mark.requires_real_data
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
 # Patch out heavy deps

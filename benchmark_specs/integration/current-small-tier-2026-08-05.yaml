@@ -1,0 +1,4139 @@
+schema_version: 1.0.0
+mode: development
+study:
+  name: seqproc-current-small-tier
+  random_seed: 741211
+  purpose: exercise frozen publication harness before the full cross-tool rerun
+artifacts:
+- path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+  sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+- path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+  sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+- path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+  sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+- path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+  sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+- path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+  sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+- path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+  sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+- path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+  sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+  sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+  sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+  sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+  sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+  sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+  sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+  sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/requirements.lock
+  sha256: 8a1b44341514b86cf504aa67e067a0f2bd4f231352d855362d0d4b808cd9dbcb
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/requirements.txt
+  sha256: bdd3e36b6703e5187ff8bcfe7255b04863a1c801346566a0dc484e72126d9e4e
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/benchmark_harness.py
+  sha256: bffbc174eb29d11e876acf983a998663cedd4527a3cc0e3d27f72151fe1401ef
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/make_seqproc_small_tier_manifest.py
+  sha256: fa967c9126b8a2629f2112d2318791b9be50e517a6478de0b7d40bd363f87a6c
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/run_frozen_schedule.py
+  sha256: 390c4dcef2e6b881ed81dac4170a761669ed84fb7b98946a5d3a930859efc7cc
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/summarize_frozen_schedule.py
+  sha256: 40a763e7acdcd5300d30fd1ce96ed02036068594d61ad1803559cf27547c6bc3
+- path: /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+  sha256: 8a57dbc9c502cdffe5a7d5f8e6cf50d326a4999090b7428efac76564b68978e8
+datasets:
+- name: splitseq_pe
+  records: 100000
+  r1:
+    path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+    verify: false
+  r2:
+    path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+    verify: false
+  mates_verified: true
+- name: lr_splitseq
+  records: 100000
+  r1:
+    path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+    verify: false
+  r2: null
+  mates_verified: true
+- name: tenx_v2
+  records: 100000
+  r1:
+    path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+    verify: false
+  r2:
+    path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+    verify: false
+  mates_verified: true
+- name: scirnaseq3
+  records: 100000
+  r1:
+    path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+    verify: false
+  r2:
+    path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+    verify: false
+  mates_verified: true
+execution:
+  timeout_seconds: 600
+  sanitized_environment_allowlist:
+  - PATH
+  - LD_LIBRARY_PATH
+  - LANG
+  - TMPDIR
+  - RUST_BACKTRACE
+  - RUST_LOG
+runs:
+- id: splitseq_pe-t1-r1-default
+  block: splitseq_pe-t1-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: &id001
+    - name: seqproc
+      path: /scratch1/seqproc-ecosystem/seqproc
+      commit: c9d71476527eea050cedd0431d29d39043e4e517
+    - name: antisequence
+      path: /scratch1/seqproc-ecosystem/antisequence
+      commit: 19eef2c00bd19ec1fde8b8bc041db3371e1a9875
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t1-r1-staged
+  block: splitseq_pe-t1-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t8-r1-default
+  block: splitseq_pe-t8-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t8-r1-staged
+  block: splitseq_pe-t8-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t32-r1-default
+  block: splitseq_pe-t32-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t32-r1-staged
+  block: splitseq_pe-t32-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t1-r1-default
+  block: lr_splitseq-t1-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t1-r1-staged
+  block: lr_splitseq-t1-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t8-r1-default
+  block: lr_splitseq-t8-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t8-r1-staged
+  block: lr_splitseq-t8-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t32-r1-default
+  block: lr_splitseq-t32-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t32-r1-staged
+  block: lr_splitseq-t32-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t1-r1-default
+  block: tenx_v2-t1-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t1-r1-staged
+  block: tenx_v2-t1-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t8-r1-default
+  block: tenx_v2-t8-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t8-r1-staged
+  block: tenx_v2-t8-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t32-r1-default
+  block: tenx_v2-t32-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t32-r1-staged
+  block: tenx_v2-t32-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t1-r1-default
+  block: scirnaseq3-t1-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t1-r1-staged
+  block: scirnaseq3-t1-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t8-r1-default
+  block: scirnaseq3-t8-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t8-r1-staged
+  block: scirnaseq3-t8-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t32-r1-default
+  block: scirnaseq3-t32-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t32-r1-staged
+  block: scirnaseq3-t32-r1
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 1
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t1-r2-default
+  block: splitseq_pe-t1-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t1-r2-staged
+  block: splitseq_pe-t1-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t8-r2-default
+  block: splitseq_pe-t8-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t8-r2-staged
+  block: splitseq_pe-t8-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t32-r2-default
+  block: splitseq_pe-t32-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t32-r2-staged
+  block: splitseq_pe-t32-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t1-r2-default
+  block: lr_splitseq-t1-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t1-r2-staged
+  block: lr_splitseq-t1-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t8-r2-default
+  block: lr_splitseq-t8-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t8-r2-staged
+  block: lr_splitseq-t8-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t32-r2-default
+  block: lr_splitseq-t32-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t32-r2-staged
+  block: lr_splitseq-t32-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t1-r2-default
+  block: tenx_v2-t1-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t1-r2-staged
+  block: tenx_v2-t1-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t8-r2-default
+  block: tenx_v2-t8-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t8-r2-staged
+  block: tenx_v2-t8-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t32-r2-default
+  block: tenx_v2-t32-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t32-r2-staged
+  block: tenx_v2-t32-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t1-r2-default
+  block: scirnaseq3-t1-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t1-r2-staged
+  block: scirnaseq3-t1-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t8-r2-default
+  block: scirnaseq3-t8-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t8-r2-staged
+  block: scirnaseq3-t8-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t32-r2-default
+  block: scirnaseq3-t32-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t32-r2-staged
+  block: scirnaseq3-t32-r2
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 2
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t1-r3-default
+  block: splitseq_pe-t1-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t1-r3-staged
+  block: splitseq_pe-t1-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t8-r3-default
+  block: splitseq_pe-t8-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t8-r3-staged
+  block: splitseq_pe-t8-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t32-r3-default
+  block: splitseq_pe-t32-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: splitseq_pe-t32-r3-staged
+  block: splitseq_pe-t32-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R1.fastq
+      sha256: 2519ca15cc6b28bd4042b01b0311ebbce86ddb07b0464c6fd04290f0eee47d99
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_pe_R2.fastq
+      sha256: 90a742118444d3c41b2e27521d3365933fd129c601104a7e6167fe39912846bb
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_filter_edit.geom
+      sha256: de005f82ae351534cc1f7cbca0b79a8b2f0c4f6908df4076fccf2ab9905667a5
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: splitseq_pe
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t1-r3-default
+  block: lr_splitseq-t1-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t1-r3-staged
+  block: lr_splitseq-t1-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t8-r3-default
+  block: lr_splitseq-t8-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t8-r3-staged
+  block: lr_splitseq-t8-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t32-r3-default
+  block: lr_splitseq-t32-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: lr_splitseq-t32-r3-staged
+  block: lr_splitseq-t32-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --staged-pipeline
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+    - --additional
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/splitseq_se_R1.fastq
+      sha256: f629be3cef3bb9a1b354da29df8fb05919a58419c2e582f60d0e28eb3b9fc480
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_singleend_edit_ann.geom
+      sha256: 6e3c2b735b965508fa8f5c3d66475eb4c9c1ba1af432b0a4c1678ffa70010950
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc3_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc2_seq2seq.tsv
+      sha256: c8bc504f4c49a26c5b38f89932783a9d4b36cb025e7600c10ca2fac58f103658
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc1_seq2seq.tsv
+      sha256: da35f17a3ac3a8a787c597b43920d85b515f8333dae3424d00b8ab27c95980fa
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: lr_splitseq
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t1-r3-default
+  block: tenx_v2-t1-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t1-r3-staged
+  block: tenx_v2-t1-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t8-r3-default
+  block: tenx_v2-t8-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t8-r3-staged
+  block: tenx_v2-t8-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t32-r3-default
+  block: tenx_v2-t32-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: tenx_v2-t32-r3-staged
+  block: tenx_v2-t32-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R1.fastq
+      sha256: 8e0c8c324eb589c7d8fbf6a089a715965f058219fbb80a1054a76ba80977a302
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/10x_short_R2.fastq
+      sha256: 10544f4821a2dd1da41a71cb1a9b254fd7b1fe9a5d083f33a5c594be925229a2
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom
+      sha256: cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: tenx_v2
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t1-r3-default
+  block: scirnaseq3-t1-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: default
+      threads: 1
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t1-r3-staged
+  block: scirnaseq3-t1-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '1'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: staged
+      threads: 1
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t8-r3-default
+  block: scirnaseq3-t8-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: default
+      threads: 8
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t8-r3-staged
+  block: scirnaseq3-t8-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '8'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: staged
+      threads: 8
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t32-r3-default
+  block: scirnaseq3-t32-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: default
+      threads: 32
+      replicate: 3
+      input_records: 100000
+      tier: integration-small
+- id: scirnaseq3-t32-r3-staged
+  block: scirnaseq3-t32-r3
+  spec:
+    name: seqproc-small-tier
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    command:
+    - /scratch1/seqproc-ecosystem/seqproc/target/release/seqproc
+    - run
+    - --geom
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+    - --file1
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+    - --out1
+    - '{run_dir}/R1.fastq'
+    - --threads
+    - '32'
+    - --file2
+    - /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+    - --out2
+    - '{run_dir}/R2.fastq'
+    - --staged-pipeline
+    inputs:
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R1.fastq
+      sha256: 31a6fdfd6ee1d20d0232fc8f09a4c09c8000cb47cf29bd64abed03b535ec658e
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/journal-readiness-review/results/protocol-integration-2026-08-04/inputs/sciseq_R2.fastq
+      sha256: aa0467bfbae3ffe1a78d24b55e2eab057f7c07e7dfc5f25c8954c9082ca6537e
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom
+      sha256: 64a6df8215082448b1f8ca344b624cc8f377ae66025947bc38c14413f7c4ef07
+      verify: false
+    outputs:
+    - path: '{run_dir}/R1.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 1
+      min_bytes: 1
+    - path: '{run_dir}/R2.fastq'
+      format: fastq
+      normalize: fastq_multiset
+      mate: 2
+      min_bytes: 1
+    repositories: *id001
+    metadata:
+      dataset: scirnaseq3
+      tool: seqproc
+      execution_mode: staged
+      threads: 32
+      replicate: 3
+      input_records: 100000
+      tier: integration-small

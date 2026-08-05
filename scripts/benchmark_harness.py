@@ -12,19 +12,24 @@ smallest useful example.
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
+import gzip
+import heapq
 import json
 import os
 import platform
 import shutil
+import signal
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 DEFAULT_ENV_ALLOWLIST = (
     "PATH",
     "LD_LIBRARY_PATH",
@@ -134,6 +139,11 @@ def describe_repository(
         raise HarnessError(f"cannot inspect git repository {path}: {error}") from error
 
     dirty = bool(status)
+    expected_commit = entry.get("commit")
+    if expected_commit is not None and commit != str(expected_commit):
+        raise HarnessError(
+            f"repository {name!r} is at {commit}, expected {expected_commit}"
+        )
     if dirty and not bool(entry.get("allow_dirty", False)):
         raise HarnessError(
             f"repository {name!r} is dirty; commit it or set allow_dirty=true "
@@ -273,6 +283,148 @@ def _substitute_run_dir(values: Iterable[str], run_dir: Path) -> list[str]:
     return [str(value).replace("{run_dir}", str(run_dir)) for value in values]
 
 
+def _prepare_outputs(
+    entries: Iterable[str | Mapping[str, Any]], cwd: Path, run_dir: Path
+) -> list[dict[str, Any]]:
+    outputs: list[dict[str, Any]] = []
+    for entry in entries:
+        if isinstance(entry, str):
+            item: dict[str, Any] = {"path": entry}
+        elif isinstance(entry, Mapping):
+            item = dict(entry)
+        else:
+            raise HarnessError(f"output entry must be a string or object, got {entry!r}")
+        if "path" not in item:
+            raise HarnessError(f"output entry has no path: {entry!r}")
+        substituted = str(item["path"]).replace("{run_dir}", str(run_dir))
+        output_format = item.get("format")
+        if output_format not in (None, "fastq"):
+            raise HarnessError(f"unsupported output format {output_format!r}")
+        normalization = item.get("normalize")
+        if normalization not in (None, "fastq_multiset"):
+            raise HarnessError(f"unsupported output normalization {normalization!r}")
+        if normalization is not None and output_format != "fastq":
+            raise HarnessError("fastq_multiset normalization requires format: fastq")
+        mate = int(item.get("mate", 0))
+        if mate < 0:
+            raise HarnessError("output mate cannot be negative")
+        min_bytes = int(item.get("min_bytes", 0))
+        if min_bytes < 0:
+            raise HarnessError("output min_bytes cannot be negative")
+        outputs.append(
+            {
+                "path": _resolve(substituted, cwd),
+                "min_bytes": min_bytes,
+                "format": output_format,
+                "normalize": normalization,
+                "mate": mate,
+            }
+        )
+    return outputs
+
+
+def inspect_fastq(path: Path) -> dict[str, Any]:
+    """Count and structurally validate a four-line FASTQ, optionally gzip-compressed."""
+    opener = gzip.open if path.name.endswith((".gz", ".gzip")) else open
+    records = 0
+    with opener(path, "rb") as handle:
+        while True:
+            header = handle.readline()
+            if not header:
+                break
+            sequence = handle.readline()
+            separator = handle.readline()
+            quality = handle.readline()
+            if not sequence or not separator or not quality:
+                raise HarnessError(f"truncated FASTQ record {records + 1} in {path}")
+            if not header.startswith(b"@") or not separator.startswith(b"+"):
+                raise HarnessError(f"malformed FASTQ record {records + 1} in {path}")
+            if len(sequence.rstrip(b"\r\n")) != len(quality.rstrip(b"\r\n")):
+                raise HarnessError(
+                    f"sequence/quality length mismatch in FASTQ record {records + 1} in {path}"
+                )
+            records += 1
+    return {"format": "fastq", "records": records, "valid": True}
+
+
+def _fastq_records(path: Path):
+    opener = gzip.open if path.name.endswith((".gz", ".gzip")) else open
+    with opener(path, "rb") as handle:
+        while True:
+            lines = tuple(handle.readline() for _ in range(4))
+            if not lines[0]:
+                return
+            if any(not line for line in lines[1:]):
+                raise HarnessError(f"truncated FASTQ record in {path}")
+            yield lines
+
+
+def _normalized_fastq_line(lines: tuple[bytes, ...], mate: int) -> bytes:
+    header = lines[0].rstrip(b"\r\n")
+    normalized_id = header[1:].split(None, 1)[0]
+    if normalized_id.endswith((b"/1", b"/2")):
+        normalized_id = normalized_id[:-2]
+    record = b"".join(lines)
+    return (
+        base64.b64encode(normalized_id)
+        + b"\t"
+        + str(mate).encode()
+        + b"\t"
+        + base64.b64encode(record)
+        + b"\n"
+    )
+
+
+def normalized_fastq_multiset_sha256(
+    path: Path, mate: int = 0, chunk_bytes: int = 64 * 1024 * 1024
+) -> str:
+    """Hash complete FASTQ records after a bounded-memory external sort."""
+    if chunk_bytes <= 0:
+        raise HarnessError("normalization chunk_bytes must be positive")
+    with tempfile.TemporaryDirectory(prefix="seqproc-normalize-") as temporary:
+        root = Path(temporary)
+        chunks: list[Path] = []
+        buffered: list[bytes] = []
+        buffered_bytes = 0
+
+        def flush_chunk() -> None:
+            nonlocal buffered_bytes
+            if not buffered:
+                return
+            buffered.sort()
+            chunk = root / f"chunk-{len(chunks):06d}"
+            with chunk.open("wb") as handle:
+                handle.writelines(buffered)
+            chunks.append(chunk)
+            buffered.clear()
+            buffered_bytes = 0
+
+        for lines in _fastq_records(path):
+            encoded = _normalized_fastq_line(lines, mate)
+            buffered.append(encoded)
+            buffered_bytes += len(encoded)
+            if buffered_bytes >= chunk_bytes:
+                flush_chunk()
+        flush_chunk()
+
+        digest = hashlib.sha256()
+        handles = [chunk.open("rb") for chunk in chunks]
+        try:
+            for line in heapq.merge(*handles):
+                digest.update(line)
+        finally:
+            for handle in handles:
+                handle.close()
+        return digest.hexdigest()
+
+
+def _terminate_process_group(process: subprocess.Popen[bytes], sig: int) -> None:
+    try:
+        os.killpg(process.pid, sig)
+    except ProcessLookupError:
+        pass
+
+
 def prepare_spec(spec: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(spec.get("command"), list) or not spec["command"]:
         raise HarnessError("command must be a non-empty argv array")
@@ -312,6 +464,8 @@ def prepare_spec(spec: Mapping[str, Any]) -> dict[str, Any]:
         "configs": configs,
         "repositories": repositories,
         "environment": recorded_env,
+        "output_contract": spec.get("outputs", []),
+        "timeout_seconds": spec.get("timeout_seconds"),
         "metadata": spec.get("metadata", {}),
     }
     return {
@@ -329,7 +483,7 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
     run_root = output_root.resolve() / run_id
     attempt, run_dir = _next_attempt(run_root)
     command = _substitute_run_dir(spec["command"], run_dir)
-    outputs = [_resolve(path, prepared["cwd"]) for path in _substitute_run_dir(spec.get("outputs", []), run_dir)]
+    outputs = _prepare_outputs(spec.get("outputs", []), prepared["cwd"], run_dir)
 
     for name, snapshot in prepared["repository_snapshots"].items():
         safe_name = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in name)
@@ -362,46 +516,108 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
 
     started_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     start = time.monotonic_ns()
+    timeout_seconds = spec.get("timeout_seconds")
+    if timeout_seconds is not None and float(timeout_seconds) <= 0:
+        raise HarnessError("timeout_seconds must be positive")
+    timed_out = False
+    interrupted = False
     with stdout_path.open("wb") as stdout_handle, stderr_path.open("wb") as stderr_handle:
-        completed = subprocess.run(
+        process = subprocess.Popen(
             timed_command,
             cwd=prepared["cwd"],
             env=prepared["execution_env"],
             stdout=stdout_handle,
             stderr=stderr_handle,
-            check=False,
+            start_new_session=True,
         )
+        try:
+            exit_code = process.wait(
+                timeout=None if timeout_seconds is None else float(timeout_seconds)
+            )
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            _terminate_process_group(process, signal.SIGTERM)
+            try:
+                exit_code = process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                _terminate_process_group(process, signal.SIGKILL)
+                exit_code = process.wait()
+        except KeyboardInterrupt:
+            interrupted = True
+            _terminate_process_group(process, signal.SIGINT)
+            try:
+                exit_code = process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                _terminate_process_group(process, signal.SIGKILL)
+                exit_code = process.wait()
     wall_seconds = (time.monotonic_ns() - start) / 1_000_000_000
     finished_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
     output_records: list[dict[str, Any]] = []
     missing_outputs: list[str] = []
-    for path in outputs:
+    invalid_outputs: list[str] = []
+    output_counts: list[dict[str, Any]] = []
+    for declaration in outputs:
+        path = declaration["path"]
+        output_error_count = len(invalid_outputs)
         if path.is_file():
-            output_records.append(
-                {
-                    "path": str(path),
-                    "bytes": path.stat().st_size,
-                    "sha256": sha256_file(path),
-                }
-            )
+            size = path.stat().st_size
+            record = {"path": str(path), "bytes": size, "sha256": sha256_file(path)}
+            output_records.append(record)
+            if size < declaration["min_bytes"]:
+                invalid_outputs.append(
+                    f"{path}: {size} bytes is below minimum {declaration['min_bytes']}"
+                )
+            if declaration["format"] == "fastq":
+                try:
+                    counts = inspect_fastq(path)
+                    output_counts.append({"path": str(path), **counts})
+                except (OSError, EOFError, HarnessError) as error:
+                    invalid_outputs.append(str(error))
+                    output_counts.append(
+                        {"path": str(path), "format": "fastq", "valid": False, "error": str(error)}
+                    )
+            if (
+                declaration["normalize"] == "fastq_multiset"
+                and len(invalid_outputs) == output_error_count
+            ):
+                try:
+                    record["normalized_sha256"] = normalized_fastq_multiset_sha256(
+                        path, declaration["mate"]
+                    )
+                    record["normalization"] = "fastq_multiset_v1"
+                    record["mate"] = declaration["mate"]
+                except (OSError, EOFError, HarnessError) as error:
+                    invalid_outputs.append(str(error))
         else:
             missing_outputs.append(str(path))
 
     timing = parse_gnu_time(time_path)
-    success = completed.returncode == 0 and not missing_outputs
+    termination_signal = -exit_code if exit_code < 0 else None
+    success = (
+        exit_code == 0
+        and not timed_out
+        and not interrupted
+        and not missing_outputs
+        and not invalid_outputs
+    )
     result = {
         "schema_version": SCHEMA_VERSION,
         "run_id": run_id,
         "attempt": attempt,
         "success": success,
-        "exit_code": completed.returncode,
+        "exit_code": exit_code,
+        "termination_signal": termination_signal,
+        "timed_out": timed_out,
+        "interrupted": interrupted,
         "started_utc": started_utc,
         "finished_utc": finished_utc,
         "wall_seconds": wall_seconds,
         **timing,
         "missing_outputs": missing_outputs,
+        "invalid_outputs": invalid_outputs,
         "outputs": output_records,
+        "output_counts": output_counts,
         "stdout_sha256": sha256_file(stdout_path),
         "stderr_sha256": sha256_file(stderr_path),
         "host": host_snapshot(),
@@ -411,6 +627,18 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
     (run_dir / "outputs.sha256").write_text(
         "".join(f"{item['sha256']}  {item['path']}\n" for item in output_records)
     )
+    (run_dir / "outputs.normalized.sha256").write_text(
+        "".join(
+            f"{item['normalized_sha256']}  {item['path']}\n"
+            for item in output_records
+            if "normalized_sha256" in item
+        )
+    )
+    (run_dir / "output-counts.json").write_text(
+        json.dumps(output_counts, indent=2, sort_keys=True) + "\n"
+    )
+    if interrupted:
+        raise KeyboardInterrupt
     return result, run_dir
 
 
@@ -479,7 +707,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
 
     print(json.dumps({"run_id": result["run_id"], "attempt": result["attempt"], "success": result["success"], "run_dir": str(run_dir)}))
-    return 0 if result["success"] else 1
+    if result["success"]:
+        return 0
+    if result["timed_out"]:
+        return 124
+    if result["termination_signal"]:
+        return min(255, 128 + int(result["termination_signal"]))
+    exit_code = int(result["exit_code"])
+    return exit_code if 1 <= exit_code <= 125 else 1
 
 
 if __name__ == "__main__":
