@@ -1,23 +1,16 @@
-# SPLiT-seq Round 2 - Approach 1: Anchors + Filter using EDIT DISTANCE
-# Uses anchor_relative for linkers with edit distance and filter_within_dist for barcodes
+# SPLiT-seq paired-end geometry from the analysis-repository snapshot used by
+# the July 29, 2026 preprint.
 
 read1 = r:
 skip2 = x[2]
-umi = u[8]
+umi = u[10]
 
-# BC3: 8bp, filter against whitelist (dist 1)
 bc3 = filter_within_dist(b[8], "configs/seqproc/splitseq_bc23_whitelist.txt", 1)
-
-# Linker1 - 30bp - Anchor Relative (EDIT distance 6, ~0.2 fraction)
 #[search(relative)] #[edit(6)] l1 = f[GTGGCCGCTGTTTCGCATCGGCGTACGACT]
 
-# BC2: 8bp, filter against whitelist (dist 1)
 bc2 = filter_within_dist(b[8], "configs/seqproc/splitseq_bc23_whitelist.txt", 1)
-
-# Linker2 - 30bp - Anchor Relative (EDIT distance 6, ~0.2 fraction)
 #[search(relative)] #[edit(6)] l2 = f[ATCCACGTGCTTGAGAGGCCAGAGCATTCG]
 
-# BC1: 6bp identity followed by a 2bp residual segment, filter within dist 1
 bc1 = filter_within_dist(b[6], "configs/seqproc/splitseq_bc1_whitelist_6bp.txt", 1)
 rest = r:
 

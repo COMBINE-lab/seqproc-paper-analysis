@@ -80,7 +80,7 @@ def check_wl_match(bc, wl, max_dist=1):
 
 def analyze_splitseq_pe_reads(read_ids, r2_path, bc1_wl, bc2_wl, bc3_wl):
     """Check SPLiT-seq PE reads for structural validity.
-    Structure: [NN:2][UMI:10][BC3:8][L1:30][BC2:8][L2:30][BC1:6]
+    Structure: [NN:2][UMI:8][BC3:8][L1:30][BC2:8][L2:30][BC1:6][residual:2]
     """
     L1 = "GTGGCCGCTGTTTCGCATCGGCGTACGACT"  # 30bp
     L2 = "ATCCACGTGCTTGAGAGGCCAGAGCATTCG"  # 30bp

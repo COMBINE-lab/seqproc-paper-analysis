@@ -335,7 +335,7 @@ class SplitSeqValidityAnalyzer:
                 if l2_dist > 3: continue
                 
                 # Extract BCs
-                # NN(2) + UMI(10) + BC3(8) + L1(30) + BC2(8) + L2(30) + BC1(6)
+                # NN(2) + UMI(8) + BC3(8) + L1(30) + BC2(8) + L2(30) + BC1(6) + residual(2)
                 bc3 = seq[l1_pos-8:l1_pos]
                 bc2 = seq[l1_pos+30:l1_pos+38]
                 bc1 = seq[l2_pos+30:l2_pos+36]

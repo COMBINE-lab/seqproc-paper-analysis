@@ -1,0 +1,25 @@
+{
+  "name": "antisequence-edit-dp-baseline",
+  "cwd": "/tmp/antisequence-baseline-cd201",
+  "command": [
+    "/tmp/antisequence-baseline-target/release/examples/benchmark_edit_dp",
+    "--reads", "100000",
+    "--threads", "4",
+    "--repetitions", "5"
+  ],
+  "repositories": [
+    {
+      "name": "antisequence-baseline",
+      "path": "/tmp/antisequence-baseline-cd201",
+      "allow_dirty": true
+    }
+  ],
+  "metadata": {
+    "workload": "long-pattern-edit-search-dp",
+    "variant": "historical-baseline",
+    "threads": 4,
+    "reads": 100000,
+    "repetitions": 5,
+    "stage": "development"
+  }
+}

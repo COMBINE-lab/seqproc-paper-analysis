@@ -1,0 +1,27 @@
+{
+  "name": "antisequence-hamming-pipeline",
+  "cwd": "/scratch1/seqproc-ecosystem/antisequence",
+  "command": [
+    "/tmp/antisequence-review/target/release/examples/benchmark_hot_path",
+    "--mode", "hamming",
+    "--execution", "pipeline",
+    "--reads", "1000000",
+    "--threads", "4",
+    "--repetitions", "5"
+  ],
+  "repositories": [
+    {
+      "name": "antisequence",
+      "path": "/scratch1/seqproc-ecosystem/antisequence",
+      "allow_dirty": true
+    }
+  ],
+  "metadata": {
+    "workload": "hamming-lookup",
+    "execution": "pipeline",
+    "threads": 4,
+    "reads": 1000000,
+    "repetitions": 5,
+    "stage": "development"
+  }
+}

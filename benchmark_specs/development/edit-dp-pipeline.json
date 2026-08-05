@@ -1,0 +1,27 @@
+{
+  "name": "antisequence-edit-dp-pipeline",
+  "cwd": "/scratch1/seqproc-ecosystem/antisequence",
+  "command": [
+    "/tmp/antisequence-review/target/release/examples/benchmark_hot_path",
+    "--mode", "edit-dp",
+    "--execution", "pipeline",
+    "--reads", "100000",
+    "--threads", "4",
+    "--repetitions", "5"
+  ],
+  "repositories": [
+    {
+      "name": "antisequence",
+      "path": "/scratch1/seqproc-ecosystem/antisequence",
+      "allow_dirty": true
+    }
+  ],
+  "metadata": {
+    "workload": "long-pattern-edit-search-dp",
+    "execution": "pipeline",
+    "threads": 4,
+    "reads": 100000,
+    "repetitions": 5,
+    "stage": "development"
+  }
+}
