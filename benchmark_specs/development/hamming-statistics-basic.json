@@ -1,5 +1,5 @@
 {
-  "name": "antisequence-hamming-statistics-detailed",
+  "name": "antisequence-hamming-statistics-basic",
   "cwd": "/scratch1/seqproc-ecosystem/antisequence",
   "command": [
     "/scratch1/seqproc-ecosystem/antisequence/target/release/examples/benchmark_hot_path",
@@ -10,19 +10,18 @@
     "--execution", "pipeline",
     "--batch-size", "256",
     "--output", "null",
-    "--statistics-level", "detailed"
+    "--statistics-level", "basic"
   ],
   "repositories": [
     {
       "name": "antisequence",
-      "path": "/scratch1/seqproc-ecosystem/antisequence",
-      "allow_dirty": true
+      "path": "/scratch1/seqproc-ecosystem/antisequence"
     }
   ],
   "metadata": {
     "workload": "hamming-lookup",
     "statistics": true,
-    "statistics_level": "detailed",
+    "statistics_level": "basic",
     "threads": 8,
     "reads": 5000000,
     "repetitions": 30,

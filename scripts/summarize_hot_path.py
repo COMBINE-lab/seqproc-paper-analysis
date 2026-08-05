@@ -26,8 +26,14 @@ def load_run(run_dir: Path) -> dict[str, Any]:
         "run_id": run["run_id"],
         "attempt": run["attempt"],
         "run_dir": str(run_dir.resolve()),
+        "peak_rss_kib": run.get("peak_rss_kib"),
+        "user_cpu_seconds": run.get("user_cpu_seconds"),
+        "system_cpu_seconds": run.get("system_cpu_seconds"),
         "mode": payload["mode"],
         "statistics": bool(payload["statistics"]),
+        "statistics_level": payload.get(
+            "statistics_level", "detailed" if payload["statistics"] else "off"
+        ),
         "reads": int(payload["reads"]),
         "threads": int(payload["threads"]),
         "seconds": seconds,
@@ -59,36 +65,46 @@ def summarize(run_dirs: Iterable[Path]) -> dict[str, Any]:
         matching = [condition for condition in conditions if condition["mode"] == mode]
         off = [condition for condition in matching if not condition["statistics"]]
         on = [condition for condition in matching if condition["statistics"]]
-        if len(off) != 1 or len(on) != 1:
-            raise ValueError(f"mode {mode!r} requires exactly one statistics-off and one statistics-on run")
+        if len(off) != 1 or not on:
+            raise ValueError(
+                f"mode {mode!r} requires exactly one statistics-off run and at least one enabled run"
+            )
+        levels = [condition["statistics_level"] for condition in on]
+        if len(levels) != len(set(levels)):
+            raise ValueError(f"mode {mode!r} has duplicate enabled statistics levels")
         off_condition = off[0]
-        on_condition = on[0]
-        if (off_condition["reads"], off_condition["threads"]) != (
-            on_condition["reads"],
-            on_condition["threads"],
-        ):
-            raise ValueError(f"mode {mode!r} conditions are not comparable")
-        effects.append(
-            {
-                "mode": mode,
-                "reads": off_condition["reads"],
-                "threads": off_condition["threads"],
-                "statistics_off_run_id": off_condition["run_id"],
-                "statistics_on_run_id": on_condition["run_id"],
-                "mean_time_reduction_pct": 100
-                * (on_condition["mean_seconds"] - off_condition["mean_seconds"])
-                / on_condition["mean_seconds"],
-                "median_time_reduction_pct": 100
-                * (on_condition["median_seconds"] - off_condition["median_seconds"])
-                / on_condition["median_seconds"],
-                "throughput_gain_from_mean_pct": 100
-                * (on_condition["mean_seconds"] / off_condition["mean_seconds"] - 1),
-                "throughput_gain_from_median_pct": 100
-                * (on_condition["median_seconds"] / off_condition["median_seconds"] - 1),
-            }
-        )
+        for on_condition in sorted(on, key=lambda condition: condition["statistics_level"]):
+            if (off_condition["reads"], off_condition["threads"]) != (
+                on_condition["reads"],
+                on_condition["threads"],
+            ):
+                raise ValueError(f"mode {mode!r} conditions are not comparable")
+            effects.append(
+                {
+                    "mode": mode,
+                    "statistics_level": on_condition["statistics_level"],
+                    "reads": off_condition["reads"],
+                    "threads": off_condition["threads"],
+                    "statistics_off_run_id": off_condition["run_id"],
+                    "statistics_on_run_id": on_condition["run_id"],
+                    "mean_time_overhead_pct": 100
+                    * (on_condition["mean_seconds"] / off_condition["mean_seconds"] - 1),
+                    "median_time_overhead_pct": 100
+                    * (on_condition["median_seconds"] / off_condition["median_seconds"] - 1),
+                    "mean_time_reduction_pct": 100
+                    * (on_condition["mean_seconds"] - off_condition["mean_seconds"])
+                    / on_condition["mean_seconds"],
+                    "median_time_reduction_pct": 100
+                    * (on_condition["median_seconds"] - off_condition["median_seconds"])
+                    / on_condition["median_seconds"],
+                    "throughput_gain_from_mean_pct": 100
+                    * (on_condition["mean_seconds"] / off_condition["mean_seconds"] - 1),
+                    "throughput_gain_from_median_pct": 100
+                    * (on_condition["median_seconds"] / off_condition["median_seconds"] - 1),
+                }
+            )
     return {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "status": "development-exploratory",
         "conditions": conditions,
         "effects": effects,
