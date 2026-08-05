@@ -6,6 +6,8 @@ venv/
 
 # Results (large output files)
 results/*/
+# Content-addressed development benchmark attempts; commit curated summaries.
+benchmark_results/development/*/
 
 # Data files
 *.fastq
