@@ -253,7 +253,29 @@ def host_snapshot() -> dict[str, Any]:
         "platform": platform.platform(),
         "python": sys.version,
         "cpu_count": os.cpu_count(),
+        "process_affinity": sorted(os.sched_getaffinity(0))
+        if hasattr(os, "sched_getaffinity")
+        else None,
+        "load_average": list(os.getloadavg()) if hasattr(os, "getloadavg") else None,
     }
+    for name, path in {
+        "cpu_governor": Path("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"),
+        "cpu_boost": Path("/sys/devices/system/cpu/cpufreq/boost"),
+        "smt_active": Path("/sys/devices/system/cpu/smt/active"),
+    }.items():
+        try:
+            snapshot[name] = path.read_text().strip()
+        except OSError:
+            snapshot[name] = None
+    try:
+        memory_fields = {}
+        for line in Path("/proc/meminfo").read_text().splitlines():
+            key, value = line.split(":", 1)
+            if key in {"MemTotal", "MemAvailable", "SwapTotal", "SwapFree"}:
+                memory_fields[key] = value.strip()
+        snapshot["memory"] = memory_fields
+    except OSError:
+        snapshot["memory"] = None
     try:
         result = subprocess.run(
             ["lscpu", "--json"],
@@ -265,6 +287,17 @@ def host_snapshot() -> dict[str, Any]:
         snapshot["lscpu"] = json.loads(result.stdout)
     except (OSError, subprocess.CalledProcessError, json.JSONDecodeError):
         snapshot["lscpu"] = None
+    try:
+        result = subprocess.run(
+            ["findmnt", "--json", "--target", "/scratch1"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        snapshot["scratch_mount"] = json.loads(result.stdout)
+    except (OSError, subprocess.CalledProcessError, json.JSONDecodeError):
+        snapshot["scratch_mount"] = None
     return snapshot
 
 
