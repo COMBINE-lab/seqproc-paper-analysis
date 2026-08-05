@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import concurrent.futures
 import hashlib
 import gzip
 import heapq
@@ -29,7 +30,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 
-SCHEMA_VERSION = "1.2.0"
+SCHEMA_VERSION = "1.3.0"
 DEFAULT_ENV_ALLOWLIST = (
     "PATH",
     "LD_LIBRARY_PATH",
@@ -364,13 +365,27 @@ def _prepare_outputs(
         if output_format not in (None, "fastq"):
             raise HarnessError(f"unsupported output format {output_format!r}")
         normalization = item.get("normalize")
-        if normalization not in (None, "fastq_multiset", "fastq_id_multiset"):
+        if normalization not in (
+            None,
+            "fastq_multiset",
+            "fastq_id_multiset",
+            "fastq_numeric_accession_set",
+        ):
             raise HarnessError(f"unsupported output normalization {normalization!r}")
         if normalization is not None and output_format != "fastq":
             raise HarnessError("FASTQ normalization requires format: fastq")
         mate = int(item.get("mate", 0))
         if mate < 0:
             raise HarnessError("output mate cannot be negative")
+        numeric_id_max = item.get("numeric_id_max")
+        if normalization == "fastq_numeric_accession_set":
+            if numeric_id_max is None or int(numeric_id_max) <= 0:
+                raise HarnessError(
+                    "fastq_numeric_accession_set requires a positive numeric_id_max"
+                )
+            numeric_id_max = int(numeric_id_max)
+        elif numeric_id_max is not None:
+            raise HarnessError("numeric_id_max requires fastq_numeric_accession_set")
         min_bytes = int(item.get("min_bytes", 0))
         if min_bytes < 0:
             raise HarnessError("output min_bytes cannot be negative")
@@ -381,6 +396,7 @@ def _prepare_outputs(
                 "format": output_format,
                 "normalize": normalization,
                 "mate": mate,
+                "numeric_id_max": numeric_id_max,
                 "retain": bool(item.get("retain", default_retain)),
             }
         )
@@ -389,38 +405,67 @@ def _prepare_outputs(
 
 def inspect_fastq(path: Path) -> dict[str, Any]:
     """Count and structurally validate a four-line FASTQ, optionally gzip-compressed."""
-    opener = gzip.open if path.name.endswith((".gz", ".gzip")) else open
     records = 0
-    with opener(path, "rb") as handle:
-        while True:
-            header = handle.readline()
-            if not header:
-                break
-            sequence = handle.readline()
-            separator = handle.readline()
-            quality = handle.readline()
-            if not sequence or not separator or not quality:
-                raise HarnessError(f"truncated FASTQ record {records + 1} in {path}")
-            if not header.startswith(b"@") or not separator.startswith(b"+"):
-                raise HarnessError(f"malformed FASTQ record {records + 1} in {path}")
-            if len(sequence.rstrip(b"\r\n")) != len(quality.rstrip(b"\r\n")):
-                raise HarnessError(
-                    f"sequence/quality length mismatch in FASTQ record {records + 1} in {path}"
-                )
-            records += 1
+    for _ in _fastq_records(path):
+        records += 1
     return {"format": "fastq", "records": records, "valid": True}
+
+
+def _fastq_records_from_handle(handle, path: Path):
+    record = 0
+    while True:
+        header = handle.readline()
+        if not header:
+            return
+        sequence = handle.readline()
+        separator = handle.readline()
+        quality = handle.readline()
+        record += 1
+        if not sequence or not separator or not quality:
+            raise HarnessError(f"truncated FASTQ record {record} in {path}")
+        if not header.startswith(b"@") or not separator.startswith(b"+"):
+            raise HarnessError(f"malformed FASTQ record {record} in {path}")
+        if len(sequence.rstrip(b"\r\n")) != len(quality.rstrip(b"\r\n")):
+            raise HarnessError(
+                f"sequence/quality length mismatch in FASTQ record {record} in {path}"
+            )
+        yield header, sequence, separator, quality
 
 
 def _fastq_records(path: Path):
     opener = gzip.open if path.name.endswith((".gz", ".gzip")) else open
     with opener(path, "rb") as handle:
-        while True:
-            lines = tuple(handle.readline() for _ in range(4))
-            if not lines[0]:
-                return
-            if any(not line for line in lines[1:]):
-                raise HarnessError(f"truncated FASTQ record in {path}")
-            yield lines
+        yield from _fastq_records_from_handle(handle, path)
+
+
+class _HashingReader:
+    """Minimal read-only proxy that hashes the exact bytes consumed."""
+
+    def __init__(self, handle, digest):
+        self._handle = handle
+        self._digest = digest
+
+    def read(self, size: int = -1) -> bytes:
+        value = self._handle.read(size)
+        self._digest.update(value)
+        return value
+
+    def readline(self, size: int = -1) -> bytes:
+        value = self._handle.readline(size)
+        self._digest.update(value)
+        return value
+
+    def seek(self, *args):
+        return self._handle.seek(*args)
+
+    def tell(self) -> int:
+        return self._handle.tell()
+
+    def seekable(self) -> bool:
+        return self._handle.seekable()
+
+    def readable(self) -> bool:
+        return True
 
 
 def _normalized_fastq_line(lines: tuple[bytes, ...], mate: int) -> bytes:
@@ -494,6 +539,139 @@ def _externally_sorted_fastq_digest(
             for handle in handles:
                 handle.close()
         return digest.hexdigest()
+
+
+def inspect_and_normalize_fastq(
+    path: Path,
+    mate: int = 0,
+    normalization: str | None = None,
+    chunk_bytes: int = 64 * 1024 * 1024,
+    temp_dir: Path | None = None,
+    numeric_id_max: int | None = None,
+) -> dict[str, Any]:
+    """Hash, validate, count, and optionally normalize a FASTQ in one input pass."""
+    if normalization not in (
+        None,
+        "fastq_multiset",
+        "fastq_id_multiset",
+        "fastq_numeric_accession_set",
+    ):
+        raise HarnessError(f"unsupported output normalization {normalization!r}")
+    if chunk_bytes <= 0:
+        raise HarnessError("normalization chunk_bytes must be positive")
+
+    encoder = {
+        "fastq_multiset": _normalized_fastq_line,
+        "fastq_id_multiset": _normalized_fastq_id_line,
+    }.get(normalization)
+    numeric_bitmap: bytearray | None = None
+    numeric_prefix: bytes | None = None
+    if normalization == "fastq_numeric_accession_set":
+        if numeric_id_max is None or numeric_id_max <= 0:
+            raise HarnessError(
+                "fastq_numeric_accession_set requires a positive numeric_id_max"
+            )
+        numeric_bitmap = bytearray((numeric_id_max + 8) // 8)
+    raw_digest = hashlib.sha256()
+    records = 0
+
+    with tempfile.TemporaryDirectory(
+        prefix="seqproc-normalize-",
+        dir=None if temp_dir is None else str(temp_dir),
+    ) as temporary:
+        root = Path(temporary)
+        chunks: list[Path] = []
+        buffered: list[bytes] = []
+        buffered_bytes = 0
+
+        def flush_chunk() -> None:
+            nonlocal buffered_bytes
+            if not buffered:
+                return
+            buffered.sort()
+            chunk = root / f"chunk-{len(chunks):06d}"
+            with chunk.open("wb") as handle:
+                handle.writelines(buffered)
+            chunks.append(chunk)
+            buffered.clear()
+            buffered_bytes = 0
+
+        with path.open("rb") as raw_handle:
+            hashing_handle = _HashingReader(raw_handle, raw_digest)
+            if path.name.endswith((".gz", ".gzip")):
+                stream = gzip.GzipFile(fileobj=hashing_handle, mode="rb")
+            else:
+                stream = hashing_handle
+            try:
+                for lines in _fastq_records_from_handle(stream, path):
+                    records += 1
+                    if encoder is not None:
+                        encoded = encoder(lines, mate)
+                        buffered.append(encoded)
+                        buffered_bytes += len(encoded)
+                        if buffered_bytes >= chunk_bytes:
+                            flush_chunk()
+                    elif numeric_bitmap is not None:
+                        header_id = lines[0][1:].split(None, 1)[0]
+                        if header_id.endswith((b"/1", b"/2")):
+                            header_id = header_id[:-2]
+                        prefix, separator, numeric_text = header_id.rpartition(b".")
+                        if not separator or not prefix or not numeric_text.isdigit():
+                            raise HarnessError(
+                                f"FASTQ record {records} does not have a numeric accession ID: "
+                                f"{header_id!r}"
+                            )
+                        if numeric_prefix is None:
+                            numeric_prefix = prefix
+                        elif prefix != numeric_prefix:
+                            raise HarnessError(
+                                f"FASTQ record {records} changes accession prefix from "
+                                f"{numeric_prefix!r} to {prefix!r}"
+                            )
+                        numeric_id = int(numeric_text)
+                        if numeric_id <= 0 or numeric_id > numeric_id_max:
+                            raise HarnessError(
+                                f"FASTQ record {records} numeric ID {numeric_id} is outside "
+                                f"1..{numeric_id_max}"
+                            )
+                        byte_index, bit_index = divmod(numeric_id - 1, 8)
+                        mask = 1 << bit_index
+                        if numeric_bitmap[byte_index] & mask:
+                            raise HarnessError(
+                                f"duplicate numeric accession ID {header_id!r} in {path}"
+                            )
+                        numeric_bitmap[byte_index] |= mask
+            finally:
+                if stream is not hashing_handle:
+                    stream.close()
+        flush_chunk()
+
+        result: dict[str, Any] = {
+            "format": "fastq",
+            "records": records,
+            "valid": True,
+            "sha256": raw_digest.hexdigest(),
+        }
+        if encoder is not None:
+            normalized_digest = hashlib.sha256()
+            handles = [chunk.open("rb") for chunk in chunks]
+            try:
+                for line in heapq.merge(*handles):
+                    normalized_digest.update(line)
+            finally:
+                for handle in handles:
+                    handle.close()
+            result["normalized_sha256"] = normalized_digest.hexdigest()
+        elif numeric_bitmap is not None:
+            normalized_digest = hashlib.sha256()
+            normalized_digest.update(b"fastq_numeric_accession_set_v1\0")
+            normalized_digest.update(str(mate).encode("ascii") + b"\0")
+            normalized_digest.update(str(numeric_id_max).encode("ascii") + b"\0")
+            normalized_digest.update(numeric_prefix or b"")
+            normalized_digest.update(b"\0")
+            normalized_digest.update(numeric_bitmap)
+            result["normalized_sha256"] = normalized_digest.hexdigest()
+        return result
 
 
 def normalized_fastq_multiset_sha256(
@@ -671,16 +849,15 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
     output_records: list[dict[str, Any]] = []
     missing_outputs: list[str] = []
     invalid_outputs: list[str] = []
-    output_counts: list[dict[str, Any]] = []
-    for declaration in outputs:
+    indexed_output_counts: dict[int, dict[str, Any]] = {}
+    fastq_jobs: list[tuple[int, dict[str, Any], dict[str, Any]]] = []
+    for output_index, declaration in enumerate(outputs):
         path = declaration["path"]
-        output_error_count = len(invalid_outputs)
         if path.is_file():
             size = path.stat().st_size
             record = {
                 "path": str(path),
                 "bytes": size,
-                "sha256": sha256_file(path),
                 "retained": True,
             }
             output_records.append(record)
@@ -689,31 +866,63 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
                     f"{path}: {size} bytes is below minimum {declaration['min_bytes']}"
                 )
             if declaration["format"] == "fastq":
-                try:
-                    counts = inspect_fastq(path)
-                    output_counts.append({"path": str(path), **counts})
-                except (OSError, EOFError, HarnessError) as error:
-                    invalid_outputs.append(str(error))
-                    output_counts.append(
-                        {"path": str(path), "format": "fastq", "valid": False, "error": str(error)}
-                    )
-            if declaration["normalize"] is not None and len(invalid_outputs) == output_error_count:
-                try:
-                    if declaration["normalize"] == "fastq_multiset":
-                        record["normalized_sha256"] = normalized_fastq_multiset_sha256(
-                            path, declaration["mate"], temp_dir=run_dir
-                        )
-                        record["normalization"] = "fastq_multiset_v1"
-                    else:
-                        record["normalized_sha256"] = normalized_fastq_id_multiset_sha256(
-                            path, declaration["mate"], temp_dir=run_dir
-                        )
-                        record["normalization"] = "fastq_id_multiset_v1"
-                    record["mate"] = declaration["mate"]
-                except (OSError, EOFError, HarnessError) as error:
-                    invalid_outputs.append(str(error))
+                fastq_jobs.append((output_index, declaration, record))
+            else:
+                record["sha256"] = sha256_file(path)
         else:
             missing_outputs.append(str(path))
+
+    futures: list[tuple[int, dict[str, Any], dict[str, Any], Any]] = []
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=max(1, min(len(fastq_jobs), 4))
+    ) as executor:
+        for output_index, declaration, record in fastq_jobs:
+            future = executor.submit(
+                inspect_and_normalize_fastq,
+                declaration["path"],
+                declaration["mate"],
+                declaration["normalize"],
+                64 * 1024 * 1024,
+                run_dir,
+                declaration["numeric_id_max"],
+            )
+            futures.append((output_index, declaration, record, future))
+        for output_index, declaration, record, future in futures:
+            path = declaration["path"]
+            try:
+                counts = future.result()
+                record["sha256"] = counts.pop("sha256")
+                normalized_sha256 = counts.pop("normalized_sha256", None)
+                if normalized_sha256 is not None:
+                    record["normalized_sha256"] = normalized_sha256
+                    record["normalization"] = (
+                        "fastq_multiset_v1"
+                        if declaration["normalize"] == "fastq_multiset"
+                        else (
+                            "fastq_id_multiset_v1"
+                            if declaration["normalize"] == "fastq_id_multiset"
+                            else "fastq_numeric_accession_set_v1"
+                        )
+                    )
+                    record["mate"] = declaration["mate"]
+                    if declaration["numeric_id_max"] is not None:
+                        record["numeric_id_max"] = declaration["numeric_id_max"]
+                indexed_output_counts[output_index] = {"path": str(path), **counts}
+            except (OSError, EOFError, HarnessError) as error:
+                # Preserve the raw output identity even when structural
+                # validation fails. The extra scan is confined to failed
+                # runs; valid publication outputs remain single-pass.
+                record["sha256"] = sha256_file(path)
+                invalid_outputs.append(str(error))
+                indexed_output_counts[output_index] = {
+                    "path": str(path),
+                    "format": "fastq",
+                    "valid": False,
+                    "error": str(error),
+                }
+    output_counts = [
+        indexed_output_counts[index] for index in sorted(indexed_output_counts)
+    ]
 
     timing = parse_gnu_time(time_path)
     termination_signal = -exit_code if exit_code < 0 else None

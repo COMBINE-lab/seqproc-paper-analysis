@@ -1,5 +1,6 @@
-import json
 import gzip
+import hashlib
+import json
 import os
 import subprocess
 import sys
@@ -14,6 +15,7 @@ from benchmark_harness import (
     HarnessError,
     execute_spec,
     inspect_fastq,
+    inspect_and_normalize_fastq,
     normalized_fastq_id_multiset_sha256,
     normalized_fastq_multiset_sha256,
     prepare_spec,
@@ -162,6 +164,70 @@ def test_read_id_digest_ignores_sequence_and_order_but_not_mate(tmp_path):
     digest = normalized_fastq_id_multiset_sha256(first, mate=1, chunk_bytes=5)
     assert digest == normalized_fastq_id_multiset_sha256(second, mate=1, chunk_bytes=5)
     assert digest != normalized_fastq_id_multiset_sha256(second, mate=2, chunk_bytes=5)
+
+
+def test_fused_fastq_inspection_matches_independent_digests(tmp_path):
+    content = b"@b/1\nGT\n+\nJJ\n@a/1 extra\nAC\n+\nII\n"
+    for suffix in (".fastq", ".fastq.gz"):
+        path = tmp_path / f"reads{suffix}"
+        if suffix.endswith(".gz"):
+            with gzip.open(path, "wb") as handle:
+                handle.write(content)
+        else:
+            path.write_bytes(content)
+        result = inspect_and_normalize_fastq(
+            path,
+            mate=1,
+            normalization="fastq_id_multiset",
+            chunk_bytes=5,
+            temp_dir=tmp_path,
+        )
+        assert result["records"] == 2
+        assert result["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+        assert result["normalized_sha256"] == normalized_fastq_id_multiset_sha256(
+            path, mate=1, chunk_bytes=5, temp_dir=tmp_path
+        )
+
+
+def test_numeric_accession_set_is_order_independent_and_exact(tmp_path):
+    first = tmp_path / "first.fastq"
+    reordered = tmp_path / "reordered.fastq"
+    first.write_bytes(b"@SRR1.1/1 extra\nAC\n+\nII\n@SRR1.3\nGT\n+\nJJ\n")
+    reordered.write_bytes(b"@SRR1.3\nTT\n+\nHH\n@SRR1.1 other\nCC\n+\nGG\n")
+    left = inspect_and_normalize_fastq(
+        first,
+        mate=1,
+        normalization="fastq_numeric_accession_set",
+        numeric_id_max=3,
+    )
+    right = inspect_and_normalize_fastq(
+        reordered,
+        mate=1,
+        normalization="fastq_numeric_accession_set",
+        numeric_id_max=3,
+    )
+    assert left["normalized_sha256"] == right["normalized_sha256"]
+    assert left["sha256"] != right["sha256"]
+
+
+@pytest.mark.parametrize(
+    "content, message",
+    [
+        (b"@not-numeric\nAC\n+\nII\n", "numeric accession ID"),
+        (b"@SRR1.4\nAC\n+\nII\n", "outside 1..3"),
+        (b"@SRR1.1\nAC\n+\nII\n@SRR1.1\nGT\n+\nJJ\n", "duplicate"),
+        (b"@SRR1.1\nAC\n+\nII\n@SRR2.2\nGT\n+\nJJ\n", "changes accession prefix"),
+    ],
+)
+def test_numeric_accession_set_rejects_invalid_ids(tmp_path, content, message):
+    path = tmp_path / "reads.fastq"
+    path.write_bytes(content)
+    with pytest.raises(HarnessError, match=message):
+        inspect_and_normalize_fastq(
+            path,
+            normalization="fastq_numeric_accession_set",
+            numeric_id_max=3,
+        )
 
 
 def test_malformed_or_too_small_output_fails_run(tmp_path):

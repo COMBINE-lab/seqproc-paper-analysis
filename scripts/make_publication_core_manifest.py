@@ -217,7 +217,8 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                             {
                                 "path": "{run_dir}/R1.fastq",
                                 "format": "fastq",
-                                "normalize": "fastq_id_multiset",
+                                "normalize": "fastq_numeric_accession_set",
+                                "numeric_id_max": dataset_records[dataset_name],
                                 "mate": 1,
                                 "min_bytes": 1,
                             }
@@ -230,7 +231,8 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                                 {
                                     "path": "{run_dir}/R2.fastq",
                                     "format": "fastq",
-                                    "normalize": "fastq_id_multiset",
+                                    "normalize": "fastq_numeric_accession_set",
+                                    "numeric_id_max": dataset_records[dataset_name],
                                     "mate": 2,
                                     "min_bytes": 1,
                                 }
@@ -255,7 +257,8 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                             {
                                 "path": str(ROOT / "mb_r1.fq"),
                                 "format": "fastq",
-                                "normalize": "fastq_id_multiset",
+                                "normalize": "fastq_numeric_accession_set",
+                                "numeric_id_max": dataset_records[dataset_name],
                                 "mate": 1,
                                 "min_bytes": 1,
                             }
@@ -265,7 +268,8 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                                 {
                                     "path": str(ROOT / "mb_r2.fq"),
                                     "format": "fastq",
-                                    "normalize": "fastq_id_multiset",
+                                    "normalize": "fastq_numeric_accession_set",
+                                    "numeric_id_max": dataset_records[dataset_name],
                                     "mate": 2,
                                     "min_bytes": 1,
                                 }
@@ -288,7 +292,8 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                             {
                                 "path": path,
                                 "format": "fastq",
-                                "normalize": "fastq_id_multiset",
+                                "normalize": "fastq_numeric_accession_set",
+                                "numeric_id_max": dataset_records[dataset_name],
                                 "mate": index,
                                 "min_bytes": 1,
                             }
