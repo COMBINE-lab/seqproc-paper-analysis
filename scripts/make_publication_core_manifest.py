@@ -17,6 +17,7 @@ from benchmark_harness import sha256_file
 ROOT = Path(__file__).resolve().parents[1]
 ECOSYSTEM = ROOT.parent
 TASKSET = Path("/usr/bin/taskset")
+DEFAULT_FASTQ_AUDITOR = ROOT / "tools" / "bin" / "fastq-numeric-audit"
 DATASETS = (
     {
         "name": "splitseq_pe",
@@ -106,6 +107,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
         "matchbox": args.matchbox_binary.resolve(),
         "splitcode": args.splitcode_binary.resolve(),
     }
+    fastq_auditor = args.fastq_audit_binary.resolve()
     repositories = {
         "analysis": ROOT,
         "seqproc": args.seqproc_repo.resolve(),
@@ -128,6 +130,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
         artifacts[str(resolved)] = {"path": str(resolved), "sha256": value}
 
     add_artifact(TASKSET)
+    add_artifact(fastq_auditor)
     add_artifact(provenance_path)
     for binary in binaries.values():
         add_artifact(binary)
@@ -136,6 +139,8 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
         ROOT / "scripts" / "benchmark_harness.py",
         ROOT / "scripts" / "run_frozen_schedule.py",
         ROOT / "scripts" / "summarize_frozen_schedule.py",
+        ROOT / "scripts" / "build_fastq_numeric_audit.py",
+        ROOT / "tools" / "fastq_numeric_audit.rs",
         ROOT / "requirements.txt",
         ROOT / "requirements.lock",
     ):
@@ -219,6 +224,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                                 "format": "fastq",
                                 "normalize": "fastq_numeric_accession_set",
                                 "numeric_id_max": dataset_records[dataset_name],
+                                "numeric_audit_executable": str(fastq_auditor),
                                 "mate": 1,
                                 "min_bytes": 1,
                             }
@@ -233,6 +239,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                                     "format": "fastq",
                                     "normalize": "fastq_numeric_accession_set",
                                     "numeric_id_max": dataset_records[dataset_name],
+                                    "numeric_audit_executable": str(fastq_auditor),
                                     "mate": 2,
                                     "min_bytes": 1,
                                 }
@@ -259,6 +266,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                                 "format": "fastq",
                                 "normalize": "fastq_numeric_accession_set",
                                 "numeric_id_max": dataset_records[dataset_name],
+                                "numeric_audit_executable": str(fastq_auditor),
                                 "mate": 1,
                                 "min_bytes": 1,
                             }
@@ -270,6 +278,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                                     "format": "fastq",
                                     "normalize": "fastq_numeric_accession_set",
                                     "numeric_id_max": dataset_records[dataset_name],
+                                    "numeric_audit_executable": str(fastq_auditor),
                                     "mate": 2,
                                     "min_bytes": 1,
                                 }
@@ -294,6 +303,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                                 "format": "fastq",
                                 "normalize": "fastq_numeric_accession_set",
                                 "numeric_id_max": dataset_records[dataset_name],
+                                "numeric_audit_executable": str(fastq_auditor),
                                 "mate": index,
                                 "min_bytes": 1,
                             }
@@ -310,7 +320,10 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                                 "name": "seqproc-publication-core",
                                 "cwd": str(ROOT),
                                 "command": command,
-                                "executables": [frozen(tool_binary)],
+                                "executables": [
+                                    frozen(tool_binary),
+                                    frozen(fastq_auditor),
+                                ],
                                 "inputs": inputs,
                                 "configs": [frozen(path) for path in configs],
                                 "outputs": outputs,
@@ -358,6 +371,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--seqproc-binary", type=Path, default=ECOSYSTEM / "seqproc" / "target" / "release" / "seqproc")
     parser.add_argument("--matchbox-binary", type=Path, default=ECOSYSTEM / "competitors" / "matchbox-v0.3.2" / "target" / "release" / "matchbox")
     parser.add_argument("--splitcode-binary", type=Path, default=ECOSYSTEM / "competitors" / "splitcode-v0.31.6" / "build" / "src" / "splitcode")
+    parser.add_argument("--fastq-audit-binary", type=Path, default=DEFAULT_FASTQ_AUDITOR)
     parser.add_argument("--seqproc-repo", type=Path, default=ECOSYSTEM / "seqproc")
     parser.add_argument("--antisequence-repo", type=Path, default=ECOSYSTEM / "antisequence")
     parser.add_argument("--matchbox-repo", type=Path, default=ECOSYSTEM / "competitors" / "matchbox-v0.3.2")

@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 
-SCHEMA_VERSION = "1.3.0"
+SCHEMA_VERSION = "1.4.0"
 DEFAULT_ENV_ALLOWLIST = (
     "PATH",
     "LD_LIBRARY_PATH",
@@ -378,14 +378,23 @@ def _prepare_outputs(
         if mate < 0:
             raise HarnessError("output mate cannot be negative")
         numeric_id_max = item.get("numeric_id_max")
+        numeric_audit_executable = item.get("numeric_audit_executable")
         if normalization == "fastq_numeric_accession_set":
             if numeric_id_max is None or int(numeric_id_max) <= 0:
                 raise HarnessError(
                     "fastq_numeric_accession_set requires a positive numeric_id_max"
                 )
             numeric_id_max = int(numeric_id_max)
+            if numeric_audit_executable is not None:
+                numeric_audit_executable = _resolve(
+                    str(numeric_audit_executable), cwd
+                )
         elif numeric_id_max is not None:
             raise HarnessError("numeric_id_max requires fastq_numeric_accession_set")
+        elif numeric_audit_executable is not None:
+            raise HarnessError(
+                "numeric_audit_executable requires fastq_numeric_accession_set"
+            )
         min_bytes = int(item.get("min_bytes", 0))
         if min_bytes < 0:
             raise HarnessError("output min_bytes cannot be negative")
@@ -397,6 +406,7 @@ def _prepare_outputs(
                 "normalize": normalization,
                 "mate": mate,
                 "numeric_id_max": numeric_id_max,
+                "numeric_audit_executable": numeric_audit_executable,
                 "retain": bool(item.get("retain", default_retain)),
             }
         )
@@ -548,6 +558,7 @@ def inspect_and_normalize_fastq(
     chunk_bytes: int = 64 * 1024 * 1024,
     temp_dir: Path | None = None,
     numeric_id_max: int | None = None,
+    numeric_audit_executable: Path | None = None,
 ) -> dict[str, Any]:
     """Hash, validate, count, and optionally normalize a FASTQ in one input pass."""
     if normalization not in (
@@ -559,6 +570,18 @@ def inspect_and_normalize_fastq(
         raise HarnessError(f"unsupported output normalization {normalization!r}")
     if chunk_bytes <= 0:
         raise HarnessError("normalization chunk_bytes must be positive")
+    if (
+        normalization == "fastq_numeric_accession_set"
+        and numeric_audit_executable is not None
+        and not path.name.endswith((".gz", ".gzip"))
+    ):
+        return _inspect_with_numeric_auditor(
+            path,
+            mate,
+            numeric_id_max,
+            numeric_audit_executable,
+            temp_dir,
+        )
 
     encoder = {
         "fastq_multiset": _normalized_fastq_line,
@@ -672,6 +695,68 @@ def inspect_and_normalize_fastq(
             normalized_digest.update(numeric_bitmap)
             result["normalized_sha256"] = normalized_digest.hexdigest()
         return result
+
+
+def _inspect_with_numeric_auditor(
+    path: Path,
+    mate: int,
+    numeric_id_max: int | None,
+    executable: Path,
+    temp_dir: Path | None,
+) -> dict[str, Any]:
+    """Run the pinned compiled validator while hashing raw FASTQ bytes in parallel."""
+    if numeric_id_max is None or numeric_id_max <= 0:
+        raise HarnessError(
+            "fastq_numeric_accession_set requires a positive numeric_id_max"
+        )
+    if not executable.is_file() or not os.access(executable, os.X_OK):
+        raise HarnessError(f"numeric FASTQ auditor is not executable: {executable}")
+    temporary = tempfile.NamedTemporaryFile(
+        prefix="seqproc-numeric-set-",
+        dir=None if temp_dir is None else str(temp_dir),
+        delete=False,
+    )
+    canonical_path = Path(temporary.name)
+    temporary.close()
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            raw_digest_future = executor.submit(sha256_file, path)
+            process = subprocess.run(
+                [
+                    str(executable),
+                    str(path),
+                    str(mate),
+                    str(numeric_id_max),
+                    str(canonical_path),
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            raw_digest = raw_digest_future.result()
+        if process.returncode != 0:
+            detail = process.stderr.strip() or process.stdout.strip()
+            raise HarnessError(
+                f"numeric FASTQ audit failed for {path}: {detail or process.returncode}"
+            )
+        try:
+            payload = json.loads(process.stdout)
+            records = int(payload["records"])
+        except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+            raise HarnessError(
+                f"numeric FASTQ auditor returned invalid JSON for {path}: "
+                f"{process.stdout!r}"
+            ) from error
+        return {
+            "format": "fastq",
+            "records": records,
+            "valid": True,
+            "sha256": raw_digest,
+            "normalized_sha256": sha256_file(canonical_path),
+            "validator": "fastq-numeric-audit-v1",
+        }
+    finally:
+        canonical_path.unlink(missing_ok=True)
 
 
 def normalized_fastq_multiset_sha256(
@@ -885,6 +970,7 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
                 64 * 1024 * 1024,
                 run_dir,
                 declaration["numeric_id_max"],
+                declaration["numeric_audit_executable"],
             )
             futures.append((output_index, declaration, record, future))
         for output_index, declaration, record, future in futures:
@@ -893,6 +979,9 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
                 counts = future.result()
                 record["sha256"] = counts.pop("sha256")
                 normalized_sha256 = counts.pop("normalized_sha256", None)
+                validator = counts.pop("validator", None)
+                if validator is not None:
+                    record["validator"] = validator
                 if normalized_sha256 is not None:
                     record["normalized_sha256"] = normalized_sha256
                     record["normalization"] = (

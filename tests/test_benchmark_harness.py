@@ -210,6 +210,32 @@ def test_numeric_accession_set_is_order_independent_and_exact(tmp_path):
     assert left["sha256"] != right["sha256"]
 
 
+def test_compiled_numeric_auditor_matches_python(tmp_path):
+    executable = Path(__file__).resolve().parents[1] / "tools" / "bin" / "fastq-numeric-audit"
+    if not executable.is_file():
+        pytest.skip("compiled numeric FASTQ auditor is not available")
+    path = tmp_path / "reads.fastq"
+    path.write_bytes(b"@SRR1.3\nTT\n+\nHH\n@SRR1.1 other\nCC\n+\nGG\n")
+    expected = inspect_and_normalize_fastq(
+        path,
+        mate=1,
+        normalization="fastq_numeric_accession_set",
+        numeric_id_max=3,
+    )
+    observed = inspect_and_normalize_fastq(
+        path,
+        mate=1,
+        normalization="fastq_numeric_accession_set",
+        numeric_id_max=3,
+        numeric_audit_executable=executable,
+        temp_dir=tmp_path,
+    )
+    assert observed["records"] == expected["records"]
+    assert observed["sha256"] == expected["sha256"]
+    assert observed["normalized_sha256"] == expected["normalized_sha256"]
+    assert observed["validator"] == "fastq-numeric-audit-v1"
+
+
 @pytest.mark.parametrize(
     "content, message",
     [
