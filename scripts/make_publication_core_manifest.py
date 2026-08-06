@@ -191,7 +191,12 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                 inputs.append(frozen(r2, by_name[r2.name]["sha256"]))
             for threads in args.threads:
                 block = f"{dataset_name}-t{threads}-r{replicate}"
-                affinity = "0" if threads == 1 else f"0-{threads - 1}"
+                last_cpu = args.first_cpu + threads - 1
+                affinity = (
+                    str(args.first_cpu)
+                    if threads == 1
+                    else f"{args.first_cpu}-{last_cpu}"
+                )
                 for tool in ("seqproc", "matchbox", "splitcode"):
                     tool_binary = binaries[tool]
                     command = [str(TASKSET), "--cpu-list", affinity, str(tool_binary)]
@@ -359,7 +364,10 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
         "execution": {
             "timeout_seconds": args.timeout_seconds,
             "sanitized_environment_allowlist": ["PATH", "LD_LIBRARY_PATH", "LANG", "TMPDIR"],
-            "cpu_policy": "requested threads pinned to physical CPUs 0 through N-1; SMT siblings excluded",
+            "cpu_policy": (
+                f"requested threads pinned to physical CPUs {args.first_cpu} through "
+                f"{args.first_cpu} + N - 1; SMT siblings excluded"
+            ),
         },
         "runs": runs,
     }
@@ -377,13 +385,26 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--matchbox-repo", type=Path, default=ECOSYSTEM / "competitors" / "matchbox-v0.3.2")
     parser.add_argument("--splitcode-repo", type=Path, default=ECOSYSTEM / "competitors" / "splitcode-v0.31.6")
     parser.add_argument("--threads", type=int, nargs="+", default=[1, 2, 4, 8, 16, 32])
-    parser.add_argument("--replicates", type=int, default=5)
+    parser.add_argument("--replicates", type=int, default=3)
+    parser.add_argument(
+        "--first-cpu",
+        type=int,
+        default=1,
+        help="first physical CPU used for affinity (default: 1; avoids the noisy CPU 0 on the benchmark node)",
+    )
     parser.add_argument("--seed", type=int, default=741211)
     parser.add_argument("--timeout-seconds", type=int, default=21600)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
-    if args.replicates <= 0 or args.timeout_seconds <= 0 or any(value <= 0 or value > 64 for value in args.threads):
-        parser.error("replicates/timeout must be positive and threads must be in 1..64")
+    if (
+        args.replicates <= 0
+        or args.timeout_seconds <= 0
+        or args.first_cpu < 0
+        or any(value <= 0 or args.first_cpu + value > 64 for value in args.threads)
+    ):
+        parser.error(
+            "replicates/timeout must be positive and requested physical CPU IDs must be in 0..63"
+        )
     if args.output.exists():
         parser.error(f"refusing to overwrite {args.output}")
     manifest = build_manifest(args)
