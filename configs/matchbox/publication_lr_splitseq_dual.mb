@@ -1,0 +1,12 @@
+# Capability-complete LR-SPLiT-seq benchmark. Matchbox evaluates both
+# orientations natively in one invocation. The reverse arm reverse-complements
+# each captured segment before emitting canonical UMI+BC3+BC2+BC1 sequence.
+linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGACTGTGG
+
+if read matches {
+    [umi:|10| bc3:|8| linker1 bc2:|8| linker2 bc1:|6| _] =>
+        umi.concat(bc3.concat(bc2.concat(bc1))).out!('mb_r1.fq')
+    [_ bc1:|6| -linker2 bc2:|8| -linker1 bc3:|8| umi:|10| _] =>
+        (-umi).concat((-bc3).concat((-bc2).concat(-bc1))).out!('mb_r1.fq')
+}
