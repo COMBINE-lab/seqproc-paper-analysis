@@ -8,12 +8,12 @@ import csv
 import json
 import statistics
 from collections import defaultdict
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from benchmark_harness import sha256_file
 from run_frozen_schedule import _load_mapping, build_schedule, load_verified_schedule
-
 
 AGGREGATE_SCHEMA_VERSION = "1.1.0"
 
@@ -28,26 +28,33 @@ def successful_attempts(run_root: Path) -> list[tuple[Path, dict[str, Any]]]:
 
 
 def collect_rows(
-    manifest: Mapping[str, Any], schedule: Mapping[str, Any], runs_root: Path
+    manifest: Mapping[str, Any],
+    schedule: Mapping[str, Any],
+    runs_root: Path,
+    datasets: frozenset[str] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     specs = {str(run["id"]): run for run in manifest["runs"]}
     rows: list[dict[str, Any]] = []
     exclusions: list[dict[str, Any]] = []
     for entry in schedule["entries"]:
         condition_id = str(entry["condition_id"])
+        metadata = dict(specs[condition_id]["spec"].get("metadata", {}))
+        if datasets and str(metadata.get("dataset", "")) not in datasets:
+            continue
         attempts = successful_attempts(runs_root / str(entry["run_id"]))
         if len(attempts) != 1:
             exclusions.append(
                 {
                     "condition_id": condition_id,
                     "run_id": entry["run_id"],
-                    "reason": "missing_success" if not attempts else "multiple_successful_attempts",
+                    "reason": "missing_success"
+                    if not attempts
+                    else "multiple_successful_attempts",
                     "successful_attempts": [str(path) for path, _ in attempts],
                 }
             )
             continue
         attempt_path, record = attempts[0]
-        metadata = dict(specs[condition_id]["spec"].get("metadata", {}))
         output_counts = [int(item["records"]) for item in record["output_counts"]]
         if output_counts and len(set(output_counts)) != 1:
             exclusions.append(
@@ -87,9 +94,12 @@ def collect_rows(
                 "user_cpu_seconds": float(record.get("user_cpu_seconds", 0.0)),
                 "system_cpu_seconds": float(record.get("system_cpu_seconds", 0.0)),
                 "peak_rss_kib": int(record["peak_rss_kib"]),
-                "input_records_per_second": input_records / float(record["wall_seconds"]),
+                "input_records_per_second": input_records
+                / float(record["wall_seconds"]),
                 "output_bytes": sum(int(item["bytes"]) for item in record["outputs"]),
-                "normalized_output_sha256": ";".join(str(value) for value in normalized),
+                "normalized_output_sha256": ";".join(
+                    str(value) for value in normalized
+                ),
             }
         )
     return rows, exclusions
@@ -132,11 +142,17 @@ def correctness(rows: list[dict[str, Any]]) -> dict[str, Any]:
     for dataset, values in sorted(groups.items()):
         digests = sorted({str(item["normalized_output_sha256"]) for item in values})
         emitted_counts = sorted({int(item["emitted_records"]) for item in values})
-        condition_groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+        condition_groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(
+            list
+        )
         for item in values:
-            condition_groups[(str(item["tool"]), str(item["execution_mode"]))].append(item)
+            condition_groups[(str(item["tool"]), str(item["execution_mode"]))].append(
+                item
+            )
         determinism = []
-        for (tool, execution_mode), condition_values in sorted(condition_groups.items()):
+        for (tool, execution_mode), condition_values in sorted(
+            condition_groups.items()
+        ):
             condition_digests = sorted(
                 {str(item["normalized_output_sha256"]) for item in condition_values}
             )
@@ -150,7 +166,8 @@ def correctness(rows: list[dict[str, Any]]) -> dict[str, Any]:
                     "conditions": len(condition_values),
                     "normalized_digest_count": len(condition_digests),
                     "emitted_record_counts": condition_counts,
-                    "deterministic_across_threads_replicates": len(condition_digests) == 1
+                    "deterministic_across_threads_replicates": len(condition_digests)
+                    == 1
                     and len(condition_counts) == 1,
                 }
             )
@@ -163,7 +180,8 @@ def correctness(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 "emitted_record_counts": emitted_counts,
                 "identical_across_modes_threads_replicates": len(digests) == 1,
                 "all_tools_modes_deterministic": all(
-                    item["deterministic_across_threads_replicates"] for item in determinism
+                    item["deterministic_across_threads_replicates"]
+                    for item in determinism
                 ),
                 "determinism": determinism,
             }
@@ -195,13 +213,31 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--schedule", type=Path, required=True)
     parser.add_argument("--runs", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--dataset",
+        action="append",
+        help="summarize only this dataset/technology block; may be repeated",
+    )
     args = parser.parse_args(argv)
 
     manifest_path = args.manifest.resolve()
     manifest = _load_mapping(manifest_path)
     expected = build_schedule(manifest, manifest_path)
     schedule = load_verified_schedule(args.schedule, expected)
-    rows, exclusions = collect_rows(manifest, schedule, args.runs.resolve())
+    selected_datasets = frozenset(args.dataset or ())
+    known_datasets = {
+        str(run["spec"].get("metadata", {}).get("dataset", ""))
+        for run in manifest["runs"]
+    }
+    unknown = sorted(selected_datasets - known_datasets)
+    if unknown:
+        parser.error(
+            f"unknown dataset block(s): {', '.join(unknown)}; "
+            f"available: {', '.join(sorted(known_datasets))}"
+        )
+    rows, exclusions = collect_rows(
+        manifest, schedule, args.runs.resolve(), selected_datasets
+    )
     summaries = summarize(rows)
     correctness_report = correctness(rows)
     require_cross_tool_identity = bool(
@@ -212,7 +248,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         "schema_version": AGGREGATE_SCHEMA_VERSION,
         "manifest_sha256": sha256_file(manifest_path),
         "schedule_sha256": sha256_file(args.schedule),
-        "scheduled_conditions": len(schedule["entries"]),
+        "scheduled_conditions": sum(
+            1
+            for run in manifest["runs"]
+            if not selected_datasets
+            or str(run["spec"].get("metadata", {}).get("dataset", ""))
+            in selected_datasets
+        ),
+        "datasets": sorted(selected_datasets or known_datasets),
         "valid_conditions": len(rows),
         "excluded_conditions": len(exclusions),
         "correctness": correctness_report,
@@ -228,7 +271,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     write_csv(args.output / "runs.csv", rows)
     write_csv(args.output / "summary.csv", summaries)
-    print(json.dumps({"valid": len(rows), "excluded": len(exclusions), **correctness_report}))
+    print(
+        json.dumps(
+            {"valid": len(rows), "excluded": len(exclusions), **correctness_report}
+        )
+    )
     correctness_ok = correctness_report["all_deterministic"] and (
         correctness_report["all_identical"] or not require_cross_tool_identity
     )

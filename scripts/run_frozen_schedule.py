@@ -18,11 +18,11 @@ import re
 import sys
 import time
 from collections import defaultdict
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import yaml
-
 from benchmark_harness import (
     HarnessError,
     canonical_json,
@@ -31,7 +31,6 @@ from benchmark_harness import (
     sha256_bytes,
     sha256_file,
 )
-
 
 SCHEDULE_SCHEMA_VERSION = "1.0.0"
 GENERATOR_VERSION = "seqproc-frozen-schedule-1"
@@ -84,7 +83,9 @@ def _validate_publication_spec(spec: Mapping[str, Any], location: str) -> None:
                 raise ScheduleError(
                     f"{location}.{collection}[{index}] must declare path and sha256"
                 )
-            _validate_sha256(entry.get("sha256"), f"{location}.{collection}[{index}].sha256")
+            _validate_sha256(
+                entry.get("sha256"), f"{location}.{collection}[{index}].sha256"
+            )
     for index, repository in enumerate(spec.get("repositories", [])):
         if not isinstance(repository, Mapping):
             raise ScheduleError(f"{location}.repositories[{index}] must be a mapping")
@@ -94,10 +95,14 @@ def _validate_publication_spec(spec: Mapping[str, Any], location: str) -> None:
                 f"{location}.repositories[{index}].commit must be a full commit digest"
             )
         if repository.get("allow_dirty"):
-            raise ScheduleError(f"{location}.repositories[{index}] permits a dirty tree")
+            raise ScheduleError(
+                f"{location}.repositories[{index}] permits a dirty tree"
+            )
 
 
-def validate_manifest(manifest: Mapping[str, Any], manifest_path: Path) -> list[dict[str, Any]]:
+def validate_manifest(
+    manifest: Mapping[str, Any], manifest_path: Path
+) -> list[dict[str, Any]]:
     for location, value in _walk(manifest):
         if isinstance(value, str) and value.strip() == "REQUIRED":
             raise ScheduleError(f"incomplete manifest field at {location}")
@@ -118,7 +123,9 @@ def validate_manifest(manifest: Mapping[str, Any], manifest_path: Path) -> list[
     for index, artifact in enumerate(manifest.get("artifacts", [])):
         if not isinstance(artifact, Mapping) or "path" not in artifact:
             raise ScheduleError(f"artifacts[{index}] must declare path and sha256")
-        expected = _validate_sha256(artifact.get("sha256"), f"artifacts[{index}].sha256")
+        expected = _validate_sha256(
+            artifact.get("sha256"), f"artifacts[{index}].sha256"
+        )
         path = _path_from_manifest(str(artifact["path"]), manifest_dir)
         if not path.is_file():
             raise ScheduleError(f"frozen artifact does not exist: {path}")
@@ -151,7 +158,9 @@ def validate_manifest(manifest: Mapping[str, Any], manifest_path: Path) -> list[
         block_id = str(run.get("block", ""))
         spec_value = run.get("spec")
         if not condition_id or condition_id in seen_ids:
-            raise ScheduleError(f"{location}.id is empty or duplicated: {condition_id!r}")
+            raise ScheduleError(
+                f"{location}.id is empty or duplicated: {condition_id!r}"
+            )
         if not block_id:
             raise ScheduleError(f"{location}.block is required")
         if not isinstance(spec_value, Mapping):
@@ -245,7 +254,9 @@ def write_schedule(schedule: Mapping[str, Any], path: Path) -> str:
     content = json.dumps(schedule, indent=2, sort_keys=True).encode() + b"\n"
     digest = sha256_bytes(content)
     _write_new(path, content)
-    _write_new(path.with_suffix(path.suffix + ".sha256"), f"{digest}  {path.name}\n".encode())
+    _write_new(
+        path.with_suffix(path.suffix + ".sha256"), f"{digest}  {path.name}\n".encode()
+    )
     return digest
 
 
@@ -258,7 +269,9 @@ def load_verified_schedule(path: Path, expected: Mapping[str, Any]) -> dict[str,
         raise ScheduleError(f"invalid schedule digest sidecar: {sidecar}")
     observed = sha256_file(path)
     if observed != fields[0]:
-        raise ScheduleError(f"schedule digest mismatch: expected {fields[0]}, observed {observed}")
+        raise ScheduleError(
+            f"schedule digest mismatch: expected {fields[0]}, observed {observed}"
+        )
     try:
         schedule = json.loads(path.read_text())
     except (OSError, json.JSONDecodeError) as error:
@@ -335,13 +348,34 @@ def _execute_schedule_unlocked(
     schedule: Mapping[str, Any],
     output_root: Path,
     max_runs: int | None = None,
+    datasets: frozenset[str] | None = None,
 ) -> tuple[int, int, int]:
     runs = validate_manifest(manifest, manifest_path)
     by_id = {item["condition_id"]: item for item in runs}
     mode = manifest["mode"]
     if max_runs is not None and mode == "publication":
         raise ScheduleError("--max-runs is forbidden in publication mode")
-    selected = schedule["entries"] if max_runs is None else schedule["entries"][:max_runs]
+    known_datasets = {
+        str(item["spec"].get("metadata", {}).get("dataset", "")) for item in runs
+    }
+    if datasets:
+        unknown = sorted(datasets - known_datasets)
+        if unknown:
+            raise ScheduleError(
+                f"unknown dataset block(s): {', '.join(unknown)}; "
+                f"available: {', '.join(sorted(known_datasets))}"
+            )
+    selected = [
+        entry
+        for entry in schedule["entries"]
+        if not datasets
+        or str(
+            by_id[entry["condition_id"]]["spec"].get("metadata", {}).get("dataset", "")
+        )
+        in datasets
+    ]
+    if max_runs is not None:
+        selected = selected[:max_runs]
     completed = skipped = failed = 0
     log_path = output_root.resolve() / "execution-log.jsonl"
     for entry in selected:
@@ -398,10 +432,11 @@ def execute_schedule(
     schedule: Mapping[str, Any],
     output_root: Path,
     max_runs: int | None = None,
+    datasets: frozenset[str] | None = None,
 ) -> tuple[int, int, int]:
     with execution_lock(output_root):
         return _execute_schedule_unlocked(
-            manifest, manifest_path, schedule, output_root, max_runs
+            manifest, manifest_path, schedule, output_root, max_runs, datasets
         )
 
 
@@ -410,12 +445,26 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--schedule", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=Path("benchmark_results/frozen"))
-    parser.add_argument("--generate", action="store_true", help="write schedule and digest, then exit")
+    parser.add_argument(
+        "--generate", action="store_true", help="write schedule and digest, then exit"
+    )
     parser.add_argument("--validate-only", action="store_true")
-    parser.add_argument("--max-runs", type=int, help="development-mode smoke-test limit")
+    parser.add_argument(
+        "--max-runs", type=int, help="development-mode smoke-test limit"
+    )
+    parser.add_argument(
+        "--dataset",
+        action="append",
+        help=(
+            "execute or validate only this dataset/technology block; may be repeated. "
+            "The relative order remains the order frozen in the full schedule"
+        ),
+    )
     args = parser.parse_args(argv)
     if args.max_runs is not None and args.max_runs <= 0:
         parser.error("--max-runs must be positive")
+    if args.generate and args.dataset:
+        parser.error("--dataset cannot be combined with --generate")
 
     try:
         manifest_path = args.manifest.resolve()
@@ -423,16 +472,41 @@ def main(argv: Sequence[str] | None = None) -> int:
         expected_schedule = build_schedule(manifest, manifest_path)
         if args.generate:
             digest = write_schedule(expected_schedule, args.schedule)
-            print(json.dumps({"entries": len(expected_schedule["entries"]), "sha256": digest}))
+            print(
+                json.dumps(
+                    {"entries": len(expected_schedule["entries"]), "sha256": digest}
+                )
+            )
             return 0
         schedule = load_verified_schedule(args.schedule, expected_schedule)
+        selected_datasets = frozenset(args.dataset or ())
+        selected_entries = [
+            entry
+            for entry in schedule["entries"]
+            if not selected_datasets
+            or next(
+                run for run in manifest["runs"] if run["id"] == entry["condition_id"]
+            )["spec"]["metadata"]["dataset"]
+            in selected_datasets
+        ]
+        known_datasets = {
+            str(run["spec"].get("metadata", {}).get("dataset", ""))
+            for run in manifest["runs"]
+        }
+        unknown = sorted(selected_datasets - known_datasets)
+        if unknown:
+            raise ScheduleError(
+                f"unknown dataset block(s): {', '.join(unknown)}; "
+                f"available: {', '.join(sorted(known_datasets))}"
+            )
         if args.validate_only:
             print(
                 json.dumps(
                     {
                         "valid": True,
                         "mode": manifest["mode"],
-                        "entries": len(schedule["entries"]),
+                        "entries": len(selected_entries),
+                        "datasets": sorted(selected_datasets or known_datasets),
                         "manifest_sha256": schedule["manifest_sha256"],
                         "schedule_sha256": sha256_file(args.schedule),
                     },
@@ -446,6 +520,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             schedule,
             args.output,
             args.max_runs,
+            selected_datasets,
         )
     except KeyboardInterrupt:
         print("run-frozen-schedule: interrupted", file=sys.stderr)
