@@ -6,7 +6,8 @@ linker2 = ATCCACGTGCTTGAGACTGTGG
 
 if read matches {
     [umi:|10| bc3:|8| linker1 bc2:|8| linker2 bc1:|6| _] =>
-        umi.concat(bc3.concat(bc2.concat(bc1))).out!('mb_r1.fq')
+        (umi.concat(bc3)).concat(bc2.concat(bc1)).out!('mb_r1.fq')
     [_ bc1:|6| -linker2 bc2:|8| -linker1 bc3:|8| umi:|10| _] =>
-        (-umi).concat((-bc3).concat((-bc2).concat(-bc1))).out!('mb_r1.fq')
+        # Assemble in read order, then reverse-complement the result once.
+        (-((bc1.concat(bc2)).concat(bc3.concat(umi)))).out!('mb_r1.fq')
 }
