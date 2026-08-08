@@ -5,5 +5,6 @@ linker2 = ATCCACGTGCTTGAGACTGTGG
 
 if read matches {
     [umi:|10| bc3:|8| linker1~0.1 bc2:|8| linker2~0.14 bc1:|8| _] =>
-        umi.concat(bc3.concat(bc2.concat(bc1))).out!('mb_r1.fq')
+        # Linker removal requires concatenation; balance it to minimize copying.
+        (umi.concat(bc3)).concat(bc2.concat(bc1)).out!('mb_r1.fq')
 }
