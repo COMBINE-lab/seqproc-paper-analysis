@@ -88,11 +88,9 @@
     "seqproc_branch": "preprint-fixes-revisions",
     "antisequence_branch": "preprint-fixes-revisions",
     "replacement_manifest": "/scratch1/seqproc-ecosystem/publication-benchmark-2026-08-10-aligned-optimized/specs/publication-core-timing-180.yaml",
-    "replacement_manifest_sha256": "63fe6bb3b4d3865dbde93392fdc5d90731a1f138b613e91762b6a19231258087",
     "replacement_schedule": "/scratch1/seqproc-ecosystem/publication-benchmark-2026-08-10-aligned-optimized/specs/publication-core-timing-180.schedule.json",
-    "replacement_schedule_sha256": "056a9ddd029def9ff112493d1b259fe8e4b3a79e3e539cb977d33b05330988f2",
     "tenx_schedule_entries": 36,
-    "validation": "passed"
+    "note": "The replacement manifest is frozen only after this diagnostic artifact is committed, avoiding a cyclic claim in which the committed artifact changes the analysis revision recorded by the manifest."
   },
   "raw_diagnostics": {
     "directory": "/scratch1/seqproc-ecosystem/publication-benchmark-2026-08-10-aligned-optimized/diagnostics/tenx-slowdown-2026-08-10",
