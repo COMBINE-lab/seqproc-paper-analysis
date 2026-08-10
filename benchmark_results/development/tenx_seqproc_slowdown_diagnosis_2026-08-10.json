@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "date": "2026-08-10",
+  "purpose": "Diagnose the apparent seqproc single-thread slowdown in the qualitatively aligned 10x v2 timing campaign",
+  "conclusion": {
+    "root_cause": "The August 10 campaign froze seqproc 46d66d6 and antisequence 45f0bdb, while the earlier optimized campaign used their direct descendants edbf9ef and f3b0f1e. The optimized commits remained on pe-single-thread-optimizations side branches and had not been fast-forwarded into preprint-fixes-revisions.",
+    "geometry_changed": false,
+    "output_sink_caused_slowdown": false,
+    "runtime_regression_in_optimized_code": false,
+    "campaign_disposition": "The partially completed August 10 campaign is diagnostic only and must not be combined with the replacement campaign."
+  },
+  "identity": {
+    "geometry": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom",
+    "geometry_sha256": "cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b",
+    "rolled_back_seqproc_commit": "46d66d6b96d44077d95fec9c19305185d4aead37",
+    "rolled_back_antisequence_commit": "45f0bdb8e0bdfd1933888f1f552f6286ec482913",
+    "optimized_seqproc_commit": "edbf9efcfa69d588a42d3f1fb714742b675502eb",
+    "optimized_antisequence_commit": "f3b0f1ea0b286b680d963382f2bf7316058d83e4",
+    "rolled_back_binary_sha256": "4932bc9d8007012e081431fffdb18bd867a092d7b1d0f545e43f4cf7e480686c",
+    "restored_binary_sha256": "4bb6b322d2e85539fbd26bb678b8684e29af70fa3e5d2421988f142e80ba8b92"
+  },
+  "one_million_pair_ab": {
+    "input": "10x v2 one-million-pair staged slice",
+    "threads": 1,
+    "cpu_affinity": "taskset --cpu-list 1",
+    "pipeline": "staged",
+    "output": "/dev/null",
+    "rolled_back_wall_seconds": [0.87, 0.86, 0.86, 0.87, 0.86],
+    "optimized_wall_seconds": [0.43, 0.43, 0.43, 0.43, 0.43],
+    "peak_rss_kib_both": 9216,
+    "wall_time_reduction_percent": 50.0
+  },
+  "perf_stat_five_run_mean": {
+    "rolled_back": {
+      "task_clock_msec": 879.65,
+      "cycles": 3702648769,
+      "instructions": 10139293085,
+      "instructions_per_cycle": 2.74,
+      "branches": 1996699447,
+      "branch_misses": 7272803
+    },
+    "optimized": {
+      "task_clock_msec": 454.01,
+      "cycles": 1823084949,
+      "instructions": 6587506493,
+      "instructions_per_cycle": 3.61,
+      "branches": 1199475854,
+      "branch_misses": 239287
+    },
+    "reductions_percent": {
+      "task_clock": 48.39,
+      "cycles": 50.76,
+      "instructions": 35.03,
+      "branches": 39.93,
+      "branch_misses": 96.71
+    }
+  },
+  "profile_interpretation": {
+    "rolled_back_hotspots": [
+      "generic Label expression evaluation: 20.49% self",
+      "generic ConcatAll expression evaluation: 15.41% self",
+      "memmove: 10.96% self",
+      "memset: 9.96% self"
+    ],
+    "optimized_effect": "The optimized compiler emits a terminal same-lane ProjectOp and fuses match-result retention into MatchAnyOp. This removes the generic label/concatenation traversal, avoids temporary concatenation and copy-back work, and greatly reduces unpredictable branching.",
+    "thread_count_interaction": "At one thread, all redundant graph and copy work is serialized. At 16 threads it is distributed across workers and largely hidden by the pipeline/I/O floor, explaining why the rollback changed full-data t16 time only from 41.97-42.22 s to 43.22 s."
+  },
+  "full_data_confirmation": {
+    "records": 234382218,
+    "threads": 1,
+    "output": "/dev/null",
+    "rolled_back_campaign_wall_seconds": [201.806697784, 202.113702637],
+    "restored_single_confirmation_wall_seconds": 101.63,
+    "restored_user_seconds": 96.90,
+    "restored_system_seconds": 4.62,
+    "restored_peak_rss_kib": 9216,
+    "splitcode_campaign_wall_seconds_approx": 145,
+    "interpretation": "The restored seqproc run is about twice as fast as the rolled-back seqproc build and about 30% faster than the observed Splitcode single-thread timing. This confirmation is an implementation gate, not a publication replicate."
+  },
+  "correctness_and_tests": {
+    "prior_slice_validation": "Baseline and optimized outputs were byte-identical for 10x v2, paired-end SPLiT-seq, sci-RNA-seq3, and forward long-read SPLiT-seq; see terminal_projection_and_match_fusion_2026-08-07.json.",
+    "antisequence_tests_passed": 312,
+    "seqproc_tests_passed": 472,
+    "failed": 0
+  },
+  "remediation": {
+    "branches_fast_forwarded_and_pushed": true,
+    "seqproc_branch": "preprint-fixes-revisions",
+    "antisequence_branch": "preprint-fixes-revisions",
+    "replacement_manifest": "/scratch1/seqproc-ecosystem/publication-benchmark-2026-08-10-aligned-optimized/specs/publication-core-timing-180.yaml",
+    "replacement_manifest_sha256": "63fe6bb3b4d3865dbde93392fdc5d90731a1f138b613e91762b6a19231258087",
+    "replacement_schedule": "/scratch1/seqproc-ecosystem/publication-benchmark-2026-08-10-aligned-optimized/specs/publication-core-timing-180.schedule.json",
+    "replacement_schedule_sha256": "056a9ddd029def9ff112493d1b259fe8e4b3a79e3e539cb977d33b05330988f2",
+    "tenx_schedule_entries": 36,
+    "validation": "passed"
+  },
+  "raw_diagnostics": {
+    "directory": "/scratch1/seqproc-ecosystem/publication-benchmark-2026-08-10-aligned-optimized/diagnostics/tenx-slowdown-2026-08-10",
+    "contents": "Exact baseline/restored binaries, alternating timing TSVs, full-run GNU time output, five-repetition perf stat reports, and perf record data for both revisions."
+  }
+}
