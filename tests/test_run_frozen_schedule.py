@@ -17,7 +17,12 @@ from run_frozen_schedule import (
     validate_manifest,
     write_schedule,
 )
-from summarize_frozen_schedule import collect_rows, correctness, summarize
+from summarize_frozen_schedule import (
+    collect_rows,
+    correctness,
+    main as summarize_main,
+    summarize,
+)
 
 
 def make_manifest(tmp_path: Path, fail: bool = False):
@@ -117,8 +122,49 @@ def test_execute_and_idempotent_resume(tmp_path, monkeypatch):
     rows, exclusions = collect_rows(manifest, schedule, output)
     assert len(rows) == 2
     assert exclusions == []
+    assert all(row["non_nominal_sequence_records"] == 0 for row in rows)
+    assert all(row["output_length_validity_json"] for row in rows)
     assert len(summarize(rows)) == 2
     assert correctness(rows)["all_identical"] is True
+
+
+def test_timing_track_aggregates_without_materialized_fastq_outputs(tmp_path):
+    manifest, manifest_path = make_manifest(tmp_path)
+    for run in manifest["runs"]:
+        run["spec"]["command"] = [sys.executable, "-c", "pass"]
+        run["spec"]["outputs"] = []
+        run["spec"]["metadata"]["measurement_track"] = "timing"
+        run["spec"]["metadata"]["sequence_output_policy"] = "dev-null"
+    manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False))
+    schedule = build_schedule(manifest, manifest_path)
+    output = tmp_path / "results"
+
+    assert execute_schedule(manifest, manifest_path, schedule, output) == (2, 0, 0)
+    rows, exclusions = collect_rows(manifest, schedule, output)
+
+    assert exclusions == []
+    assert len(rows) == 2
+    assert all(row["emitted_records"] is None for row in rows)
+    assert all(row["normalized_output_sha256"] is None for row in rows)
+    assert len(summarize(rows)) == 2
+    assert correctness(rows)["datasets"] == []
+    schedule_path = tmp_path / "schedule.json"
+    write_schedule(schedule, schedule_path)
+    assert (
+        summarize_main(
+            [
+                "--manifest",
+                str(manifest_path),
+                "--schedule",
+                str(schedule_path),
+                "--runs",
+                str(output),
+                "--output",
+                str(tmp_path / "summary"),
+            ]
+        )
+        == 0
+    )
 
 
 def test_dataset_block_selection_preserves_frozen_relative_order(tmp_path):

@@ -15,7 +15,7 @@ from typing import Any
 from benchmark_harness import sha256_file
 from run_frozen_schedule import _load_mapping, build_schedule, load_verified_schedule
 
-AGGREGATE_SCHEMA_VERSION = "1.1.0"
+AGGREGATE_SCHEMA_VERSION = "1.2.0"
 
 
 def successful_attempts(run_root: Path) -> list[tuple[Path, dict[str, Any]]]:
@@ -55,8 +55,29 @@ def collect_rows(
             )
             continue
         attempt_path, record = attempts[0]
+        measurement_track = str(metadata.get("measurement_track", "legacy"))
         output_counts = [int(item["records"]) for item in record["output_counts"]]
-        if output_counts and len(set(output_counts)) != 1:
+        output_length_validity = [
+            {
+                "path": item["path"],
+                "records": int(item["records"]),
+                "min_sequence_length": item.get("min_sequence_length"),
+                "max_sequence_length": item.get("max_sequence_length"),
+                "sequence_length_counts": item.get("sequence_length_counts", {}),
+                "nominal_sequence_lengths": item.get(
+                    "nominal_sequence_lengths", []
+                ),
+                "non_nominal_sequence_records": int(
+                    item.get("non_nominal_sequence_records", 0)
+                ),
+            }
+            for item in record["output_counts"]
+        ]
+        if (
+            output_counts
+            and len(set(output_counts)) != 1
+            and not bool(metadata.get("allow_output_count_mismatch", False))
+        ):
             exclusions.append(
                 {
                     "condition_id": condition_id,
@@ -66,8 +87,12 @@ def collect_rows(
                 }
             )
             continue
-        normalized = [item.get("normalized_sha256") for item in record["outputs"]]
-        if not normalized or any(value is None for value in normalized):
+        normalized = [
+            item["normalized_sha256"]
+            for item in record["outputs"]
+            if item.get("normalized_sha256") is not None
+        ]
+        if measurement_track != "timing" and not normalized:
             exclusions.append(
                 {
                     "condition_id": condition_id,
@@ -85,11 +110,20 @@ def collect_rows(
                 "attempt_dir": str(attempt_path),
                 "dataset": metadata["dataset"],
                 "tool": metadata["tool"],
+                "measurement_track": measurement_track,
+                "sequence_output_policy": metadata.get("sequence_output_policy"),
                 "execution_mode": metadata["execution_mode"],
                 "threads": int(metadata["threads"]),
                 "replicate": int(metadata["replicate"]),
                 "input_records": input_records,
-                "emitted_records": output_counts[0] if output_counts else 0,
+                "emitted_records": output_counts[0] if output_counts else None,
+                "non_nominal_sequence_records": sum(
+                    item["non_nominal_sequence_records"]
+                    for item in output_length_validity
+                ),
+                "output_length_validity_json": json.dumps(
+                    output_length_validity, separators=(",", ":"), sort_keys=True
+                ),
                 "wall_seconds": float(record["wall_seconds"]),
                 "user_cpu_seconds": float(record.get("user_cpu_seconds", 0.0)),
                 "system_cpu_seconds": float(record.get("system_cpu_seconds", 0.0)),
@@ -97,8 +131,10 @@ def collect_rows(
                 "input_records_per_second": input_records
                 / float(record["wall_seconds"]),
                 "output_bytes": sum(int(item["bytes"]) for item in record["outputs"]),
-                "normalized_output_sha256": ";".join(
-                    str(value) for value in normalized
+                "normalized_output_sha256": (
+                    ";".join(str(value) for value in normalized)
+                    if normalized
+                    else None
                 ),
             }
         )
@@ -108,7 +144,14 @@ def collect_rows(
 def summarize(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     groups: dict[tuple[Any, ...], list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
-        key = (row["dataset"], row["tool"], row["execution_mode"], row["threads"])
+        key = (
+            row["measurement_track"],
+            row["sequence_output_policy"],
+            row["dataset"],
+            row["tool"],
+            row["execution_mode"],
+            row["threads"],
+        )
         groups[key].append(row)
     summaries = []
     for key, values in sorted(groups.items()):
@@ -117,10 +160,12 @@ def summarize(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         rss = [int(item["peak_rss_kib"]) for item in values]
         summaries.append(
             {
-                "dataset": key[0],
-                "tool": key[1],
-                "execution_mode": key[2],
-                "threads": key[3],
+                "measurement_track": key[0],
+                "sequence_output_policy": key[1],
+                "dataset": key[2],
+                "tool": key[3],
+                "execution_mode": key[4],
+                "threads": key[5],
                 "replicates": len(values),
                 "wall_seconds_mean": statistics.fmean(wall),
                 "wall_seconds_median": statistics.median(wall),
@@ -137,6 +182,8 @@ def summarize(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def correctness(rows: list[dict[str, Any]]) -> dict[str, Any]:
     groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
+        if row.get("normalized_output_sha256") is None:
+            continue
         groups[str(row["dataset"])].append(row)
     datasets = []
     for dataset, values in sorted(groups.items()):
@@ -159,6 +206,12 @@ def correctness(rows: list[dict[str, Any]]) -> dict[str, Any]:
             condition_counts = sorted(
                 {int(item["emitted_records"]) for item in condition_values}
             )
+            non_nominal_counts = sorted(
+                {
+                    int(item.get("non_nominal_sequence_records", 0))
+                    for item in condition_values
+                }
+            )
             determinism.append(
                 {
                     "tool": tool,
@@ -166,6 +219,7 @@ def correctness(rows: list[dict[str, Any]]) -> dict[str, Any]:
                     "conditions": len(condition_values),
                     "normalized_digest_count": len(condition_digests),
                     "emitted_record_counts": condition_counts,
+                    "non_nominal_sequence_record_counts": non_nominal_counts,
                     "deterministic_across_threads_replicates": len(condition_digests)
                     == 1
                     and len(condition_counts) == 1,
@@ -276,8 +330,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             {"valid": len(rows), "excluded": len(exclusions), **correctness_report}
         )
     )
-    correctness_ok = correctness_report["all_deterministic"] and (
-        correctness_report["all_identical"] or not require_cross_tool_identity
+    has_correctness_rows = any(
+        row.get("normalized_output_sha256") is not None for row in rows
+    )
+    correctness_ok = not has_correctness_rows or (
+        correctness_report["all_deterministic"]
+        and (
+            correctness_report["all_identical"]
+            or not require_cross_tool_identity
+        )
     )
     return 0 if not exclusions and correctness_ok else 1
 

@@ -3,6 +3,7 @@
 //! Build with:
 //!   rustc -C opt-level=3 -C target-cpu=x86-64-v3 -o tools/bin/fastq-numeric-audit tools/fastq_numeric_audit.rs
 
+use std::collections::BTreeMap;
 use std::env;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, BufWriter, Write};
@@ -84,6 +85,9 @@ fn main() -> io::Result<()> {
     let mut bitmap = vec![0u8; (numeric_id_max + 7) / 8];
     let mut accession_prefix: Option<Vec<u8>> = None;
     let mut records = 0usize;
+    let mut min_sequence_length = usize::MAX;
+    let mut max_sequence_length = 0usize;
+    let mut sequence_length_counts = BTreeMap::<usize, usize>::new();
 
     loop {
         if read_line(&mut reader, &mut header)? == 0 {
@@ -105,12 +109,18 @@ fn main() -> io::Result<()> {
                 input.display()
             ));
         }
-        if sequence_length(&sequence) != sequence_length(&quality) {
+        let current_sequence_length = sequence_length(&sequence);
+        if current_sequence_length != sequence_length(&quality) {
             fail(format!(
                 "sequence/quality length mismatch in FASTQ record {records} in {}",
                 input.display()
             ));
         }
+        min_sequence_length = min_sequence_length.min(current_sequence_length);
+        max_sequence_length = max_sequence_length.max(current_sequence_length);
+        *sequence_length_counts
+            .entry(current_sequence_length)
+            .or_insert(0) += 1;
 
         let id = header_id(&header);
         let (prefix, numeric_id) = parse_numeric_id(id).unwrap_or_else(|| {
@@ -154,6 +164,23 @@ fn main() -> io::Result<()> {
     output.write_all(b"\0")?;
     output.write_all(&bitmap)?;
     output.flush()?;
-    println!("{{\"records\":{records}}}");
+    let length_counts_json = sequence_length_counts
+        .iter()
+        .map(|(length, count)| format!("\"{length}\":{count}"))
+        .collect::<Vec<_>>()
+        .join(",");
+    let min_json = if records == 0 {
+        "null".to_string()
+    } else {
+        min_sequence_length.to_string()
+    };
+    let max_json = if records == 0 {
+        "null".to_string()
+    } else {
+        max_sequence_length.to_string()
+    };
+    println!(
+        "{{\"records\":{records},\"min_sequence_length\":{min_json},\"max_sequence_length\":{max_json},\"sequence_length_counts\":{{{length_counts_json}}}}}"
+    );
     Ok(())
 }

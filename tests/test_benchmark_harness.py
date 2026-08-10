@@ -56,6 +56,44 @@ def test_success_records_timing_output_and_digest(tmp_path):
     assert json.loads((run_dir / "run.json").read_text())["run_id"] == result["run_id"]
 
 
+def test_isolated_execution_cwd_can_sink_implicit_outputs_to_dev_null(tmp_path):
+    support = tmp_path / "support"
+    support.mkdir()
+    (support / "value.txt").write_text("available\n")
+    spec = make_spec(
+        tmp_path,
+        "from pathlib import Path; "
+        "assert Path('support/value.txt').read_text() == 'available\\n'; "
+        "Path('implicit.fastq').write_text('sequence output\\n')",
+    )
+    spec["execution_cwd"] = "{run_dir}/work"
+    spec["create_execution_cwd"] = True
+    spec["runtime_symlinks"] = [
+        {"path": "{run_dir}/work/support", "target": str(support)},
+        {"path": "{run_dir}/work/implicit.fastq", "target": "/dev/null"},
+    ]
+
+    result, run_dir = execute_spec(spec, tmp_path / "runs")
+
+    assert result["success"] is True
+    assert (run_dir / "work" / "support").resolve() == support.resolve()
+    assert (run_dir / "work" / "implicit.fastq").is_symlink()
+    assert os.readlink(run_dir / "work" / "implicit.fastq") == "/dev/null"
+    assert json.loads((run_dir / "command.json").read_text())["cwd"] == str(
+        run_dir / "work"
+    )
+
+
+def test_runtime_symlink_cannot_escape_run_directory(tmp_path):
+    spec = make_spec(tmp_path, "pass")
+    spec["runtime_symlinks"] = [
+        {"path": str(tmp_path / "outside"), "target": "/dev/null"}
+    ]
+
+    with pytest.raises(HarnessError, match="contained in"):
+        execute_spec(spec, tmp_path / "runs")
+
+
 def test_launcher_and_tool_executables_are_both_fingerprinted(tmp_path):
     spec = make_spec(tmp_path, "pass")
     spec["executables"] = ["/usr/bin/time"]
@@ -125,6 +163,8 @@ def test_fastq_output_is_counted_and_validated(tmp_path):
                 "normalize": "fastq_multiset",
                 "mate": 1,
                 "min_bytes": 1,
+                "min_sequence_length": 4,
+                "max_sequence_length": 4,
             }
         ],
     )
@@ -132,10 +172,60 @@ def test_fastq_output_is_counted_and_validated(tmp_path):
 
     assert result["success"] is True
     assert result["output_counts"][0]["records"] == 1
+    assert result["output_counts"][0]["min_sequence_length"] == 4
+    assert result["output_counts"][0]["max_sequence_length"] == 4
+    assert result["output_counts"][0]["sequence_length_counts"] == {4: 1}
+    assert result["output_counts"][0]["non_nominal_sequence_records"] == 0
     assert json.loads((run_dir / "output-counts.json").read_text())[0]["valid"] is True
     assert inspect_fastq(run_dir / "result.fastq")["records"] == 1
     assert result["outputs"][0]["normalized_sha256"]
     assert (run_dir / "outputs.normalized.sha256").read_text().strip()
+
+
+def test_fastq_sequence_length_contract_rejects_wrong_product(tmp_path):
+    spec = make_spec(
+        tmp_path,
+        "from pathlib import Path; import sys; "
+        "Path(sys.argv[1], 'result.fastq').write_text('@r1\\nACG\\n+\\nIII\\n')",
+        [
+            {
+                "path": "{run_dir}/result.fastq",
+                "format": "fastq",
+                "min_sequence_length": 4,
+                "max_sequence_length": 4,
+            }
+        ],
+    )
+
+    result, _ = execute_spec(spec, tmp_path / "runs")
+
+    assert result["success"] is False
+    assert "minimum sequence length 3 is below 4" in result["invalid_outputs"][-1]
+
+
+def test_fastq_nominal_length_contract_can_report_without_rejecting(tmp_path):
+    spec = make_spec(
+        tmp_path,
+        "from pathlib import Path; import sys; "
+        "Path(sys.argv[1], 'result.fastq').write_text("
+        "'@r1\\nACG\\n+\\nIII\\n@r2\\nACGT\\n+\\nIIII\\n')",
+        [
+            {
+                "path": "{run_dir}/result.fastq",
+                "format": "fastq",
+                "nominal_sequence_lengths": [4],
+                "enforce_sequence_lengths": False,
+            }
+        ],
+    )
+
+    result, _ = execute_spec(spec, tmp_path / "runs")
+
+    assert result["success"] is True
+    observed = result["output_counts"][0]
+    assert observed["sequence_length_counts"] == {3: 1, 4: 1}
+    assert observed["nominal_sequence_lengths"] == [4]
+    assert observed["non_nominal_sequence_records"] == 1
 
 
 def test_normalized_fastq_digest_is_order_independent_and_gzip_independent(tmp_path):
@@ -234,6 +324,7 @@ def test_compiled_numeric_auditor_matches_python(tmp_path):
     assert observed["sha256"] == expected["sha256"]
     assert observed["normalized_sha256"] == expected["normalized_sha256"]
     assert observed["validator"] == "fastq-numeric-audit-v1"
+    assert observed["sequence_length_counts"] == {2: 2}
 
 
 @pytest.mark.parametrize(

@@ -5,7 +5,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from make_publication_core_manifest import DATASETS, DEFAULT_REPLICATES, DEFAULT_THREADS
+from make_publication_core_manifest import (
+    DATASETS,
+    DEFAULT_REPLICATES,
+    DEFAULT_THREADS,
+    sequence_length_contract,
+)
 from run_splitcode_dual_pass import main as dual_pass_main
 from stage_lr_reverse_complement import stage
 
@@ -18,8 +23,30 @@ def test_publication_campaign_defaults_and_lr_roles():
     assert datasets["lr_splitseq_dual"]["analysis_role"] == "primary"
     assert datasets["lr_splitseq_dual"]["splitcode_dual_pass"] is True
     assert datasets["lr_splitseq_dual"]["r1_reverse_complement"] is True
+    assert datasets["lr_splitseq_dual"]["splitcode"] == "publication_lr_splitseq.config"
+    assert datasets["lr_splitseq_dual"]["splitcode_x_only"] is True
     assert datasets["lr_splitseq_forward"]["analysis_role"] == "supplementary"
     assert datasets["lr_splitseq_forward"]["splitcode_dual_pass"] is False
+    assert datasets["tenx_v2"]["splitcode_trim_only"] is True
+    assert datasets["tenx_v2"]["splitcode_extract_outputs"] == ()
+    assert datasets["splitseq_pe"]["splitcode_select"] == (0,)
+    assert datasets["scirnaseq3"]["splitcode_select"] == (1,)
+
+
+def test_approximate_match_products_report_non_nominal_lengths_as_validity():
+    assert sequence_length_contract("splitseq_pe", "matchbox", 1).get(
+        "enforce_sequence_lengths", True
+    ) is True
+    assert sequence_length_contract("splitseq_pe", "matchbox", 2) == {
+        "nominal_sequence_lengths": [30],
+        "enforce_sequence_lengths": False,
+    }
+    for dataset in ("lr_splitseq_dual", "lr_splitseq_forward"):
+        for tool in ("seqproc", "matchbox"):
+            assert sequence_length_contract(dataset, tool, 1) == {
+                "nominal_sequence_lengths": [32],
+                "enforce_sequence_lengths": False,
+            }
 
 
 def test_reverse_complement_staging_preserves_ids_and_reverses_quality(tmp_path):
@@ -96,3 +123,63 @@ def test_splitcode_dual_wrapper_runs_two_passes_without_reconciliation(tmp_path)
     assert reverse_output.read_text() == reverse.read_text()
     assert not (tmp_path / "splitcode-forward.mapping.txt").exists()
     assert not (tmp_path / "splitcode-reverse.mapping.txt").exists()
+
+
+def test_splitcode_dual_wrapper_discards_all_configured_sequence_outputs(tmp_path):
+    fake = tmp_path / "fake-splitcode"
+    fake.write_text(
+        "#!/usr/bin/env python3\n"
+        "import pathlib, sys\n"
+        "args = sys.argv[1:]\n"
+        "assert '--x-only' in args and '--output' not in args\n"
+        "pathlib.Path(args[args.index('--mapping') + 1]).write_text('mapping\\n')\n"
+        "pathlib.Path('prefix.fastq').write_text('projection\\n')\n"
+    )
+    fake.chmod(fake.stat().st_mode | stat.S_IXUSR)
+    config = tmp_path / "config.txt"
+    config.write_text("config\n")
+    forward = tmp_path / "forward.fastq"
+    reverse = tmp_path / "reverse.fastq"
+    forward.write_text("@SRR1.1\nAC\n+\nII\n")
+    reverse.write_text("@SRR1.1\nGT\n+\nII\n")
+    report = tmp_path / "report.json"
+
+    assert (
+        dual_pass_main(
+            [
+                "--binary",
+                str(fake),
+                "--config",
+                str(config),
+                "--threads",
+                "4",
+                "--forward-input",
+                str(forward),
+                "--reverse-input",
+                str(reverse),
+                "--forward-output",
+                "/dev/null",
+                "--reverse-output",
+                "/dev/null",
+                "--report",
+                str(report),
+                "--discard-output",
+                "--mapping-sink",
+                "/dev/null",
+                "--extraction-output",
+                "prefix.fastq",
+                "--x-only",
+            ]
+        )
+        == 0
+    )
+
+    payload = json.loads(report.read_text())
+    assert payload["sequence_output_sink"] == "/dev/null"
+    assert payload["mapping_sink"] == "/dev/null"
+    assert payload["x_only"] is True
+    assert all(item["output_discarded"] for item in payload["passes"])
+    for orientation in ("forward", "reverse"):
+        extraction = tmp_path / f"splitcode-{orientation}-work" / "prefix.fastq"
+        assert extraction.is_symlink()
+        assert extraction.resolve() == Path("/dev/null")

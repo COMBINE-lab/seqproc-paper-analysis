@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 
-SCHEMA_VERSION = "1.4.0"
+SCHEMA_VERSION = "1.5.0"
 DEFAULT_ENV_ALLOWLIST = (
     "PATH",
     "LD_LIBRARY_PATH",
@@ -344,6 +344,62 @@ def _substitute_run_dir(values: Iterable[str], run_dir: Path) -> list[str]:
     return [str(value).replace("{run_dir}", str(run_dir)) for value in values]
 
 
+def _runtime_path(value: str, base_cwd: Path, run_dir: Path) -> Path:
+    """Resolve a runtime path after expanding the per-attempt directory."""
+    substituted = str(value).replace("{run_dir}", str(run_dir))
+    path = Path(substituted)
+    if not path.is_absolute():
+        path = base_cwd / path
+    return path.resolve(strict=False)
+
+
+def _prepare_runtime_layout(
+    spec: Mapping[str, Any], base_cwd: Path, run_dir: Path
+) -> Path:
+    """Create an isolated working directory and declared symlinks for one run.
+
+    Publication tools such as matchbox and splitcode derive some output names
+    from their configuration files.  Per-run symlinks let those outputs target
+    ``/dev/null`` during timing without changing the semantic configuration or
+    adding a wrapper process to the measurement.
+    """
+    execution_cwd = _runtime_path(
+        str(spec.get("execution_cwd", base_cwd)), base_cwd, run_dir
+    )
+    create_execution_cwd = bool(spec.get("create_execution_cwd", False))
+    if create_execution_cwd:
+        try:
+            execution_cwd.relative_to(run_dir)
+        except ValueError as error:
+            raise HarnessError(
+                "a created execution_cwd must be contained in {run_dir}"
+            ) from error
+        execution_cwd.mkdir(parents=True, exist_ok=False)
+    elif not execution_cwd.is_dir():
+        raise HarnessError(f"execution working directory does not exist: {execution_cwd}")
+
+    for index, entry in enumerate(spec.get("runtime_symlinks", [])):
+        if not isinstance(entry, Mapping) or "path" not in entry or "target" not in entry:
+            raise HarnessError(
+                f"runtime_symlinks[{index}] must declare path and target"
+            )
+        link = _runtime_path(str(entry["path"]), base_cwd, run_dir)
+        target = _runtime_path(str(entry["target"]), base_cwd, run_dir)
+        try:
+            link.relative_to(run_dir)
+        except ValueError as error:
+            raise HarnessError(
+                f"runtime symlink must be contained in {{run_dir}}: {link}"
+            ) from error
+        if link.exists() or link.is_symlink():
+            raise HarnessError(f"refusing to replace runtime path: {link}")
+        if not target.exists():
+            raise HarnessError(f"runtime symlink target does not exist: {target}")
+        link.parent.mkdir(parents=True, exist_ok=True)
+        link.symlink_to(target, target_is_directory=target.is_dir())
+    return execution_cwd
+
+
 def _prepare_outputs(
     entries: Iterable[str | Mapping[str, Any]],
     cwd: Path,
@@ -398,6 +454,36 @@ def _prepare_outputs(
         min_bytes = int(item.get("min_bytes", 0))
         if min_bytes < 0:
             raise HarnessError("output min_bytes cannot be negative")
+        min_sequence_length = item.get("min_sequence_length")
+        max_sequence_length = item.get("max_sequence_length")
+        if min_sequence_length is not None:
+            min_sequence_length = int(min_sequence_length)
+        if max_sequence_length is not None:
+            max_sequence_length = int(max_sequence_length)
+        if (
+            (min_sequence_length is not None and min_sequence_length < 0)
+            or (max_sequence_length is not None and max_sequence_length < 0)
+            or (
+                min_sequence_length is not None
+                and max_sequence_length is not None
+                and max_sequence_length < min_sequence_length
+            )
+        ):
+            raise HarnessError("invalid FASTQ sequence-length bounds")
+        if (
+            min_sequence_length is not None or max_sequence_length is not None
+        ) and output_format != "fastq":
+            raise HarnessError("sequence-length bounds require format: fastq")
+        nominal_sequence_lengths = sorted(
+            {int(value) for value in item.get("nominal_sequence_lengths", [])}
+        )
+        if any(value < 0 for value in nominal_sequence_lengths):
+            raise HarnessError("nominal FASTQ sequence lengths cannot be negative")
+        if nominal_sequence_lengths and output_format != "fastq":
+            raise HarnessError("nominal sequence lengths require format: fastq")
+        enforce_sequence_lengths = bool(
+            item.get("enforce_sequence_lengths", bool(nominal_sequence_lengths))
+        )
         outputs.append(
             {
                 "path": _resolve(substituted, cwd),
@@ -408,6 +494,10 @@ def _prepare_outputs(
                 "numeric_id_max": numeric_id_max,
                 "numeric_audit_executable": numeric_audit_executable,
                 "retain": bool(item.get("retain", default_retain)),
+                "min_sequence_length": min_sequence_length,
+                "max_sequence_length": max_sequence_length,
+                "nominal_sequence_lengths": nominal_sequence_lengths,
+                "enforce_sequence_lengths": enforce_sequence_lengths,
             }
         )
     return outputs
@@ -416,9 +506,33 @@ def _prepare_outputs(
 def inspect_fastq(path: Path) -> dict[str, Any]:
     """Count and structurally validate a four-line FASTQ, optionally gzip-compressed."""
     records = 0
-    for _ in _fastq_records(path):
+    min_sequence_length: int | None = None
+    max_sequence_length: int | None = None
+    sequence_length_counts: dict[int, int] = {}
+    for lines in _fastq_records(path):
         records += 1
-    return {"format": "fastq", "records": records, "valid": True}
+        sequence_length = len(lines[1].rstrip(b"\r\n"))
+        min_sequence_length = (
+            sequence_length
+            if min_sequence_length is None
+            else min(min_sequence_length, sequence_length)
+        )
+        max_sequence_length = (
+            sequence_length
+            if max_sequence_length is None
+            else max(max_sequence_length, sequence_length)
+        )
+        sequence_length_counts[sequence_length] = (
+            sequence_length_counts.get(sequence_length, 0) + 1
+        )
+    return {
+        "format": "fastq",
+        "records": records,
+        "valid": True,
+        "min_sequence_length": min_sequence_length,
+        "max_sequence_length": max_sequence_length,
+        "sequence_length_counts": sequence_length_counts,
+    }
 
 
 def _fastq_records_from_handle(handle, path: Path):
@@ -597,6 +711,9 @@ def inspect_and_normalize_fastq(
         numeric_bitmap = bytearray((numeric_id_max + 8) // 8)
     raw_digest = hashlib.sha256()
     records = 0
+    min_sequence_length: int | None = None
+    max_sequence_length: int | None = None
+    sequence_length_counts: dict[int, int] = {}
 
     with tempfile.TemporaryDirectory(
         prefix="seqproc-normalize-",
@@ -628,6 +745,20 @@ def inspect_and_normalize_fastq(
             try:
                 for lines in _fastq_records_from_handle(stream, path):
                     records += 1
+                    sequence_length = len(lines[1].rstrip(b"\r\n"))
+                    min_sequence_length = (
+                        sequence_length
+                        if min_sequence_length is None
+                        else min(min_sequence_length, sequence_length)
+                    )
+                    max_sequence_length = (
+                        sequence_length
+                        if max_sequence_length is None
+                        else max(max_sequence_length, sequence_length)
+                    )
+                    sequence_length_counts[sequence_length] = (
+                        sequence_length_counts.get(sequence_length, 0) + 1
+                    )
                     if encoder is not None:
                         encoded = encoder(lines, mate)
                         buffered.append(encoded)
@@ -674,6 +805,9 @@ def inspect_and_normalize_fastq(
             "records": records,
             "valid": True,
             "sha256": raw_digest.hexdigest(),
+            "min_sequence_length": min_sequence_length,
+            "max_sequence_length": max_sequence_length,
+            "sequence_length_counts": sequence_length_counts,
         }
         if encoder is not None:
             normalized_digest = hashlib.sha256()
@@ -742,6 +876,16 @@ def _inspect_with_numeric_auditor(
         try:
             payload = json.loads(process.stdout)
             records = int(payload["records"])
+            min_sequence_length = payload.get("min_sequence_length")
+            max_sequence_length = payload.get("max_sequence_length")
+            if min_sequence_length is not None:
+                min_sequence_length = int(min_sequence_length)
+            if max_sequence_length is not None:
+                max_sequence_length = int(max_sequence_length)
+            sequence_length_counts = {
+                int(length): int(count)
+                for length, count in payload.get("sequence_length_counts", {}).items()
+            }
         except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
             raise HarnessError(
                 f"numeric FASTQ auditor returned invalid JSON for {path}: "
@@ -751,6 +895,9 @@ def _inspect_with_numeric_auditor(
             "format": "fastq",
             "records": records,
             "valid": True,
+            "min_sequence_length": min_sequence_length,
+            "max_sequence_length": max_sequence_length,
+            "sequence_length_counts": sequence_length_counts,
             "sha256": raw_digest,
             "normalized_sha256": sha256_file(canonical_path),
             "validator": "fastq-numeric-audit-v1",
@@ -824,6 +971,9 @@ def prepare_spec(spec: Mapping[str, Any]) -> dict[str, Any]:
         "name": str(spec.get("name", "benchmark")),
         "command_template": list(spec["command"]),
         "cwd": str(cwd),
+        "execution_cwd_template": str(spec.get("execution_cwd", cwd)),
+        "create_execution_cwd": bool(spec.get("create_execution_cwd", False)),
+        "runtime_symlinks": list(spec.get("runtime_symlinks", [])),
         "binary": binary,
         "executables": executables,
         "inputs": inputs,
@@ -850,6 +1000,9 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
     run_root = output_root.resolve() / run_id
     attempt, run_dir = _next_attempt(run_root)
     command = _substitute_run_dir(spec["command"], run_dir)
+    execution_cwd = _prepare_runtime_layout(
+        spec, prepared["cwd"], run_dir
+    )
     outputs = _prepare_outputs(
         spec.get("outputs", []),
         prepared["cwd"],
@@ -874,7 +1027,7 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
 
     command_record = {
         "argv": command,
-        "cwd": str(prepared["cwd"]),
+        "cwd": str(execution_cwd),
         "environment": prepared["identity"]["environment"],
     }
     (run_dir / "command.json").write_text(
@@ -902,7 +1055,7 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
     with stdout_path.open("wb") as stdout_handle, stderr_path.open("wb") as stderr_handle:
         process = subprocess.Popen(
             timed_command,
-            cwd=prepared["cwd"],
+            cwd=execution_cwd,
             env=prepared["execution_env"],
             stdout=stdout_handle,
             stderr=stderr_handle,
@@ -996,6 +1149,44 @@ def execute_spec(spec: Mapping[str, Any], output_root: Path) -> tuple[dict[str, 
                     record["mate"] = declaration["mate"]
                     if declaration["numeric_id_max"] is not None:
                         record["numeric_id_max"] = declaration["numeric_id_max"]
+                observed_min = counts.get("min_sequence_length")
+                observed_max = counts.get("max_sequence_length")
+                expected_min = declaration["min_sequence_length"]
+                expected_max = declaration["max_sequence_length"]
+                if (
+                    expected_min is not None
+                    and (observed_min is None or observed_min < expected_min)
+                ):
+                    invalid_outputs.append(
+                        f"{path}: minimum sequence length {observed_min} is below {expected_min}"
+                    )
+                if (
+                    expected_max is not None
+                    and (observed_max is None or observed_max > expected_max)
+                ):
+                    invalid_outputs.append(
+                        f"{path}: maximum sequence length {observed_max} exceeds {expected_max}"
+                    )
+                nominal_lengths = set(declaration["nominal_sequence_lengths"])
+                length_counts = counts.get("sequence_length_counts", {})
+                non_nominal_records = (
+                    sum(
+                        int(count)
+                        for length, count in length_counts.items()
+                        if int(length) not in nominal_lengths
+                    )
+                    if nominal_lengths
+                    else 0
+                )
+                counts["nominal_sequence_lengths"] = sorted(nominal_lengths)
+                counts["non_nominal_sequence_records"] = non_nominal_records
+                if (
+                    declaration["enforce_sequence_lengths"]
+                    and non_nominal_records > 0
+                ):
+                    invalid_outputs.append(
+                        f"{path}: {non_nominal_records} records have non-nominal sequence lengths"
+                    )
                 indexed_output_counts[output_index] = {"path": str(path), **counts}
             except (OSError, EOFError, HarnessError) as error:
                 # Preserve the raw output identity even when structural
