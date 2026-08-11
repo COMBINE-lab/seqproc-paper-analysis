@@ -47,8 +47,10 @@ PRIMARY_OUTPUT_LENGTHS = {
     },
     "scirnaseq3": {
         "seqproc": {1: (30, 30), 2: (56, 56)},
-        "matchbox": {1: (27, 28), 2: (56, 56)},
-        "splitcode": {2: (56, 56)},
+        # Fuzzy anchor matching can absorb up to two bases into matchbox's
+        # projected BC1 segment.  This is a best-practical semantic difference,
+        # not malformed FASTQ, so audit the full observed range.
+        "matchbox": {1: (27, 30), 2: (56, 56)},
     },
 }
 SPLITCODE_EXTRACTION_LENGTHS = {
@@ -686,6 +688,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                                 (
                                     f"{{run_dir}}/R{index + 1}.fastq"
                                     if measurement_track == "correctness"
+                                    and not dataset.get("splitcode_no_outb")
                                     and (
                                         not selected_outputs
                                         or index in selected_outputs
@@ -706,6 +709,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                             if (
                                 measurement_track == "correctness"
                                 and not dataset.get("splitcode_x_only")
+                                and not dataset.get("splitcode_no_outb")
                             ):
                                 outputs.extend(
                                     {

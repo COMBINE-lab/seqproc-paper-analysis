@@ -31,6 +31,7 @@ def test_publication_campaign_defaults_and_lr_roles():
     assert datasets["tenx_v2"]["splitcode_extract_outputs"] == ()
     assert datasets["splitseq_pe"]["splitcode_select"] == (0,)
     assert datasets["scirnaseq3"]["splitcode_select"] == (1,)
+    assert datasets["scirnaseq3"]["splitcode_no_outb"] is True
 
 
 def test_approximate_match_products_report_non_nominal_lengths_as_validity():
@@ -40,6 +41,11 @@ def test_approximate_match_products_report_non_nominal_lengths_as_validity():
     assert sequence_length_contract("splitseq_pe", "matchbox", 2) == {
         "nominal_sequence_lengths": [30],
         "enforce_sequence_lengths": False,
+    }
+    assert sequence_length_contract("scirnaseq3", "matchbox", 1) == {
+        "min_sequence_length": 27,
+        "max_sequence_length": 30,
+        "nominal_sequence_lengths": [27, 28, 29, 30],
     }
     for dataset in ("lr_splitseq_dual", "lr_splitseq_forward"):
         for tool in ("seqproc", "matchbox"):
