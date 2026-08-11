@@ -1,5 +1,12 @@
 # seqproc Paper Analysis
 
+> **Revised aligned campaigns (2026-08-10--11).** The revised manuscript uses
+> the frozen [`performance`](publication_results/performance_2026-08-10/README.md)
+> campaign and fresh one-run, 32-thread
+> [`validity`](publication_results/validity_2026-08-11/README.md) results.
+> The older `results_final` artifacts and numerical examples below document the
+> original preprint analysis and must not be used to rebuild the revised tables.
+
 The full source repository housing the code used for the seqproc paper. Every number, table cell,
 and figure in the paper is produced by a script in this repository, applied to
 the publicly available SRA datasets listed below.
@@ -54,9 +61,8 @@ The methodology in detail:
 | sci-RNA-seq3 | Valid Recovery | Validated reads in tool output | Total input reads |
 
 `V_total` is the read-ID set the *independent* structural-validity script
-accepts when run on the raw input FASTQ — i.e., the strict ground-truth set
-of recoverable reads, defined entirely by the data and the validator's
-criteria (exact `str.find` linker scan + Hamming ≤ 1 whitelist match).
+accepts when run on the raw input FASTQ. It is a conservative structural
+reference defined by the validator's criteria, not experimental ground truth.
 A tool's Recovery is its recall against that set.
 
 For more on why LR-SPLiT-seq requires the V_total framing (the three tools

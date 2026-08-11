@@ -1,6 +1,16 @@
 # Paper data → source-code traceability
 
-Every table cell, figure quantity, and prose number in the seqproc paper, mapped to the script that generates it, the exact command, and the output file. Built by 10 tracer agents reading `/home/ubuntu/paper` against this repo, then reconciled by hand.
+> **Revision notice (2026-08-11):** this document traces the original preprint
+> and therefore contains stale benchmark and validity values. The revised,
+> qualitatively aligned campaigns are archived under
+> [`publication_results/`](publication_results/): the
+> [`performance`](publication_results/performance_2026-08-10/README.md) bundle
+> contains replicate-level timing/RSS data, and the
+> [`validity`](publication_results/validity_2026-08-11/README.md) bundle contains
+> the one-run 32-thread outputs, reference provenance, and set metrics.
+> Do not use the old values below to rebuild the revised manuscript tables.
+
+Every table cell, figure quantity, and prose number in the original seqproc preprint, mapped to the script that generates it, the exact command, and the output file. Built by 10 tracer agents reading `/home/ubuntu/paper` against this repo, then reconciled by hand.
 
 **How to read:** each section is one paper artifact, with a **Regenerate** command block and a table. The last column is `✅` (reproducible from this repo) or `🔴 NOT REPRODUCIBLE` (needs an external input — flagged below). Values are as they appear in the current preprint (`sections/*.tex`, `seqproc.tex`).
 

@@ -1,0 +1,5 @@
+dataset,union_records,all_three_records,all_three_fraction_of_union,seqproc_splitcode_records,seqproc_splitcode_fraction_of_union,seqproc_matchbox_records,seqproc_matchbox_fraction_of_union,splitcode_matchbox_records,splitcode_matchbox_fraction_of_union,seqproc_only_records,seqproc_only_fraction_of_union,splitcode_only_records,splitcode_only_fraction_of_union,matchbox_only_records,matchbox_only_fraction_of_union,splitcode_exclusive_valid_records,splitcode_exclusive_invalid_fraction
+splitseq_pe,62388942,50082800,0.8027512311396465,4530734,0.07262078590786168,3479365,0.05576893738637209,916225,0.014685695423397307,635638,0.010188311896681948,770997,0.012357911118287596,1973183,0.03162712712775286,319225,0.5859581814196424
+lr_splitseq_dual,2866758,1820424,0.6350113961485413,100744,0.03514213616914996,678549,0.2366955983030308,17,5.930043624191508e-06,266166,0.09284564654567982,837,0.0002919674419675466,21,7.325348006354216e-06,1,0.998805256869773
+tenx_v2,234382218,234382218,1.0,0,0.0,0,0.0,0,0.0,0,0.0,0,0.0,0,0.0,0,1.0
+scirnaseq3,19980569,19695955,0.9857554607178605,0,0.0,183940,0.009205944034927133,0,0.0,0,0.0,0,0.0,100674,0.005038595247212429,0,1.0

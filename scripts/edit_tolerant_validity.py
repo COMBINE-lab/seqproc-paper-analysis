@@ -9,8 +9,9 @@ positions relative to the located linkers, are each required within Hamming
 distance 1 of their whitelist. Because it locates the linker instead of
 assuming a fixed offset, it credits reads whose linker carries an indel (the
 recoveries seqproc/matchbox are built for) while still failing reads that lack
-a linker entirely (splitcode's over-emission). It is therefore an unbiased
-precision reference.
+a linker entirely. It is therefore a conservative structural reference, not
+experimental ground truth; precision against it should be interpreted with its
+coverage and protocol-specific criteria in view.
 
 Precision for a tool = |emitted_ids & valid_ids| / |emitted_ids|.
 
