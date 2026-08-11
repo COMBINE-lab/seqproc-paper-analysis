@@ -23,10 +23,14 @@ campaign.
 
 - `validity_metrics.{json,csv}`: emitted records and precision, recall, and F1
   against each protocol's conservative structural reference.
+- `lr_forward_yield.csv`: materialized-output yield for the controlled
+  forward-only LR-SPLiT-seq supplementary runs. Primary validity uses the
+  capability-complete dual-orientation comparison.
 - `pairwise_metrics.csv`: pairwise emitted-read set overlaps and Jaccard values.
 - `venn_metrics.csv`: mutually exclusive three-tool overlap regions.
 - `vtotal_provenance.json`: exact reference-building commands and checksums.
 - `summarize_validity.py`: exact aggregation script used for these results.
+- `execution-log.jsonl`: execution status for all 15 scheduled conditions.
 
 The original frozen campaign completed all 15 tool conditions with exit code
 zero. Two sci-RNA-seq3 conditions were nevertheless marked failed by incorrect
