@@ -1,28 +1,26 @@
 #!/usr/bin/env python3
-"""Edit-tolerant genuine-barcode validity for the Valid/precision column.
+"""Build a conservative, edit-tolerant SPLiT-seq structural reference.
 
-Builds the set of read IDs that genuinely carry the SPLiT-seq PE barcode
-structure while ALLOWING indels, unlike the strict V_total (fixed offset,
-Hamming linker). Linker1 and Linker2 are each located by edlib infix search
-within edit distance <= --max-linker-edit, and the three barcodes, read at
-positions relative to the located linkers, are each required within Hamming
-distance 1 of their whitelist. Because it locates the linker instead of
-assuming a fixed offset, it credits reads whose linker carries an indel (the
-recoveries seqproc/matchbox are built for) while still failing reads that lack
-a linker entirely. It is therefore a conservative structural reference, not
-experimental ground truth; precision against it should be interpreted with its
-coverage and protocol-specific criteria in view.
-
-Precision for a tool = |emitted_ids & valid_ids| / |emitted_ids|.
+Distinct plausible Linker1 placements are enumerated rather than accepting the
+first globally best hit. A placement is valid only when the complete 10-nt UMI
+and 8-nt BC3 precede Linker1, a complete 8-nt BC2 separates the linkers,
+Linker2 begins at the expected post-BC2 offset, and the complete 6-nt BC1
+follows Linker2. The three barcodes must each be within Hamming distance 1 of
+their whitelist. This is a conservative structural reference, not experimental
+ground truth.
 
 Usage:
-  edit_tolerant_validity.py R2.fastq --out valid_ids.txt [--sample N] [--max-linker-edit 6]
+  edit_tolerant_validity.py R2.fastq --out valid_ids.txt [--chem pe|lr]
 """
-import sys, os, argparse, json
+
+import argparse
+import json
+import os
+from collections import Counter
+
 import edlib
 
-# Linker sequences per chemistry. PE and LR-SPLiT-seq differ (LR L1 has an A at
-# position 8; LR L2 is the shorter 22 bp variant).
+
 LINKERS = {
     "pe": ("GTGGCCGCTGTTTCGCATCGGCGTACGACT", "ATCCACGTGCTTGAGAGGCCAGAGCATTCG"),
     "lr": ("GTGGCCGATGTTTCGCATCGGCGTACGACT", "ATCCACGTGCTTGAGACTGTGG"),
@@ -30,88 +28,263 @@ LINKERS = {
 _COMP = str.maketrans("ACGTNacgtn", "TGCANtgcan")
 
 
-def revcomp(s):
-    return s.translate(_COMP)[::-1]
+def revcomp(seq):
+    return seq.translate(_COMP)[::-1]
 
 
 def ham1_set(path):
-    bcs = [l.strip() for l in open(path) if l.strip()]
-    s = set(bcs)
-    for b in bcs:
-        for i in range(len(b)):
-            for c in "ACGT":
-                if c != b[i]:
-                    s.add(b[:i] + c + b[i + 1:])
-    return s, (len(bcs[0]) if bcs else 0)
+    barcodes = [line.strip() for line in open(path) if line.strip()]
+    expanded = set(barcodes)
+    for barcode in barcodes:
+        for index in range(len(barcode)):
+            for base in "ACGT":
+                if base != barcode[index]:
+                    expanded.add(barcode[:index] + base + barcode[index + 1:])
+    return expanded, (len(barcodes[0]) if barcodes else 0)
 
 
-def find(query, target, max_edit):
-    r = edlib.align(query, target, mode="HW", task="locations")
-    if r["editDistance"] < 0 or r["editDistance"] > max_edit or not r["locations"]:
-        return None
-    return r["locations"][0]                       # (start, end) inclusive, best match
+def find_linker_candidates(query, target, max_edit, max_candidates=8):
+    """Enumerate distinct non-overlapping linker placements within max_edit.
+
+    Edlib reports only globally optimal locations. After recording a hit, this
+    searches the sequence on each side of it, allowing a slightly worse genuine
+    cassette to be considered when a better decoy linker occurs elsewhere.
+    """
+    minimum_span = max(1, len(query) - max_edit)
+    pending = [(0, len(target))]
+    candidates = []
+    while pending and len(candidates) < max_candidates:
+        begin, end = pending.pop()
+        if end - begin < minimum_span:
+            continue
+        result = edlib.align(
+            query,
+            target[begin:end],
+            mode="HW",
+            task="locations",
+            k=max_edit,
+        )
+        if result["editDistance"] < 0 or not result["locations"]:
+            continue
+        start, stop = result["locations"][0]
+        start += begin
+        stop += begin
+        candidates.append((result["editDistance"], start, stop))
+        if start - begin >= minimum_span:
+            pending.append((begin, start))
+        if end - (stop + 1) >= minimum_span:
+            pending.append((stop + 1, end))
+    return sorted(set(candidates))
 
 
-def genuine(seq, L1, L2, bc23, bc1s, n23, n1, max_edit):
-    """True if seq carries linker1 -> bc2 -> linker2 -> bc1 with a whitelist-valid
-    bc3 (before L1), bc2 (after L1) and bc1 (after L2), linkers within edit<=max_edit."""
-    l1 = find(L1, seq, max_edit)
-    if not l1:
-        return False
-    s1, e1 = l1
-    bc3 = seq[s1 - n23:s1]
-    bc2 = seq[e1 + 1:e1 + 1 + n23]
-    if len(bc3) != n23 or len(bc2) != n23 or bc3 not in bc23 or bc2 not in bc23:
-        return False
-    l2 = find(L2, seq[e1 + 1:], max_edit)
-    if not l2:
-        return False
-    e2 = l2[1] + e1 + 1
-    bc1 = seq[e2 + 1:e2 + 1 + n1]
-    return len(bc1) == n1 and bc1 in bc1s
+def prefix_linker_matches(query, target, max_edit):
+    """Return optimal linker matches constrained to target offset zero."""
+    window = target[:len(query) + max_edit]
+    if len(window) < len(query) - max_edit:
+        return []
+    result = edlib.align(query, window, mode="SHW", task="locations", k=max_edit)
+    if result["editDistance"] < 0:
+        return []
+    return [
+        (result["editDistance"], start, stop)
+        for start, stop in result["locations"]
+        if start == 0
+    ]
+
+
+def validate_orientation(
+    seq,
+    linker1,
+    linker2,
+    bc23_whitelist,
+    bc1_whitelist,
+    bc23_length,
+    bc1_length,
+    max_linker1_edit,
+    max_linker2_edit,
+    umi_length=10,
+    max_candidates=8,
+):
+    """Validate one orientation and return a reason-coded result."""
+    candidates = find_linker_candidates(
+        linker1, seq, max_linker1_edit, max_candidates
+    )
+    if not candidates:
+        return {"accepted": False, "reason": "no_linker1"}
+
+    furthest_reason = "incomplete_umi_bc3_prefix"
+    for linker1_edit, linker1_start, linker1_stop in candidates:
+        if linker1_start < umi_length + bc23_length:
+            continue
+        bc3 = seq[linker1_start - bc23_length:linker1_start]
+        if bc3 not in bc23_whitelist:
+            furthest_reason = "invalid_bc3"
+            continue
+
+        bc2_start = linker1_stop + 1
+        bc2_stop = bc2_start + bc23_length
+        bc2 = seq[bc2_start:bc2_stop]
+        if len(bc2) != bc23_length:
+            furthest_reason = "incomplete_bc2"
+            continue
+        if bc2 not in bc23_whitelist:
+            furthest_reason = "invalid_bc2"
+            continue
+
+        linker2_matches = prefix_linker_matches(
+            linker2, seq[bc2_stop:], max_linker2_edit
+        )
+        if not linker2_matches:
+            furthest_reason = "no_linker2_at_expected_offset"
+            continue
+        for linker2_edit, _, linker2_stop in linker2_matches:
+            bc1_start = bc2_stop + linker2_stop + 1
+            bc1 = seq[bc1_start:bc1_start + bc1_length]
+            if len(bc1) != bc1_length:
+                furthest_reason = "incomplete_bc1"
+                continue
+            if bc1 not in bc1_whitelist:
+                furthest_reason = "invalid_bc1"
+                continue
+            return {
+                "accepted": True,
+                "reason": "accepted",
+                "linker1_edit": linker1_edit,
+                "linker2_edit": linker2_edit,
+                "linker1_start": linker1_start,
+            }
+    return {"accepted": False, "reason": furthest_reason}
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("fastq")
-    ap.add_argument("--chem", choices=["pe", "lr"], default="pe",
-                    help="pe: check forward only. lr: check both orientations (PacBio).")
-    ap.add_argument("--out", default=None)
-    ap.add_argument("--sample", type=int, default=0)
-    ap.add_argument("--max-linker-edit", type=int, default=6)
-    a = ap.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("fastq")
+    parser.add_argument(
+        "--chem",
+        choices=["pe", "lr"],
+        default="pe",
+        help="pe: check forward only; lr: check both orientations",
+    )
+    parser.add_argument("--out", default=None)
+    parser.add_argument("--summary-json", default=None)
+    parser.add_argument("--sample", type=int, default=0)
+    parser.add_argument(
+        "--max-linker-edit",
+        type=int,
+        default=6,
+        help="backward-compatible default applied to both linkers",
+    )
+    parser.add_argument("--max-linker1-edit", type=int, default=None)
+    parser.add_argument("--max-linker2-edit", type=int, default=None)
+    parser.add_argument("--max-linker1-candidates", type=int, default=8)
+    args = parser.parse_args()
 
-    L1, L2 = LINKERS[a.chem]
-    wl = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "configs", "seqproc")
-    bc23, n23 = ham1_set(os.path.join(wl, "splitseq_bc23_whitelist.txt"))
-    # bc1 (round-1) cell identity is 6bp for PE and LR alike; on LR it is followed by a
-    # constant "GA" spacer that carries no identity, so we validate the 6bp barcode.
-    bc1s, n1 = ham1_set(os.path.join(wl, "splitseq_bc1_whitelist_6bp.txt"))
+    linker1, linker2 = LINKERS[args.chem]
+    whitelist_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "configs", "seqproc"
+    )
+    bc23_whitelist, bc23_length = ham1_set(
+        os.path.join(whitelist_dir, "splitseq_bc23_whitelist.txt")
+    )
+    bc1_whitelist, bc1_length = ham1_set(
+        os.path.join(whitelist_dir, "splitseq_bc1_whitelist_6bp.txt")
+    )
+    max_linker1_edit = (
+        args.max_linker1_edit
+        if args.max_linker1_edit is not None
+        else args.max_linker_edit
+    )
+    max_linker2_edit = (
+        args.max_linker2_edit
+        if args.max_linker2_edit is not None
+        else args.max_linker_edit
+    )
 
-    valid, total = set(), 0
-    with open(a.fastq) as f:
+    valid = set()
+    total = 0
+    reasons = Counter()
+    forward_failure_reasons = Counter()
+    orientations = Counter()
+    linker1_distances = Counter()
+    linker2_distances = Counter()
+    with open(args.fastq) as fastq:
         while True:
-            h = f.readline()
-            if not h:
+            header = fastq.readline()
+            if not header:
                 break
-            seq = f.readline().strip(); f.readline(); f.readline()
-            if a.sample and total >= a.sample:
+            seq = fastq.readline().strip()
+            fastq.readline()
+            fastq.readline()
+            if args.sample and total >= args.sample:
                 break
             total += 1
-            rid = h[1:].split()[0]
-            ok = genuine(seq, L1, L2, bc23, bc1s, n23, n1, a.max_linker_edit)
-            if not ok and a.chem == "lr":
-                ok = genuine(revcomp(seq), L1, L2, bc23, bc1s, n23, n1, a.max_linker_edit)
-            if ok:
-                valid.add(rid)
+            read_id = header[1:].split()[0]
+            result = validate_orientation(
+                seq,
+                linker1,
+                linker2,
+                bc23_whitelist,
+                bc1_whitelist,
+                bc23_length,
+                bc1_length,
+                max_linker1_edit,
+                max_linker2_edit,
+                max_candidates=args.max_linker1_candidates,
+            )
+            orientation = "forward"
+            if not result["accepted"] and args.chem == "lr":
+                forward_failure_reasons[result["reason"]] += 1
+                result = validate_orientation(
+                    revcomp(seq),
+                    linker1,
+                    linker2,
+                    bc23_whitelist,
+                    bc1_whitelist,
+                    bc23_length,
+                    bc1_length,
+                    max_linker1_edit,
+                    max_linker2_edit,
+                    max_candidates=args.max_linker1_candidates,
+                )
+                orientation = "reverse"
+            reasons[result["reason"]] += 1
+            if result["accepted"]:
+                valid.add(read_id)
+                orientations[orientation] += 1
+                linker1_distances[result["linker1_edit"]] += 1
+                linker2_distances[result["linker2_edit"]] += 1
 
-    print(json.dumps({"fastq": os.path.basename(a.fastq), "chem": a.chem, "total": total,
-                      "valid": len(valid),
-                      "pct_of_scanned": round(100 * len(valid) / total, 2) if total else 0.0}))
-    if a.out:
-        with open(a.out, "w") as o:
-            o.write("\n".join(sorted(valid)))
-        print("wrote", a.out)
+    summary = {
+        "schema_version": "2.0.0",
+        "fastq": os.path.basename(args.fastq),
+        "chem": args.chem,
+        "total": total,
+        "valid": len(valid),
+        "pct_of_scanned": round(100 * len(valid) / total, 2) if total else 0.0,
+        "criteria": {
+            "umi_length": 10,
+            "bc23_length": bc23_length,
+            "bc1_length": bc1_length,
+            "max_linker1_edit": max_linker1_edit,
+            "max_linker2_edit": max_linker2_edit,
+            "max_linker1_candidates": args.max_linker1_candidates,
+            "linker2_expected_immediately_after_bc2": True,
+        },
+        "accepted_orientation": dict(sorted(orientations.items())),
+        "linker1_edit_histogram": dict(sorted(linker1_distances.items())),
+        "linker2_edit_histogram": dict(sorted(linker2_distances.items())),
+        "outcome_counts": dict(sorted(reasons.items())),
+        "forward_failure_counts": dict(sorted(forward_failure_reasons.items())),
+    }
+    print(json.dumps(summary, sort_keys=True))
+    if args.summary_json:
+        with open(args.summary_json, "w") as output:
+            json.dump(summary, output, indent=2, sort_keys=True)
+            output.write("\n")
+    if args.out:
+        with open(args.out, "w") as output:
+            output.write("\n".join(sorted(valid)))
+        print("wrote", args.out)
 
 
 if __name__ == "__main__":
