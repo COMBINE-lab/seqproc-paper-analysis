@@ -1,0 +1,24 @@
+# Aug. 11 LR-SPLiT-seq Hamming-expansion diagnostic.
+#
+# All unique Hamming-distance-one barcode variants are supplied explicitly and
+# matched exactly, avoiding matchbox's approximate-barcode positional sliding.
+# Linkers retain the seqproc 5/4 edit budgets. This isolates whether alternate
+# approximate-linker endpoints remain a limiting factor.
+
+linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGACTGTGG
+rev_linker1 = -linker1
+rev_linker2 = -linker2
+bcs1 = csv('configs/diagnostics/aug11_lr_splitseq_bc1_ham1.csv')
+bcs23 = csv('configs/diagnostics/aug11_lr_splitseq_bc23_ham1.csv')
+
+if read matches {
+    [_ umi:|10| bc3_hit:bc3.round_23~0.0 linker1~0.17 bc2_hit:bc2.round_23~0.0 linker2~0.19 bc1_hit:bc1.barcode~0.0 _]
+        for bc1 in bcs1, bc2 in bcs23, bc3 in bcs23 => {
+            (umi.concat(bc3_hit)).concat(bc2_hit.concat(bc1_hit)).out!('mb_r1.fq')
+        }
+    [_ bc1_hit:-bc1.barcode~0.0 rev_linker2~0.19 bc2_hit:-bc2.round_23~0.0 rev_linker1~0.17 bc3_hit:-bc3.round_23~0.0 umi:|10| _]
+        for bc1 in bcs1, bc2 in bcs23, bc3 in bcs23 => {
+            (-((bc1_hit.concat(bc2_hit)).concat(bc3_hit.concat(umi)))).out!('mb_r1.fq')
+        }
+}

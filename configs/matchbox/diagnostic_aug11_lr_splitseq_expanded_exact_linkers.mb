@@ -1,0 +1,23 @@
+# Aug. 11 LR-SPLiT-seq Hamming-expansion exact-linker control.
+#
+# Expanded barcode variants and linkers are all exact. Comparison with the
+# 5/4-edit diagnostic isolates the effect of approximate-linker endpoint
+# selection from the benefit of explicit Hamming expansion.
+
+linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGACTGTGG
+rev_linker1 = -linker1
+rev_linker2 = -linker2
+bcs1 = csv('configs/diagnostics/aug11_lr_splitseq_bc1_ham1.csv')
+bcs23 = csv('configs/diagnostics/aug11_lr_splitseq_bc23_ham1.csv')
+
+if read matches {
+    [_ umi:|10| bc3_hit:bc3.round_23~0.0 linker1~0.0 bc2_hit:bc2.round_23~0.0 linker2~0.0 bc1_hit:bc1.barcode~0.0 _]
+        for bc1 in bcs1, bc2 in bcs23, bc3 in bcs23 => {
+            (umi.concat(bc3_hit)).concat(bc2_hit.concat(bc1_hit)).out!('mb_r1.fq')
+        }
+    [_ bc1_hit:-bc1.barcode~0.0 rev_linker2~0.0 bc2_hit:-bc2.round_23~0.0 rev_linker1~0.0 bc3_hit:-bc3.round_23~0.0 umi:|10| _]
+        for bc1 in bcs1, bc2 in bcs23, bc3 in bcs23 => {
+            (-((bc1_hit.concat(bc2_hit)).concat(bc3_hit.concat(umi)))).out!('mb_r1.fq')
+        }
+}

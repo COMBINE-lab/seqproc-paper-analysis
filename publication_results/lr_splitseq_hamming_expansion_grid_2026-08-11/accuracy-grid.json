@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0.0",
+  "input_records": 5764421,
+  "reference": {
+    "path": "/scratch1/seqproc-ecosystem/publication-validity-2026-08-11-aligned-optimized/aggregates/validity/bitmaps/reference.step2_validator_v2.vtotal.ids.txt.bitmap.raw",
+    "records": 588233,
+    "interpretation": "conservative structural reference, not biological ground truth"
+  },
+  "tools": {
+    "seqproc": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/lr-splitseq-putative-aug11-accuracy/seqproc/R1.bitmap"
+      ],
+      "emitted_records": 553840,
+      "intersection_records": 553840,
+      "emitted_fraction": 0.09607903378327155,
+      "precision": 1.0,
+      "recall": 0.9415316719735207,
+      "f1": 0.9698854626630697
+    },
+    "matchbox_expanded_e5_e4": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/lr-splitseq-hamming-expansion-grid-2026-08-11/matchbox-e5-e4/R1.bitmap"
+      ],
+      "emitted_records": 695373,
+      "intersection_records": 299573,
+      "emitted_fraction": 0.12063189000248246,
+      "precision": 0.43080907656754003,
+      "recall": 0.5092760861767361,
+      "f1": 0.46676783997581817
+    },
+    "matchbox_expanded_exact_linkers": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/lr-splitseq-hamming-expansion-grid-2026-08-11/matchbox-exact-linkers/R1.bitmap"
+      ],
+      "emitted_records": 406257,
+      "intersection_records": 406257,
+      "emitted_fraction": 0.07047663590150685,
+      "precision": 1.0,
+      "recall": 0.6906395934944146,
+      "f1": 0.8170157568200787
+    },
+    "splitcode_expanded_exact": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/lr-splitseq-hamming-expansion-grid-2026-08-11/splitcode-expanded/splitcode-forward-work/prefix.bitmap",
+        "/scratch1/seqproc-ecosystem/lr-splitseq-hamming-expansion-grid-2026-08-11/splitcode-expanded/splitcode-reverse-work/prefix.bitmap"
+      ],
+      "emitted_records": 309601,
+      "intersection_records": 308423,
+      "emitted_fraction": 0.05370895012699454,
+      "precision": 0.9961951027289964,
+      "recall": 0.524321144852465,
+      "f1": 0.6870379156948835
+    }
+  },
+  "pairwise": {
+    "seqproc__matchbox_expanded_e5_e4": {
+      "intersection_records": 291274,
+      "union_records": 957939,
+      "jaccard": 0.3040632023542209,
+      "seqproc_only": 262566,
+      "matchbox_expanded_e5_e4_only": 404099
+    },
+    "seqproc__matchbox_expanded_exact_linkers": {
+      "intersection_records": 405850,
+      "union_records": 554247,
+      "jaccard": 0.7322547528448508,
+      "seqproc_only": 147990,
+      "matchbox_expanded_exact_linkers_only": 407
+    },
+    "seqproc__splitcode_expanded_exact": {
+      "intersection_records": 307018,
+      "union_records": 556423,
+      "jaccard": 0.5517708649714336,
+      "seqproc_only": 246822,
+      "splitcode_expanded_exact_only": 2583
+    },
+    "matchbox_expanded_e5_e4__matchbox_expanded_exact_linkers": {
+      "intersection_records": 228235,
+      "union_records": 873395,
+      "jaccard": 0.26131933432181315,
+      "matchbox_expanded_e5_e4_only": 467138,
+      "matchbox_expanded_exact_linkers_only": 178022
+    },
+    "matchbox_expanded_e5_e4__splitcode_expanded_exact": {
+      "intersection_records": 164302,
+      "union_records": 840672,
+      "jaccard": 0.19544126603479123,
+      "matchbox_expanded_e5_e4_only": 531071,
+      "splitcode_expanded_exact_only": 145299
+    },
+    "matchbox_expanded_exact_linkers__splitcode_expanded_exact": {
+      "intersection_records": 276592,
+      "union_records": 439266,
+      "jaccard": 0.6296685835006579,
+      "matchbox_expanded_exact_linkers_only": 129665,
+      "splitcode_expanded_exact_only": 33009
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "schema_version": "1.0.0",
+  "label": "LR-SPLiT-seq Hamming-expansion diagnostic grid (Aug 11)",
+  "date": "2026-08-11",
+  "status": "diagnostic sensitivity analysis; not a proposed user-facing workflow",
+  "raw_campaign_root": "/scratch1/seqproc-ecosystem/lr-splitseq-hamming-expansion-grid-2026-08-11",
+  "dataset": {
+    "accession": "SRR13948564",
+    "input_records": 5764421,
+    "forward_fastq_sha256": "d01a11f85ee7bd4fac4ea7061cce89df11f2fc343ad59468aa73565f5144e834",
+    "reverse_complement_fastq_sha256": "ab625d3cb7eb57a8cdd4e4381478726e1a3bf8d86635c13f28167e72d6eabcca"
+  },
+  "reference": {
+    "records": 588233,
+    "sha256": "01a81b7411729a713a7acea2970390e5b12e9a58af20fde4fc74010c09dce2a4",
+    "interpretation": "repaired conservative structural reference, not biological ground truth"
+  },
+  "execution": {
+    "threads": 32,
+    "cpu_affinity": "1-32",
+    "cpu": "AMD EPYC 9555 64-Core Processor",
+    "replicates": 1,
+    "output_policy": "materialized projected FASTQ outputs for accuracy auditing",
+    "timing_interpretation": "diagnostic single-run timings, not final performance estimates",
+    "reverse_complement_policy": "splitcode uses two sequential passes over forward and precomputed reverse-complement inputs; reverse-complement generation and duplicate reconciliation are not timed"
+  },
+  "expansion": {
+    "radius": "Hamming distance <= 1",
+    "normalization": "deduplicate expanded sequences",
+    "ambiguity_policy": "accept an expanded sequence even when it has multiple canonical owners; this is filtering, not unambiguous barcode correction",
+    "bc23": {
+      "sequence_length": 8,
+      "unique_canonical_sequences": 96,
+      "unique_expanded_sequences": 2400,
+      "ambiguous_expanded_sequences": 0,
+      "maximum_canonical_multiplicity": 1,
+      "artifact": "configs/diagnostics/aug11_lr_splitseq_bc23_ham1.csv",
+      "artifact_sha256": "4719f3b209d23417a71a0d1fe65beb816f59ef1fbdf008b3972b3fc147982982"
+    },
+    "bc1": {
+      "sequence_length": 6,
+      "unique_canonical_sequences": 96,
+      "unique_expanded_sequences": 1614,
+      "ambiguous_expanded_sequences": 206,
+      "maximum_canonical_multiplicity": 3,
+      "artifact": "configs/diagnostics/aug11_lr_splitseq_bc1_ham1.csv",
+      "artifact_sha256": "e71ac2836f993118ed14f4f475377541c9a84208df9ae2e61b02635cb69ea6eb"
+    }
+  },
+  "contextual_seqproc_result": {
+    "version": "0.1.0",
+    "commit": "edbf9efcfa69d588a42d3f1fb714742b675502eb",
+    "binary_sha256": "4bb6b322d2e85539fbd26bb678b8684e29af70fa3e5d2421988f142e80ba8b92",
+    "config": "configs/seqproc/publication_lr_splitseq_dual_complete_adjacent_whitelist_e5_e4.geom",
+    "wall_seconds": 3.90,
+    "peak_rss_mib": 108.0,
+    "emitted_records": 553840,
+    "intersection_records": 553840,
+    "precision": 1.0,
+    "recall": 0.9415316719735207,
+    "f1": 0.9698854626630697,
+    "annotation": "Native Hamming-one barcode filtering, 5/4-edit linkers, exact adjacency, and native dual orientation; shown as the target comparator, not rerun in this diagnostic grid."
+  },
+  "grid": {
+    "matchbox_expanded_e5_e4": {
+      "version": "0.3.2",
+      "commit": "76afc9941bd2bdc901a3cb5667f8785704c8c40d",
+      "binary_sha256": "992ebc5b0f447162bc5d999f51d490df3c38b7f0c1fb9b9f8e31aeda4fe6b2ec",
+      "config": "configs/matchbox/diagnostic_aug11_lr_splitseq_expanded_e5_e4.mb",
+      "config_sha256": "23c06442b50a47ce5ede7fd40fb580dbbe5084f71c3c267ef155db3a4c71a92d",
+      "wall_seconds": 4526.0,
+      "peak_rss_kib": 533064,
+      "peak_rss_mib": 520.5703125,
+      "emitted_records": 695373,
+      "intersection_records": 299573,
+      "precision": 0.43080907656754003,
+      "recall": 0.5092760861767361,
+      "f1": 0.46676783997581817,
+      "output_length_counts": {
+        "32": 457718,
+        "33": 43415,
+        "34": 32011,
+        "35": 56587,
+        "36": 94486,
+        "37": 7193,
+        "38": 998,
+        "39": 476,
+        "40": 274,
+        "41": 301,
+        "42": 231,
+        "43": 778,
+        "44": 758,
+        "45": 103,
+        "46": 7,
+        "47": 37
+      },
+      "pairwise_with_seqproc": {
+        "intersection_records": 291274,
+        "seqproc_only": 262566,
+        "matchbox_only": 404099,
+        "jaccard": 0.3040632023542209
+      },
+      "annotation": "Barcode expansion raises sensitivity, but approximate linker matches choose alternate endpoints: 237655 outputs are 33-47 nt rather than the intended 32 nt. This configuration is inaccurate and operationally impractical."
+    },
+    "matchbox_expanded_exact_linkers": {
+      "version": "0.3.2",
+      "commit": "76afc9941bd2bdc901a3cb5667f8785704c8c40d",
+      "binary_sha256": "992ebc5b0f447162bc5d999f51d490df3c38b7f0c1fb9b9f8e31aeda4fe6b2ec",
+      "config": "configs/matchbox/diagnostic_aug11_lr_splitseq_expanded_exact_linkers.mb",
+      "config_sha256": "15e487741e6d2f8f342c097eb71f7354540f530459a4668f4a2855f816d66c71",
+      "wall_seconds": 4308.0,
+      "peak_rss_kib": 444528,
+      "peak_rss_mib": 434.109375,
+      "emitted_records": 406257,
+      "intersection_records": 406257,
+      "precision": 1.0,
+      "recall": 0.6906395934944146,
+      "f1": 0.8170157568200787,
+      "output_length_counts": {
+        "32": 406257
+      },
+      "pairwise_with_seqproc": {
+        "intersection_records": 405850,
+        "seqproc_only": 147990,
+        "matchbox_only": 407,
+        "jaccard": 0.7322547528448508
+      },
+      "annotation": "This is the defensible matchbox expansion sensitivity control: exact linkers preserve cassette boundaries and precision, while explicit Hamming expansion rescues many reads. It still misses 147990 seqproc calls and costs about 72 minutes plus manual preprocessing."
+    },
+    "splitcode_expanded_exact": {
+      "version": "0.31.6",
+      "commit": "530d1fef9f5a17bd85a5ade436da7f52c0485c39",
+      "binary_sha256": "ff0df2e3bc7e8b2893ede0552b776ee543764493dbf8d9316fb6aa0ca4aa0c23",
+      "config": "configs/splitcode/diagnostic_aug11_lr_splitseq_expanded_exact.txt",
+      "config_sha256": "fe974b55f1745c62a9a20e6bbdb7347d4170a836b3cee8bdabb11c425f8f5341",
+      "wall_seconds": 6.79,
+      "summed_pass_wall_seconds": 6.779385156929493,
+      "forward_pass_wall_seconds": 3.1024075779132545,
+      "reverse_pass_wall_seconds": 3.6769775790162385,
+      "peak_rss_kib": 546308,
+      "peak_rss_mib": 533.50390625,
+      "forward_emitted_records": 157225,
+      "reverse_emitted_records": 152786,
+      "emitted_records": 309601,
+      "dual_union_records": 309601,
+      "cross_orientation_duplicate_ids": 410,
+      "intersection_records": 308423,
+      "precision": 0.9961951027289964,
+      "recall": 0.524321144852465,
+      "f1": 0.6870379156948835,
+      "component_lengths": {
+        "prefix": 18,
+        "bc2": 8,
+        "bc1": 6
+      },
+      "pairwise_with_seqproc": {
+        "intersection_records": 307018,
+        "seqproc_only": 246822,
+        "splitcode_only": 2583,
+        "jaccard": 0.5517708649714336
+      },
+      "annotation": "Forward and reverse ID bitmaps are byte-identical to splitcode's earlier native Hamming-one BC3/BC2/BC1 exact-adjacency diagnostic. Expansion therefore buys no accuracy; it only re-encodes the same candidate set."
+    }
+  },
+  "output_validation": {
+    "all_numeric_ids_unique_within_each_output": true,
+    "splitcode_component_id_sets_identical_within_each_pass": true,
+    "splitcode_expanded_exact_matches_native_hamming_bitmaps": true
+  }
+}
