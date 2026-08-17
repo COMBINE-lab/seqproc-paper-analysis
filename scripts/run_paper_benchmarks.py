@@ -31,6 +31,16 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.gridspec import GridSpec
 
+from edit_tolerant_validity import (
+    LINKERS as STRUCTURAL_LINKERS,
+    Policy as StructuralPolicy,
+    _hamming_owner_map,
+    _paired_records,
+    _read_whitelist,
+    _splitseq_result,
+    validate_scirnaseq3,
+)
+
 # ============================================================================
 # Configuration
 # ============================================================================
@@ -97,14 +107,9 @@ DATASETS = {
         'r1': PROJECT_ROOT / 'data/SRR6750041_10M_R1.fastq',
         'r2': PROJECT_ROOT / 'data/SRR6750041_10M_R2.fastq',
         'mode': 'paired',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_filter_edit.geom',
-        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_replacement.mb',
-        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_paper.config',
-        'seqproc_maps': [
-            PROJECT_ROOT / 'configs/seqproc/splitseq_bc3_seq2seq.tsv',
-            PROJECT_ROOT / 'configs/seqproc/splitseq_bc2_seq2seq.tsv',
-            PROJECT_ROOT / 'configs/seqproc/splitseq_bc1_seq2seq.tsv',
-        ],
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/publication_splitseq_pe.geom',
+        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/publication_splitseq_pe.mb',
+        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/publication_splitseq_pe.config',
         'reads': 10_000_000,
         'tools': ['seqproc', 'matchbox', 'splitcode'],
     },
@@ -118,14 +123,9 @@ DATASETS = {
         'r1': PROJECT_ROOT / 'data/SRR13948564_1M.fastq',
         'r2': None,
         'mode': 'single',
-        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/splitseq_singleend_edit_ann.geom',
-        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/splitseq_singleend_dual.mb',
-        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/splitseq_singleend.config',
-        'seqproc_maps': [
-            PROJECT_ROOT / 'configs/seqproc/splitseq_bc3_seq2seq.tsv',
-            PROJECT_ROOT / 'configs/seqproc/splitseq_bc2_seq2seq.tsv',
-            PROJECT_ROOT / 'configs/seqproc/splitseq_bc1_seq2seq.tsv',
-        ],
+        'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/publication_lr_splitseq_dual_core.geom',
+        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/publication_lr_splitseq_dual_core.mb',
+        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/publication_lr_splitseq_core.config',
         'reads': reads,
         'tools': ['seqproc', 'matchbox', 'splitcode'],
     },
@@ -138,8 +138,8 @@ DATASETS = {
         'r2': PROJECT_ROOT / 'data/10x_short/SRR8315379_1M_R2.fastq',
         'mode': 'paired', # While geom only uses R1, we provide both for consistency
         'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/10x_v2.geom',
-        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/10x_v2.mb',
-        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/10x_v2.config',
+        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/publication_10x_v2.mb',
+        'splitcode_config': PROJECT_ROOT / 'configs/splitcode/publication_10x_v2_filter.config',
         'reads': reads,
         'tools': ['seqproc', 'matchbox', 'splitcode'],
     },
@@ -153,7 +153,7 @@ DATASETS = {
         'r2': PROJECT_ROOT / 'data/SRR7827254_1M_2.fastq',
         'mode': 'paired',
         'seqproc_geom': PROJECT_ROOT / 'configs/seqproc/sciseq3_edit.geom',
-        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/sciseq3.mb',
+        'matchbox_config': PROJECT_ROOT / 'configs/matchbox/publication_sciseq3.mb',
         'splitcode_config': PROJECT_ROOT / 'configs/splitcode/sciseq3.config',
         'reads': reads,
         'tools': ['seqproc', 'matchbox', 'splitcode'],
@@ -258,282 +258,119 @@ def _save_validity_cache(fastq_path: str, analyzer_name: str, valid_ids: set):
 # ============================================================================
 
 class SplitSeqValidityAnalyzer:
-    """Analyzes SPLiT-seq reads for validity (d<=1)."""
-    
-    LINKER1 = "GTGGCCGCTGTTTCGCATCGGCGTACGACT"  # 30bp
-    LINKER2 = "ATCCACGTGCTTGAGAGGCCAGAGCATTCG"  # 30bp
+    """Compatibility wrapper around the unified PE structural validator."""
     
     def __init__(self, bc1_map, bc2_map, bc3_map):
-        self.bc1_wl = self._load_whitelist(bc1_map, truncate=6)
-        self.bc2_wl = self._load_whitelist(bc2_map)
-        self.bc3_wl = self._load_whitelist(bc3_map)
+        # Keep the historical constructor signature for analysis callers. The
+        # corrected PE definition uses the canonical full-length list below.
+        _ = (bc1_map, bc2_map, bc3_map)
         self.valid_ids = set()
         
-    def _load_whitelist(self, path, truncate=None):
-        wl = set()
-        with open(path) as f:
-            for line in f:
-                parts = line.strip().split('\t')
-                if len(parts) >= 2:
-                    seq = parts[1]
-                    if truncate and len(seq) > truncate:
-                        seq = seq[:truncate]
-                    wl.add(seq)
-        return wl
-        
-    def _hamming(self, s1, s2):
-        if len(s1) != len(s2): return 99
-        return sum(a != b for a, b in zip(s1, s2))
-    
-    def _check_wl(self, bc, wl):
-        """Check if barcode matches whitelist within Hamming distance 1."""
-        if bc in wl: return True
-        for cand in wl:
-            if self._hamming(bc, cand) <= 1: return True
-        return False
-        
-    def _find_linker(self, read, linker, start=0):
-        best_pos, best_dist = -1, 100
-        # Optimization: Only search in plausible window
-        # L1 usually around 18, L2 around 56
-        search_end = min(len(read) - len(linker) + 1, start + 40)
-        
-        for i in range(start, search_end):
-            dist = self._hamming(read[i:i+len(linker)], linker)
-            if dist < best_dist:
-                best_dist = dist
-                best_pos = i
-                if dist <= 1: break # optimization
-        return best_pos, best_dist
-        
     def analyze_fastqs(self, r1_path, r2_path):
-        """Analyze raw FASTQs and return set of valid read IDs (d<=1)."""
-        cached = _load_validity_cache(r2_path, "splitseq_pe")
+        """Return the unified PE conservative structural-reference set."""
+        cache_name = "splitseq_pe_structural_v3"
+        cached = _load_validity_cache(r2_path, cache_name)
         if cached is not None:
             self.valid_ids = cached
             return cached
 
-        print(f"    Analyzing raw input for validity (this may take a while on full data)...")
+        print("    Analyzing PE input with the v3 structural-reference definition...")
         valid_ids = set()
-        
-        # We only need R2 for validity
-        with open(r2_path, 'r') as f:
-            while True:
-                header = f.readline()
-                if not header: break
-                seq = f.readline().strip()
-                f.readline()
-                f.readline()
-                
-                read_id = header.strip().split()[0].replace('@', '')
-                
-                # Check structure
-                l1_pos, l1_dist = self._find_linker(seq, self.LINKER1, 0)
-                if l1_dist > 3: continue
-                
-                l2_pos, l2_dist = self._find_linker(seq, self.LINKER2, l1_pos + 30)
-                if l2_dist > 3: continue
-                
-                # Extract BCs
-                # NN(2) + UMI(8) + BC3(8) + L1(30) + BC2(8) + L2(30) + BC1(6) + residual(2)
-                bc3 = seq[l1_pos-8:l1_pos]
-                bc2 = seq[l1_pos+30:l1_pos+38]
-                bc1 = seq[l2_pos+30:l2_pos+36]
-                
-                if len(bc3) != 8 or len(bc2) != 8 or len(bc1) != 6:
-                    continue
+        bc8 = _read_whitelist(
+            PROJECT_ROOT / "configs/seqproc/splitseq_bc8_whitelist.txt"
+        )
+        linker1, linker2 = (item.encode() for item in STRUCTURAL_LINKERS["pe"])
+        policy = StructuralPolicy(
+            chem="pe",
+            linker1=linker1,
+            linker2=linker2,
+            bc23=_hamming_owner_map(bc8),
+            bc1=_hamming_owner_map(bc8),
+            bc23_length=8,
+            bc1_length=8,
+            max_linker1_edit=3,
+            max_linker2_edit=3,
+            orientation="forward",
+        )
+        for read_id, sequence in _paired_records(r2_path, r1_path):
+            if _splitseq_result(sequence, policy)["accepted"]:
+                valid_ids.add(read_id.decode())
                     
-                # Check validity (d<=1)
-                # Optimization: check exact match first (fastest)
-                if bc3 in self.bc3_wl and bc2 in self.bc2_wl and bc1 in self.bc1_wl:
-                    valid_ids.add(read_id)
-                    continue
-                    
-                # Check d<=1
-                # This is slow in Python, but we only do it for non-exact matches
-                if self._check_wl(bc3, self.bc3_wl) and self._check_wl(bc2, self.bc2_wl) and self._check_wl(bc1, self.bc1_wl):
-                    valid_ids.add(read_id)
-                    
-        print(f"    Found {len(valid_ids):,} valid reads (d<=1) in input.")
-        _save_validity_cache(r2_path, "splitseq_pe", valid_ids)
+        print(f"    Found {len(valid_ids):,} structurally retained reads.")
+        _save_validity_cache(r2_path, cache_name, valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
 
 class SplitSeqSingleEndValidityAnalyzer:
-    """Analyzes SPLiT-seq Single-End (PacBio long) reads for validity.
-
-    PacBio reads are long (~1 kb) and randomly oriented.  The barcode
-    structure can appear anywhere in the read:
-        [skip][UMI:10][BC3:8][Linker1:30][BC2:8][Linker2:22][BC1:8][rest]
-    We locate Linker1 via fast exact substring search (str.find) on both
-    the forward read and its reverse complement, then extract barcodes
-    relative to the linker position and validate against whitelists.
-    """
-
-    LINKER1 = "GTGGCCGATGTTTCGCATCGGCGTACGACT"  # 30bp
-
-    _COMP = str.maketrans('ACGTacgt', 'TGCAtgca')
+    """Compatibility wrapper around the unified dual-orientation LR core."""
 
     def __init__(self, bc1_map, bc2_map, bc3_map):
-        self.bc1_wl = self._load_whitelist(bc1_map)
-        self.bc2_wl = self._load_whitelist(bc2_map)
-        self.bc3_wl = self._load_whitelist(bc3_map)
+        self._bc1_source = bc1_map
+        self._bc2_source = bc2_map
+        _ = bc3_map
+        self.bc1_wl = {item.decode() for item in _read_whitelist(bc1_map)}
         self.valid_ids = set()
-        self._linker1_rc = self.LINKER1.translate(self._COMP)[::-1]
-        # Detect barcode lengths from whitelist entries (BC1 is 6bp in PE whitelists)
-        self._bc3_len = len(next(iter(self.bc3_wl))) if self.bc3_wl else 8
-        self._bc2_len = len(next(iter(self.bc2_wl))) if self.bc2_wl else 8
-        self._bc1_len = len(next(iter(self.bc1_wl))) if self.bc1_wl else 8
-
-    def _load_whitelist(self, path):
-        wl = set()
-        with open(path) as f:
-            for line in f:
-                parts = line.strip().split('\t')
-                if len(parts) >= 2:
-                    wl.add(parts[1])
-        return wl
-
-    @staticmethod
-    def _hamming(s1, s2):
-        if len(s1) != len(s2): return 99
-        return sum(a != b for a, b in zip(s1, s2))
-
-    def _check_wl(self, bc, wl):
-        """Check if barcode matches whitelist within Hamming distance 1."""
-        if bc in wl: return True
-        for cand in wl:
-            if self._hamming(bc, cand) <= 1: return True
-        return False
-
-    def _rc(self, seq):
-        return seq.translate(self._COMP)[::-1]
-
-    def _try_extract(self, seq):
-        """Try to find Linker1 and extract barcodes.  Returns True if valid."""
-        # Fast exact search (O(N) via C-level str.find)
-        l1_pos = seq.find(self.LINKER1)
-        if l1_pos < 0:
-            return False
-        # Need UMI(10) + BC3 before linker
-        min_prefix = 10 + self._bc3_len
-        if l1_pos < min_prefix:
-            return False
-        # Need L1(30) + BC2 + L2(22) + BC1 after linker start
-        min_suffix = 30 + self._bc2_len + 22 + self._bc1_len
-        if l1_pos + min_suffix > len(seq):
-            return False
-
-        bc3 = seq[l1_pos - self._bc3_len : l1_pos]
-        bc2_start = l1_pos + 30
-        bc2 = seq[bc2_start : bc2_start + self._bc2_len]
-        bc1_start = bc2_start + self._bc2_len + 22
-        bc1 = seq[bc1_start : bc1_start + self._bc1_len]
-
-        if len(bc3) != self._bc3_len or len(bc2) != self._bc2_len or len(bc1) != self._bc1_len:
-            return False
-
-        return (self._check_wl(bc3, self.bc3_wl)
-                and self._check_wl(bc2, self.bc2_wl)
-                and self._check_wl(bc1, self.bc1_wl))
 
     def analyze_fastqs(self, r1_path):
-        """Analyze raw FASTQ and return set of valid read IDs.
-
-        Searches each read in both orientations (PacBio reads are randomly
-        oriented).  Uses exact linker matching for speed; HiFi reads have
-        ~1% error so ~74% of barcoded reads will have an error-free linker.
-        """
-        cached = _load_validity_cache(r1_path, "splitseq_se")
+        """Return the unified dual-orientation LR structural core set."""
+        cache_name = "splitseq_lr_structural_v3_e3_e3"
+        cached = _load_validity_cache(r1_path, cache_name)
         if cached is not None:
             self.valid_ids = cached
             return cached
 
-        print(f"    Analyzing raw input for validity (Single-End, both orientations)...")
+        print("    Analyzing LR input with the v3 dual-orientation core definition...")
         valid_ids = set()
+        bc23 = _read_whitelist(self._bc2_source)
+        bc1 = _read_whitelist(self._bc1_source)
+        linker1, linker2 = (item.encode() for item in STRUCTURAL_LINKERS["lr"])
+        policy = StructuralPolicy(
+            chem="lr",
+            linker1=linker1,
+            linker2=linker2,
+            bc23=_hamming_owner_map(bc23),
+            bc1=_hamming_owner_map(bc1),
+            bc23_length=len(bc23[0]),
+            bc1_length=len(bc1[0]),
+            max_linker1_edit=3,
+            max_linker2_edit=3,
+            orientation="both",
+        )
         total = 0
+        for read_id, sequence in _paired_records(r1_path, None):
+            total += 1
+            if _splitseq_result(sequence, policy)["accepted"]:
+                valid_ids.add(read_id.decode())
 
-        with open(r1_path, 'r') as f:
-            while True:
-                header = f.readline()
-                if not header: break
-                seq = f.readline().strip()
-                f.readline()
-                f.readline()
-
-                total += 1
-                if total % 500_000 == 0:
-                    print(f"      ...{total:,} reads scanned, {len(valid_ids):,} valid so far")
-
-                read_id = header.strip().split()[0].replace('@', '')
-
-                # Try forward orientation
-                if self._try_extract(seq):
-                    valid_ids.add(read_id)
-                    continue
-
-                # Try reverse complement
-                if self._try_extract(self._rc(seq)):
-                    valid_ids.add(read_id)
-
-        print(f"    Found {len(valid_ids):,} valid reads (d<=1) in {total:,} input reads.")
-        _save_validity_cache(r1_path, "splitseq_se", valid_ids)
+        print(f"    Found {len(valid_ids):,} retained reads in {total:,} inputs.")
+        _save_validity_cache(r1_path, cache_name, valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
 
 class SciSeqValidityAnalyzer:
-    """Analyzes Sci-Seq reads for validity (Anchor check)."""
-    
-    ANCHOR = "CAGAGC"
+    """Compatibility wrapper around the unified sci-RNA-seq3 validator."""
     
     def __init__(self):
         self.valid_ids = set()
         
-    def _hamming(self, s1, s2):
-        if len(s1) != len(s2): return 99
-        return sum(a != b for a, b in zip(s1, s2))
-        
     def analyze_fastqs(self, r1_path, r2_path=None):
-        """Analyze R1 FASTQ for validity (edit-tolerant sci-RNA-seq3 structural check).
-
-        The sci-RNA-seq3 R1 layout is [brc1: 9-10 bp][CAGAGC][umi: 8 bp][brc2: 10 bp].
-        The anchor is located with EDIT distance <= 1 (via edlib), not Hamming, so that a
-        1 bp indel inside the anchor is tolerated -- matching how the tools match the anchor
-        (seqproc #[edit(1)], matchbox primer~0.17). Otherwise the reference would penalize
-        the edit-distance tools for indel recoveries the Hamming tool cannot make. A read is
-        valid only when the anchor's best match lands at offset 9 or 10 (the two allowed
-        brc1 lengths) -- this credits an in-anchor indel but does NOT admit chance CAGAGC
-        hits at other offsets -- and the umi(8)+brc2(10) must follow.
-        """
-        import edlib
-        cached = _load_validity_cache(r1_path, "sciseq_edit")
+        """Return the unified allowed-offset sci-RNA-seq3 reference set."""
+        cache_name = "sciseq_structural_v3"
+        cached = _load_validity_cache(r1_path, cache_name)
         if cached is not None:
             self.valid_ids = cached
             return cached
 
-        print(f"    Analyzing Sci-Seq input for validity (edit-tolerant anchor)...")
+        print("    Analyzing sci-RNA-seq3 input with the v3 structural definition...")
         valid_ids = set()
-        TRAIL = 8 + 10                             # umi(8) + brc2(10)
-
-        with open(r1_path, 'r') as f:
-            while True:
-                header = f.readline()
-                if not header: break
-                seq = f.readline().strip()
-                f.readline()
-                f.readline()
-
-                r = edlib.align(self.ANCHOR, seq[:18], mode="HW", task="locations")
-                if 0 <= r["editDistance"] <= 1 and r["locations"]:
-                    for s, e in r["locations"]:    # (start, end) inclusive, best matches
-                        if s in (9, 10) and e + 1 + TRAIL <= len(seq):
-                            valid_ids.add(header.strip().split()[0].replace('@', ''))
-                            break
+        for read_id, sequence in _paired_records(r1_path, r2_path):
+            if validate_scirnaseq3(sequence)["accepted"]:
+                valid_ids.add(read_id.decode())
 
         print(f"    Found {len(valid_ids):,} valid reads in input.")
-        _save_validity_cache(r1_path, "sciseq_edit", valid_ids)
+        _save_validity_cache(r1_path, cache_name, valid_ids)
         self.valid_ids = valid_ids
         return valid_ids
 
@@ -621,7 +458,7 @@ class TenXValidityAnalyzer:
         
     def analyze_fastqs(self, r1_path, r2_path=None):
         """Analyze FASTQ for validity."""
-        cache_name = "10x_short" if self.is_short_read else "10x_long"
+        cache_name = "10x_short_structural_v3" if self.is_short_read else "10x_long"
         cached = _load_validity_cache(r1_path, cache_name)
         if cached is not None:
             self.valid_ids = cached
@@ -636,21 +473,22 @@ class TenXValidityAnalyzer:
              print("    [WARNING] No whitelist found for 10x validation. Skipping validity check.")
              return valid_ids
 
-        with open(r1_path, 'r') as f:
-            while True:
-                header = f.readline()
-                if not header: break
-                seq = f.readline().strip()
-                f.readline()
-                f.readline()
-                
-                read_id = header.strip().split()[0].replace('@', '')
-
-                if self.is_short_read:
-                    # 10x v2 R1 must be exactly 26bp (16 BC + 10 UMI)
-                    if len(seq) == 26:
-                        valid_ids.add(read_id)
-                else:
+        if self.is_short_read:
+            # The benchmarked workload is a minimum-length filter, so longer
+            # technical reads are valid too. Supplying R2 additionally checks
+            # paired record count and identifiers.
+            for read_id, sequence in _paired_records(r1_path, r2_path):
+                if len(sequence) >= 26:
+                    valid_ids.add(read_id.decode())
+        else:
+            with open(r1_path, 'r') as f:
+                while True:
+                    header = f.readline()
+                    if not header: break
+                    seq = f.readline().strip()
+                    f.readline()
+                    f.readline()
+                    read_id = header.strip().split()[0].replace('@', '')
                     # Long Read: Find primer, extract BC, check whitelist
                     bc = self._find_primer_and_barcode(seq, self.PRIMER)
                     if bc and bc in self.whitelist:
@@ -742,11 +580,6 @@ def run_seqproc(dataset: dict, tmpdir: str, threads: int) -> Tuple[float, float,
         cmd = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom']} --file1 {dataset['r1']} --out1 {out1} --threads {threads}"
     else:
         cmd = f"{SEQPROC_BIN} --geom {dataset['seqproc_geom']} --file1 {dataset['r1']} --file2 {dataset['r2']} --out1 {out1} --out2 {out2} --threads {threads}"
-    
-    # Add map files for replacement benchmark
-    if 'seqproc_maps' in dataset:
-        for map_file in dataset['seqproc_maps']:
-            cmd += f" -a {map_file}"
     
     runtime, memory_mb, rc, stderr = run_with_memory(cmd, PROJECT_ROOT)
     
@@ -887,24 +720,14 @@ def run_benchmarks(threads: int, replicates: int, dataset_filter=None) -> List[B
         validity_analyzer = None
         
         if 'splitseq' in dataset_key:
-            # SPLiT-seq datasets
-            if 'seqproc_maps' in dataset:
-                if dataset['mode'] == 'paired':
-                    # PE Raw and PE Replacement
-                    validity_analyzer = SplitSeqValidityAnalyzer(
-                        dataset['seqproc_maps'][2],  # bc1
-                        dataset['seqproc_maps'][1],  # bc2
-                        dataset['seqproc_maps'][0]   # bc3
-                    )
-                    validity_analyzer.analyze_fastqs(str(dataset['r1']), str(dataset['r2']))
-                else:
-                    # SE Long Read
-                    validity_analyzer = SplitSeqSingleEndValidityAnalyzer(
-                        dataset['seqproc_maps'][2],  # bc1
-                        dataset['seqproc_maps'][1],  # bc2
-                        dataset['seqproc_maps'][0]   # bc3
-                    )
-                    validity_analyzer.analyze_fastqs(str(dataset['r1']))
+            # Compatibility wrappers load the canonical publication lists
+            # internally; no unused --additional map arguments are required.
+            if dataset['mode'] == 'paired':
+                validity_analyzer = SplitSeqValidityAnalyzer(None, None, None)
+                validity_analyzer.analyze_fastqs(str(dataset['r1']), str(dataset['r2']))
+            else:
+                validity_analyzer = SplitSeqSingleEndValidityAnalyzer(None, None, None)
+                validity_analyzer.analyze_fastqs(str(dataset['r1']))
         
         elif dataset_key.startswith('10x_'):
             # 10x datasets

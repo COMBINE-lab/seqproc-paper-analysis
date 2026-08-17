@@ -20,23 +20,15 @@ DATASETS = (
         "name": "splitseq_pe",
         "r1": "splitseq_pe_R1.fastq",
         "r2": "splitseq_pe_R2.fastq",
-        "geometry": "splitseq_filter_edit.geom",
-        "additional": (
-            "splitseq_bc3_seq2seq.tsv",
-            "splitseq_bc2_seq2seq.tsv",
-            "splitseq_bc1_seq2seq.tsv",
-        ),
+        "geometry": "publication_splitseq_pe.geom",
+        "additional": (),
     },
     {
         "name": "lr_splitseq",
         "r1": "splitseq_se_R1.fastq",
         "r2": None,
-        "geometry": "splitseq_singleend_edit_ann.geom",
-        "additional": (
-            "splitseq_bc3_seq2seq.tsv",
-            "splitseq_bc2_seq2seq.tsv",
-            "splitseq_bc1_seq2seq.tsv",
-        ),
+        "geometry": "publication_lr_splitseq_dual_core.geom",
+        "additional": (),
     },
     {
         "name": "tenx_v2",

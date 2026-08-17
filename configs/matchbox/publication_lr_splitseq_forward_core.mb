@@ -1,0 +1,16 @@
+# Best-practical forward-only matchbox counterpart to the LR core geometry.
+# Approximate captures in matchbox can move biological field boundaries, so
+# the conservative native configuration uses canonical lists and exact anchors.
+linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGACTGTGG
+bcs1 = csv('configs/matchbox/rt_6bp.csv')
+bcs23 = csv('configs/matchbox/r2_r3.txt')
+
+if read matches {
+    [_ umi:|10| bc3_hit:bc3.round_23~0.0 linker1~0.0 bc2_hit:bc2.round_23~0.0 linker2~0.0 bc1_hit:bc1.barcode~0.0 _]
+        for bc1 in bcs1, bc2 in bcs23, bc3 in bcs23 => {
+            if bc3_hit.seq.len() == 8 and bc2_hit.seq.len() == 8 and bc1_hit.seq.len() == 6 {
+                (umi.concat(bc3_hit)).concat(bc2_hit.concat(bc1_hit)).out!('mb_r1.fq')
+            }
+        }
+}

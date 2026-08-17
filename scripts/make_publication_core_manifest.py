@@ -29,8 +29,8 @@ DEFAULT_THREADS = (1, 4, 16, 32)
 DEFAULT_REPLICATES = 3
 PRIMARY_OUTPUT_LENGTHS = {
     "splitseq_pe": {
-        "seqproc": {1: (66, 66), 2: (30, 30)},
-        "matchbox": {1: (66, 66), 2: (30, 30)},
+        "seqproc": {1: (66, 66), 2: (34, 34)},
+        "matchbox": {1: (66, 66), 2: (34, 34)},
         "splitcode": {1: (66, 66)},
     },
     "lr_splitseq_dual": {
@@ -46,15 +46,12 @@ PRIMARY_OUTPUT_LENGTHS = {
         for tool in ("seqproc", "matchbox", "splitcode")
     },
     "scirnaseq3": {
-        "seqproc": {1: (30, 30), 2: (56, 56)},
-        # Fuzzy anchor matching can absorb up to two bases into matchbox's
-        # projected BC1 segment.  This is a best-practical semantic difference,
-        # not malformed FASTQ, so audit the full observed range.
-        "matchbox": {1: (27, 30), 2: (56, 56)},
+        "seqproc": {1: (27, 28), 2: (56, 56)},
+        "matchbox": {1: (27, 28), 2: (56, 56)},
     },
 }
 SPLITCODE_EXTRACTION_LENGTHS = {
-    "umi_bc3_bc2_bc1.fastq": (30, 30),
+    "umi_bc3_bc2_bc1.fastq": (34, 34),
     "prefix.fastq": (18, 18),
     "bc2.fastq": (8, 8),
     "bc1.fastq": (6, 6),
@@ -69,13 +66,9 @@ DATASETS = (
         "matchbox": "publication_splitseq_pe.mb",
         "splitcode": "publication_splitseq_pe.config",
         "seqproc_support": (
-            "splitseq_bc23_whitelist.txt",
-            "splitseq_bc1_whitelist_6bp.txt",
-            "splitseq_bc3_seq2seq.tsv",
-            "splitseq_bc2_seq2seq.tsv",
-            "splitseq_bc1_seq2seq.tsv",
+            "splitseq_bc8_whitelist.txt",
         ),
-        "matchbox_support": ("rt_6bp.csv", "r2_r3.txt"),
+        "matchbox_support": ("r2_r3.txt",),
         "splitcode_assign": True,
         "splitcode_dual_pass": False,
         "splitcode_select": (0,),
@@ -84,9 +77,9 @@ DATASETS = (
         "analysis_role": "primary",
         "semantic_workload": "filter, whitelist-match, and project UMI+BC3+BC2+BC1",
         "equivalence": (
-            "best-practical; seqproc and splitcode emit canonical barcode values, "
-            "matchbox emits matched segments, and splitcode linker matching is "
-            "substitution-only"
+            "best-practical; all tools emit captured UMI/barcode segments, matchbox "
+            "uses exact canonical matching to preserve adjacent boundaries, and "
+            "splitcode linker matching is substitution-only"
         ),
     },
     {
@@ -94,11 +87,14 @@ DATASETS = (
         "r1": "SRR13948564_full.fastq",
         "r2": None,
         "r1_reverse_complement": True,
-        "seqproc": "splitseq_singleend_edit_ann.geom",
-        "matchbox": "publication_lr_splitseq_dual.mb",
-        "splitcode": "publication_lr_splitseq.config",
-        "seqproc_support": (),
-        "matchbox_support": (),
+        "seqproc": "publication_lr_splitseq_dual_core.geom",
+        "matchbox": "publication_lr_splitseq_dual_core.mb",
+        "splitcode": "publication_lr_splitseq_core.config",
+        "seqproc_support": (
+            "splitseq_bc8_whitelist.txt",
+            "splitseq_bc1_whitelist_6bp.txt",
+        ),
+        "matchbox_support": ("rt_6bp.csv", "r2_r3.txt"),
         "splitcode_assign": True,
         "splitcode_dual_pass": True,
         "splitcode_x_only": True,
@@ -109,10 +105,13 @@ DATASETS = (
             "materializes the projection as three component FASTQs"
         ),
         "equivalence": (
-            "capability-complete best-practical dual orientation; seqproc and matchbox "
+            "capability-complete best-practical dual orientation with complete adjacent "
+            "components and canonical barcode lists; seqproc and matchbox "
             "process both orientations natively; splitcode is measured as two sequential "
             "passes over forward and precomputed reverse-complement inputs without "
-            "duplicate reconciliation"
+            "duplicate reconciliation. Matchbox uses exact barcode/linker matching because "
+            "its fuzzy captures can move biological field boundaries; splitcode linkers "
+            "are substitution-only"
         ),
     },
     {
@@ -120,11 +119,14 @@ DATASETS = (
         "r1": "SRR13948564_full.fastq",
         "r2": None,
         "r1_reverse_complement": False,
-        "seqproc": "publication_lr_splitseq.geom",
-        "matchbox": "publication_lr_splitseq.mb",
-        "splitcode": "publication_lr_splitseq.config",
-        "seqproc_support": (),
-        "matchbox_support": (),
+        "seqproc": "publication_lr_splitseq_forward_core.geom",
+        "matchbox": "publication_lr_splitseq_forward_core.mb",
+        "splitcode": "publication_lr_splitseq_core.config",
+        "seqproc_support": (
+            "splitseq_bc8_whitelist.txt",
+            "splitseq_bc1_whitelist_6bp.txt",
+        ),
+        "matchbox_support": ("rt_6bp.csv", "r2_r3.txt"),
         "splitcode_assign": True,
         "splitcode_dual_pass": False,
         "splitcode_x_only": True,
@@ -135,8 +137,9 @@ DATASETS = (
             "splitcode materializes the projection as three component FASTQs"
         ),
         "equivalence": (
-            "forward-orientation controlled supplementary comparison; splitcode linker "
-            "matching is substitution-only"
+            "forward-orientation controlled supplementary comparison with the same "
+            "complete-component and canonical-list constraints as the primary block; "
+            "matchbox is exact and splitcode linker matching is substitution-only"
         ),
     },
     {
@@ -184,13 +187,6 @@ def sequence_length_contract(
     if bounds is None:
         return {}
     nominal = list(range(bounds[0], bounds[1] + 1))
-    if (
-        dataset.startswith("lr_splitseq") and tool in ("seqproc", "matchbox")
-    ) or (dataset == "splitseq_pe" and tool == "matchbox" and mate == 2):
-        return {
-            "nominal_sequence_lengths": nominal,
-            "enforce_sequence_lengths": False,
-        }
     return {
         "min_sequence_length": bounds[0],
         "max_sequence_length": bounds[1],

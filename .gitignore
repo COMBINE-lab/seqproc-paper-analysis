@@ -9,6 +9,7 @@ venv/
 results/*/
 # Content-addressed development benchmark attempts; commit curated summaries.
 benchmark_results/development/*/
+publication_results/structural_reference_*/*.valid_ids.txt
 
 # Data files
 *.fastq

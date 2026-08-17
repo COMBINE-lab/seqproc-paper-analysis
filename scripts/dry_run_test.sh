@@ -74,7 +74,7 @@ echo "--- 2. Tool binaries ---"
 if [ -x "$SEQPROC_BIN" ]; then
     pass "seqproc binary: $SEQPROC_BIN"
     # Quick geom compile test (no data needed, just checks parsing)
-    GEOM_FILE="$PROJECT_ROOT/configs/seqproc/splitseq_filter_edit.geom"
+    GEOM_FILE="$PROJECT_ROOT/configs/seqproc/publication_splitseq_pe.geom"
     if [ -f "$GEOM_FILE" ]; then
         # Run seqproc with --help to check it starts; actual geom test needs files
         if "$SEQPROC_BIN" --help >/dev/null 2>&1; then
@@ -94,21 +94,24 @@ echo ""
 # ── 3. Config files referenced by DATASETS ──
 echo "--- 3. Config files ---"
 CONFIG_FILES=(
-    "configs/seqproc/splitseq_filter_edit.geom"
+    "configs/seqproc/publication_splitseq_pe.geom"
+    "configs/seqproc/publication_lr_splitseq_dual_core.geom"
+    "configs/seqproc/publication_lr_splitseq_forward_core.geom"
     "configs/seqproc/10x_v2.geom"
     "configs/seqproc/sciseq3_edit.geom"
+    "configs/seqproc/splitseq_bc8_whitelist.txt"
     "configs/seqproc/splitseq_bc1_seq2seq.tsv"
     "configs/seqproc/splitseq_bc2_seq2seq.tsv"
     "configs/seqproc/splitseq_bc3_seq2seq.tsv"
-    "configs/seqproc/splitseq_bc23_whitelist.txt"
     "configs/seqproc/splitseq_bc1_whitelist_6bp.txt"
-    "configs/matchbox/splitseq_replacement.mb"
-    "configs/matchbox/splitseq_singleend.mb"
-    "configs/matchbox/10x_v2.mb"
-    "configs/matchbox/sciseq3.mb"
-    "configs/splitcode/splitseq_paper.config"
-    "configs/splitcode/splitseq_singleend.config"
-    "configs/splitcode/10x_v2.config"
+    "configs/matchbox/publication_splitseq_pe.mb"
+    "configs/matchbox/publication_lr_splitseq_dual_core.mb"
+    "configs/matchbox/publication_lr_splitseq_forward_core.mb"
+    "configs/matchbox/publication_10x_v2.mb"
+    "configs/matchbox/publication_sciseq3.mb"
+    "configs/splitcode/publication_splitseq_pe.config"
+    "configs/splitcode/publication_lr_splitseq_core.config"
+    "configs/splitcode/publication_10x_v2_filter.config"
     "configs/splitcode/sciseq3.config"
 )
 for cf in "${CONFIG_FILES[@]}"; do

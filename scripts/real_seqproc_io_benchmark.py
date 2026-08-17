@@ -30,25 +30,17 @@ CONFIGS = ROOT / "configs" / "seqproc"
 DATASETS = (
     {
         "name": "splitseq_pe",
-        "geometry": "splitseq_filter_edit.geom",
+        "geometry": "publication_splitseq_pe.geom",
         "r1": "SRR6750041_10M_R1.fastq",
         "r2": "SRR6750041_10M_R2.fastq",
-        "additional": (
-            "splitseq_bc3_seq2seq.tsv",
-            "splitseq_bc2_seq2seq.tsv",
-            "splitseq_bc1_seq2seq.tsv",
-        ),
+        "additional": (),
     },
     {
         "name": "lr_splitseq",
-        "geometry": "splitseq_singleend_edit_ann.geom",
+        "geometry": "publication_lr_splitseq_dual_core.geom",
         "r1": "SRR13948564_1M.fastq",
         "r2": None,
-        "additional": (
-            "splitseq_bc3_seq2seq.tsv",
-            "splitseq_bc2_seq2seq.tsv",
-            "splitseq_bc1_seq2seq.tsv",
-        ),
+        "additional": (),
     },
     {
         "name": "10x_short",

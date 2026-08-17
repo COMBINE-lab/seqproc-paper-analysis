@@ -2,12 +2,19 @@
 primer = CAGAGC
 
 if read.r1 matches {
+  # Approximate matchbox anchors can move neighboring field boundaries. Keep
+  # edit-one matching but emit only matches whose projected components retain
+  # their protocol-defined lengths.
   [bc1:|9| primer~0.17 umi:|8| bc2:|10| _] => {
-    bc1.concat(bc2.concat(umi)).out!('mb_r1.fq')
-    read.r2.out!('mb_r2.fq')
+    if bc1.seq.len() == 9 and umi.seq.len() == 8 and bc2.seq.len() == 10 {
+      bc1.concat(bc2.concat(umi)).out!('mb_r1.fq')
+      read.r2.out!('mb_r2.fq')
+    }
   }
   [bc1:|10| primer~0.17 umi:|8| bc2:|10| _] => {
-    bc1.concat(bc2.concat(umi)).out!('mb_r1.fq')
-    read.r2.out!('mb_r2.fq')
+    if bc1.seq.len() == 10 and umi.seq.len() == 8 and bc2.seq.len() == 10 {
+      bc1.concat(bc2.concat(umi)).out!('mb_r1.fq')
+      read.r2.out!('mb_r2.fq')
+    }
   }
 }

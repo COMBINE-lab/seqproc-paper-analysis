@@ -361,32 +361,35 @@ FASTQ files are gitignored. Download with `fasterq-dump <accession>` into
 ```
 configs/
   seqproc/
-    splitseq_filter_edit.geom         # SPLiT-seq PE, edit distance + whitelist
+    publication_splitseq_pe.geom      # SPLiT-seq PE, corrected 34-nt projection
+    publication_lr_splitseq_dual_core.geom     # LR-SPLiT-seq primary dual-orientation core
+    publication_lr_splitseq_forward_core.geom  # LR-SPLiT-seq forward-only supplement
     splitseq_filter_hamming6.geom     # SPLiT-seq PE, Hamming baseline (appendix hamming-vs-edit)
-    splitseq_singleend_edit_ann.geom  # LR-SPLiT-seq, orientation + edit (canonical)
-    splitseq_singleend_ann.geom       # LR-SPLiT-seq, orientation + Hamming
-    splitseq_singleend_edit.geom      # LR-SPLiT-seq, forward-only + edit
-    splitseq_singleend.geom           # LR-SPLiT-seq, forward-only + Hamming
     10x_v2.geom                       # 10x Chromium v2
     sciseq3.geom                      # sci-RNA-seq3, Hamming
-    sciseq3_edit.geom                 # sci-RNA-seq3, edit distance
-    splitseq_bc{1,2,3}_seq2seq.tsv    # SPLiT-seq barcode maps (seq → seq)
-    splitseq_bc{1_whitelist_6bp,23_whitelist}.txt  # whitelists
+    sciseq3_edit.geom                 # sci-RNA-seq3, edit distance, natural 27/28-nt output
+    splitseq_bc8_whitelist.txt        # unique canonical 8-nt SPLiT-seq barcodes
+    splitseq_bc1_whitelist_6bp.txt    # canonical 6-nt LR round-one barcodes
 
   matchbox/
-    splitseq_replacement.mb           # SPLiT-seq PE
-    splitseq_singleend.mb             # LR-SPLiT-seq, forward-only
-    splitseq_singleend_dual.mb        # LR-SPLiT-seq, dual-orientation
-    10x_v2.mb                         # 10x Chromium v2
-    sciseq3.mb                        # sci-RNA-seq3
+    publication_splitseq_pe.mb        # aligned SPLiT-seq PE projection
+    publication_lr_splitseq_dual_core.mb     # aligned LR primary dual orientation
+    publication_lr_splitseq_forward_core.mb  # aligned LR forward-only supplement
+    publication_10x_v2.mb             # aligned 10x length filter
+    publication_sciseq3.mb            # aligned sci-RNA-seq3 projection
     r2_r3.txt                         # matchbox support file for SPLiT-seq
 
   splitcode/
     publication_splitseq_pe.config    # aligned SPLiT-seq PE projection
-    publication_lr_splitseq.config    # aligned LR two-linker projection
+    publication_lr_splitseq_core.config  # aligned LR canonical-list projection
     publication_10x_v2_filter.config  # 10x length-filter-only task
     sciseq3.config                    # sci-RNA-seq3
 ```
+
+The `publication_*` files are the current manuscript configurations. Older
+files are retained only for reproducing historical/preprint and diagnostic
+runs; the dated manifests under `benchmark_specs/` are immutable records and
+are not silently rewritten when the publication configurations change.
 
 The previous `10x_longread_*` configs (from an aborted long-read 10x
 experiment that did not make the paper) have been removed in this branch.

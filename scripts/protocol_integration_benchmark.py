@@ -42,23 +42,13 @@ PROTOCOLS = (
     Protocol("sciseq", "sciseq3_edit.geom", True),
     Protocol(
         "splitseq_pe",
-        "splitseq_filter_edit.geom",
+        "publication_splitseq_pe.geom",
         True,
-        (
-            "splitseq_bc3_seq2seq.tsv",
-            "splitseq_bc2_seq2seq.tsv",
-            "splitseq_bc1_seq2seq.tsv",
-        ),
     ),
     Protocol(
         "splitseq_se",
-        "splitseq_singleend_edit_ann.geom",
+        "publication_lr_splitseq_dual_core.geom",
         False,
-        (
-            "splitseq_bc3_seq2seq.tsv",
-            "splitseq_bc2_seq2seq.tsv",
-            "splitseq_bc1_seq2seq.tsv",
-        ),
     ),
 )
 
@@ -109,10 +99,10 @@ def generate_protocol(protocol: Protocol, reads: int, data_dir: Path) -> tuple[P
     rng = random.Random(f"seqproc-integration-v1:{protocol.name}:{reads}")
     r1_path = data_dir / f"{protocol.name}_R1.fastq"
     r2_path = data_dir / f"{protocol.name}_R2.fastq" if protocol.paired else None
-    bc23 = load_lines(CONFIGS / "splitseq_bc23_whitelist.txt")
+    bc23 = load_lines(CONFIGS / "splitseq_bc8_whitelist.txt")
     bc1 = load_lines(CONFIGS / "splitseq_bc1_whitelist_6bp.txt")
-    linker1_pe = "GTGGCCGCTGTTTCGCATCGGCGTACGACT"
-    linker1_se = "GTGGCCGATGTTTCGCATCGGCGTACGACT"
+    linker1_pe = "GTGGCCGATGTTTCGCATCGGCGTACGACT"
+    linker1_se = linker1_pe
     linker2_pe = "ATCCACGTGCTTGAGAGGCCAGAGCATTCG"
     linker2_se = "ATCCACGTGCTTGAGACTGTGG"
 
@@ -135,7 +125,7 @@ def generate_protocol(protocol: Protocol, reads: int, data_dir: Path) -> tuple[P
                 elif protocol.name == "splitseq_pe":
                     chosen3 = bc23[index % len(bc23)]
                     chosen2 = bc23[(index * 7 + 3) % len(bc23)]
-                    chosen1 = bc1[(index * 11 + 5) % len(bc1)]
+                    chosen1 = bc23[(index * 11 + 5) % len(bc23)]
                     if index % 5 == 1:
                         chosen3 = substitute(chosen3, 2)
                     if index % 5 == 2:
@@ -144,8 +134,7 @@ def generate_protocol(protocol: Protocol, reads: int, data_dir: Path) -> tuple[P
                         chosen1 = substitute(chosen1, 1)
                     r1 = sequence(rng, 100)
                     r2 = (
-                        sequence(rng, 2)
-                        + sequence(rng, 8)
+                        sequence(rng, 10)
                         + chosen3
                         + fuzz_anchor(linker1_pe, index)
                         + chosen2
@@ -156,7 +145,7 @@ def generate_protocol(protocol: Protocol, reads: int, data_dir: Path) -> tuple[P
                 else:
                     chosen3 = bc23[index % len(bc23)]
                     chosen2 = bc23[(index * 7 + 3) % len(bc23)]
-                    chosen1 = bc1[(index * 11 + 5) % len(bc1)] + sequence(rng, 2)
+                    chosen1 = bc1[(index * 11 + 5) % len(bc1)]
                     r1 = (
                         sequence(rng, 10)
                         + chosen3

@@ -23,7 +23,7 @@ def test_publication_campaign_defaults_and_lr_roles():
     assert datasets["lr_splitseq_dual"]["analysis_role"] == "primary"
     assert datasets["lr_splitseq_dual"]["splitcode_dual_pass"] is True
     assert datasets["lr_splitseq_dual"]["r1_reverse_complement"] is True
-    assert datasets["lr_splitseq_dual"]["splitcode"] == "publication_lr_splitseq.config"
+    assert datasets["lr_splitseq_dual"]["splitcode"] == "publication_lr_splitseq_core.config"
     assert datasets["lr_splitseq_dual"]["splitcode_x_only"] is True
     assert datasets["lr_splitseq_forward"]["analysis_role"] == "supplementary"
     assert datasets["lr_splitseq_forward"]["splitcode_dual_pass"] is False
@@ -34,24 +34,26 @@ def test_publication_campaign_defaults_and_lr_roles():
     assert datasets["scirnaseq3"]["splitcode_no_outb"] is True
 
 
-def test_approximate_match_products_report_non_nominal_lengths_as_validity():
+def test_corrected_configs_enforce_semantically_aligned_output_lengths():
     assert sequence_length_contract("splitseq_pe", "matchbox", 1).get(
         "enforce_sequence_lengths", True
     ) is True
     assert sequence_length_contract("splitseq_pe", "matchbox", 2) == {
-        "nominal_sequence_lengths": [30],
-        "enforce_sequence_lengths": False,
+        "min_sequence_length": 34,
+        "max_sequence_length": 34,
+        "nominal_sequence_lengths": [34],
     }
     assert sequence_length_contract("scirnaseq3", "matchbox", 1) == {
         "min_sequence_length": 27,
-        "max_sequence_length": 30,
-        "nominal_sequence_lengths": [27, 28, 29, 30],
+        "max_sequence_length": 28,
+        "nominal_sequence_lengths": [27, 28],
     }
     for dataset in ("lr_splitseq_dual", "lr_splitseq_forward"):
         for tool in ("seqproc", "matchbox"):
             assert sequence_length_contract(dataset, tool, 1) == {
+                "min_sequence_length": 32,
+                "max_sequence_length": 32,
                 "nominal_sequence_lengths": [32],
-                "enforce_sequence_lengths": False,
             }
 
 

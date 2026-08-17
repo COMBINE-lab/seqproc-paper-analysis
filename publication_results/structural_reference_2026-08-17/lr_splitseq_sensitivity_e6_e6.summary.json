@@ -1,0 +1,89 @@
+{
+  "accepted_orientation": {
+    "both": 2233,
+    "forward": 300814,
+    "reverse": 287532
+  },
+  "anchor_edit_histogram": {},
+  "anchor_start_histogram": {},
+  "barcode_ambiguity_histogram": {
+    "0": 459390,
+    "1": 131189
+  },
+  "batch_size": 4096,
+  "chem": "lr",
+  "controller_peak_rss_kib": 47332,
+  "criteria": {
+    "ambiguous_barcode_membership": "accepted_and_reported",
+    "barcode_hamming_distance": 1,
+    "bc1_length": 6,
+    "bc23_length": 8,
+    "linker2_expected_immediately_after_bc2": true,
+    "max_linker1_candidates": null,
+    "max_linker1_edit": 6,
+    "max_linker2_edit": 6,
+    "orientation": "both",
+    "paired_fastq_integrity_checked": false,
+    "reference_kind": "conservative_structural_reference_not_ground_truth",
+    "umi_length": 10
+  },
+  "elapsed_seconds": 12.549302,
+  "fast_path_counts": {
+    "False": 571244,
+    "True": 19335
+  },
+  "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+  "forward_failure_counts": {
+    "incomplete_bc1": 1217,
+    "incomplete_bc2": 36095,
+    "incomplete_umi_bc3_prefix": 232104,
+    "invalid_bc1": 832984,
+    "invalid_bc2": 108161,
+    "invalid_bc3": 102597,
+    "no_linker1": 4118019,
+    "no_linker2_at_expected_offset": 30197
+  },
+  "invalid": 5173842,
+  "linker1_edit_histogram": {
+    "0": 498530,
+    "1": 67685,
+    "2": 15168,
+    "3": 5467,
+    "4": 2233,
+    "5": 1019,
+    "6": 477
+  },
+  "linker2_edit_histogram": {
+    "0": 486523,
+    "1": 50369,
+    "2": 14725,
+    "3": 12066,
+    "4": 10229,
+    "5": 10124,
+    "6": 6543
+  },
+  "mate_fastq": null,
+  "maximum_worker_peak_rss_kib": 51160,
+  "outcome_counts": {
+    "accepted": 439256,
+    "accepted_ambiguous_barcode": 130615,
+    "accepted_ambiguous_cassette": 18475,
+    "accepted_both_orientations": 2233,
+    "incomplete_bc1": 1176,
+    "incomplete_bc2": 41418,
+    "incomplete_umi_bc3_prefix": 218174,
+    "invalid_bc1": 804645,
+    "invalid_bc2": 118717,
+    "invalid_bc3": 105864,
+    "no_linker1": 3847327,
+    "no_linker2_at_expected_offset": 36521
+  },
+  "pct_of_scanned": 10.2452,
+  "reads_per_second": 459341.94,
+  "schema_version": "3.0.0",
+  "system_cpu_seconds": 6.754473,
+  "threads": 32,
+  "total": 5764421,
+  "user_cpu_seconds": 290.499766,
+  "valid": 590579
+}
