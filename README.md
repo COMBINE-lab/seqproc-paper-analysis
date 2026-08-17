@@ -340,9 +340,9 @@ which performs steps 1 through 9 plus all the environment provisioning.
 
 | Chemistry | SRA accession | Total reads (full) | Mode |
 |---|---|---:|---|
-| SPLiT-seq PE | `SRR6750041` | 86,820,578 | paired-end |
+| SPLiT-seq PE | `SRR6750041` | 77,621,181 | paired-end |
 | LR-SPLiT-seq | `SRR13948564` | 5,764,421 | single-end (PacBio HiFi) |
-| 10x Chromium v2 | `SRR8315379` | 56,514,800 | paired-end |
+| 10x Chromium v2 | `SRR8315379` | 234,382,218 | paired-end |
 | sci-RNA-seq3 | `SRR7827254` | 22,088,821 | paired-end |
 
 Read counts are authoritative as of the canonical run; they are also

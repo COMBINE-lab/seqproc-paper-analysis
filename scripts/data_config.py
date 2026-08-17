@@ -71,7 +71,7 @@ def resolve_binaries() -> Dict[str, str]:
 SRA_INFO = {
     "SRR6750041": {
         "description": "SPLiT-seq PE (short-read paired-end)",
-        "full_reads": 86_820_578,
+        "full_reads": 77_621_181,
         "download_cmd": "fasterq-dump --split-files SRR6750041",
     },
     "SRR13948564": {
@@ -81,7 +81,7 @@ SRA_INFO = {
     },
     "SRR8315379": {
         "description": "10x Chromium v2 (short-read paired-end)",
-        "full_reads": 56_514_800,
+        "full_reads": 234_382_218,
         "download_cmd": "fasterq-dump --split-files SRR8315379",
     },
     "SRR7827254": {
