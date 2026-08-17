@@ -22,7 +22,10 @@ binary, input, configuration, expansion-list, timing, and ambiguity provenance
 for that output is retained in
 `../lr_splitseq_hamming_expansion_grid_2026-08-11/results.json`.
 
-The `scirnaseq3_*` artifacts and the `*-r2` frozen manifest/schedule record the
-official sci-RNA-seq3 accuracy block. Revision 2 replaces an ordered two-branch
-Matchbox expression that accidentally shadowed the 10-nt BC1 geometry with a
-single variable-prefix capture guarded to the documented 9- or 10-nt lengths.
+The `scirnaseq3_*`, `splitseq_pe_*`, and `tenx_v2_*` artifacts record the
+official accuracy blocks computed from the revision-2 frozen manifest and
+schedule. Revision 2 replaces an ordered two-branch Matchbox sci-RNA-seq3
+expression that accidentally shadowed the 10-nt BC1 geometry with a single
+variable-prefix capture guarded to the documented 9- or 10-nt lengths. The
+paired-end SPLiT-seq and 10x artifacts use the same revision so that every
+reported tool/configuration is pinned to the same campaign definition.

@@ -11,10 +11,10 @@ count as complete here.
 
 | Technology block | Structural reference | Accuracy: 1 run/tool, 32 threads | Final speed/RSS: 3 replicates at 1/4/16/32 threads |
 |---|---|---|---|
-| SPLiT-seq PE, primary | Complete | Pending | Pending |
+| SPLiT-seq PE, primary | Complete | **Complete** | Pending |
 | LR-SPLiT-seq dual orientation, primary | Complete | **Complete** | Pending |
 | LR-SPLiT-seq forward-only, supplementary | Definition/configs complete; forward-only reference subset pending | Pending | Pending |
-| 10x Chromium v2, primary | Complete | Pending | Pending |
+| 10x Chromium v2, primary | Complete | **Complete** | Pending |
 | sci-RNA-seq3, primary | Complete | **Complete** | Pending |
 
 Final performance runs direct biological outputs to `/dev/null`; correctness
@@ -133,6 +133,61 @@ corrected variable-prefix search changes its performance profile, so the old
 Matchbox sci-RNA-seq3 `/dev/null` timing results must be replaced in the final
 performance campaign.
 
+## Newly completed: paired-end SPLiT-seq accuracy
+
+Input: 77,621,181 read pairs. Conservative structural reference: 57,437,503
+pairs. All tools used one frozen 32-thread run pinned to physical CPUs 1--32
+and performed the aligned barcode-matching, replacement/projection, and
+retention workload.
+
+| Tool | Emitted | Intersection | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|---:|
+| seqproc | 56,991,381 | 56,796,243 | 0.996576 | 0.988836 | 0.992691 |
+| matchbox | 35,160,366 | 35,160,366 | 1.000000 | 0.612150 | 0.759421 |
+| splitcode | 53,495,595 | 53,472,550 | 0.999569 | 0.930969 | 0.964050 |
+
+Matchbox's accepted IDs are a strict subset of both other tools' accepted IDs.
+It uses the same boundary-safe, canonical-list, no-preprocessing policy as the
+primary long-read comparison: exact whitelist matching avoids shifting
+adjacent barcode boundaries, but rejects reads containing barcode errors. The
+result is therefore high precision but substantially lower recall. seqproc and
+splitcode overlap on 53,232,995 IDs (Jaccard 0.929769); seqproc contains
+3,758,386 additional IDs and splitcode contains 262,600 additional IDs.
+
+### Accuracy-run resource diagnostics (not final performance numbers)
+
+| Tool | Wall time | Peak RSS |
+|---|---:|---:|
+| seqproc | 27.897 s | 92.0 MiB |
+| matchbox | 281.690 s | 7,751.1 MiB |
+| splitcode | 50.249 s | 1,282.5 MiB |
+
+## Newly completed: 10x Chromium v2 accuracy
+
+Input: 234,382,218 read pairs. Every R1 in this accession satisfied the
+26-nucleotide structural length requirement, so the conservative reference
+also contains 234,382,218 pairs. All tools retained exactly that complete set:
+
+| Tool | Emitted | Intersection | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|---:|
+| seqproc | 234,382,218 | 234,382,218 | 1.000000 | 1.000000 | 1.000000 |
+| matchbox | 234,382,218 | 234,382,218 | 1.000000 | 1.000000 | 1.000000 |
+| splitcode | 234,382,218 | 234,382,218 | 1.000000 | 1.000000 | 1.000000 |
+
+Every pairwise intersection is 234,382,218 and every pairwise Jaccard index is
+1.0. Output-contract audits also agree: all R1 products are 26 nt and all R2
+products are 98 nt. This block is a useful exact-equivalence and output-shape
+control, but this particular input is not a discriminative accuracy challenge
+because no pair fails the sole retention criterion.
+
+### Accuracy-run resource diagnostics (not final performance numbers)
+
+| Tool | Wall time | Peak RSS |
+|---|---:|---:|
+| seqproc | 43.562 s | 76.0 MiB |
+| matchbox | 601.264 s | 40.1 MiB |
+| splitcode | 88.674 s | 1,234.8 MiB |
+
 ## Frozen artifacts
 
 - `publication_results/journal_rerun_2026-08-17/publication-core-correctness-t32.yaml`
@@ -146,6 +201,12 @@ performance campaign.
 - `publication_results/journal_rerun_2026-08-17/scirnaseq3_accuracy_metrics.json`
 - `publication_results/journal_rerun_2026-08-17/scirnaseq3_accuracy_metrics.csv`
 - `publication_results/journal_rerun_2026-08-17/scirnaseq3_pairwise_metrics.csv`
+- `publication_results/journal_rerun_2026-08-17/splitseq_pe_accuracy_metrics.json`
+- `publication_results/journal_rerun_2026-08-17/splitseq_pe_accuracy_metrics.csv`
+- `publication_results/journal_rerun_2026-08-17/splitseq_pe_pairwise_metrics.csv`
+- `publication_results/journal_rerun_2026-08-17/tenx_v2_accuracy_metrics.json`
+- `publication_results/journal_rerun_2026-08-17/tenx_v2_accuracy_metrics.csv`
+- `publication_results/journal_rerun_2026-08-17/tenx_v2_pairwise_metrics.csv`
 
 Large materialized FASTQs and compact accession bitmaps remain in the external
 campaign directory recorded by the metrics artifact.
