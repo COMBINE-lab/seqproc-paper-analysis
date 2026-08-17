@@ -1,0 +1,4 @@
+dataset,left,right,intersection_records,union_records,left_only_records,right_only_records,jaccard
+lr_splitseq_dual,seqproc,matchbox,8267,545712,537435,10,0.015149016330958455
+lr_splitseq_dual,seqproc,splitcode,425430,549213,120272,3511,0.7746174981291412
+lr_splitseq_dual,matchbox,splitcode,7995,429223,282,420946,0.0186266812356281
