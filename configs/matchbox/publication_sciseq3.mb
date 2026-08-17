@@ -1,20 +1,14 @@
 # Semantically aligned sci-RNA-seq3 benchmark: emit BC1+BC2+UMI and retain R2.
 primer = CAGAGC
 
-if read.r1 matches {
-  # Approximate matchbox anchors can move neighboring field boundaries. Keep
-  # edit-one matching but emit only matches whose projected components retain
-  # their protocol-defined lengths.
-  [bc1:|9| primer~0.17 umi:|8| bc2:|10| _] => {
-    if bc1.seq.len() == 9 and umi.seq.len() == 8 and bc2.seq.len() == 10 {
-      bc1.concat(bc2.concat(umi)).out!('mb_r1.fq')
-      read.r2.out!('mb_r2.fq')
-    }
-  }
-  [bc1:|10| primer~0.17 umi:|8| bc2:|10| _] => {
-    if bc1.seq.len() == 10 and umi.seq.len() == 8 and bc2.seq.len() == 10 {
-      bc1.concat(bc2.concat(umi)).out!('mb_r1.fq')
-      read.r2.out!('mb_r2.fq')
-    }
+# A single variable prefix is required here. With two ordered 9- and 10-nt
+# pattern branches, an approximate match of the first branch can shadow the
+# second branch before the protocol-length guard is evaluated. Capture the
+# natural BC1 length, then accept only the two documented geometries.
+if read.r1 matches [bc1:_ primer~0.17 umi:|8| bc2:|10| _] => {
+  if (bc1.seq.len() == 9 or bc1.seq.len() == 10) and
+     umi.seq.len() == 8 and bc2.seq.len() == 10 {
+    bc1.concat(bc2.concat(umi)).out!('mb_r1.fq')
+    read.r2.out!('mb_r2.fq')
   }
 }
