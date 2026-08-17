@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "input_records": 5764421,
+  "reference": {
+    "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17/aggregates/accuracy/bitmaps/lr_splitseq_dual.reference.raw",
+    "records": 560699,
+    "interpretation": "conservative structural reference, not biological ground truth"
+  },
+  "tools": {
+    "seqproc": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17/aggregates/accuracy/bitmaps/lr_splitseq_dual.seqproc.accepted.1.bitmap"
+      ],
+      "emitted_records": 545702,
+      "intersection_records": 545702,
+      "emitted_fraction": 0.09466727013866613,
+      "precision": 1.0,
+      "recall": 0.9732530288086835,
+      "f1": 0.9864452400169559
+    },
+    "matchbox_expanded_exact": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/lr-splitseq-hamming-expansion-grid-2026-08-11/matchbox-exact-linkers/R1.bitmap"
+      ],
+      "emitted_records": 406257,
+      "intersection_records": 406257,
+      "emitted_fraction": 0.07047663590150685,
+      "precision": 1.0,
+      "recall": 0.7245545292572307,
+      "f1": 0.840280219575658
+    },
+    "splitcode": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17/aggregates/accuracy/bitmaps/lr_splitseq_dual.splitcode.forward.1.bitmap",
+        "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17/aggregates/accuracy/bitmaps/lr_splitseq_dual.splitcode.reverse.1.bitmap"
+      ],
+      "emitted_records": 428941,
+      "intersection_records": 427895,
+      "emitted_fraction": 0.07441180996322094,
+      "precision": 0.9975614361881937,
+      "recall": 0.7631456449895577,
+      "f1": 0.8647487975425407
+    }
+  },
+  "pairwise": {
+    "seqproc__matchbox_expanded_exact": {
+      "intersection_records": 405829,
+      "union_records": 546130,
+      "jaccard": 0.7430996282936297,
+      "seqproc_only": 139873,
+      "matchbox_expanded_exact_only": 428
+    },
+    "seqproc__splitcode": {
+      "intersection_records": 425430,
+      "union_records": 549213,
+      "jaccard": 0.7746174981291412,
+      "seqproc_only": 120272,
+      "splitcode_only": 3511
+    },
+    "matchbox_expanded_exact__splitcode": {
+      "intersection_records": 386396,
+      "union_records": 448802,
+      "jaccard": 0.8609498175141822,
+      "matchbox_expanded_exact_only": 19861,
+      "splitcode_only": 42545
+    }
+  }
+}

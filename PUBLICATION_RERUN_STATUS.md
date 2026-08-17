@@ -51,6 +51,42 @@ component outputs had identical read-ID sets within each pass.
 | matchbox | 203.005 s | 56.1 MiB |
 | splitcode two-pass wrapper | 17.285 s | 531.4 MiB |
 
+### Matchbox Hamming-expansion sensitivity analysis
+
+Expanding each canonical barcode to all unique sequences within Hamming
+distance one, while retaining **exact linker matching**, substantially rescues
+Matchbox without moving cassette boundaries:
+
+| Matchbox configuration | Emitted | Intersection | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|---:|
+| Canonical lists, exact matching (primary) | 8,277 | 8,277 | 1.000000 | 0.014762 | 0.029094 |
+| Hamming-expanded barcodes, exact linkers (sensitivity) | 406,257 | 406,257 | 1.000000 | 0.724555 | 0.840280 |
+
+This is a 49.1-fold increase in retained reads and a 70.98-percentage-point
+increase in recall. Against the same reference, it approaches but remains below
+splitcode (recall 0.763146, F1 0.864749), and remains below seqproc (recall
+0.973253, F1 0.986445). The expanded Matchbox set overlaps 405,829 seqproc
+reads and 386,396 splitcode reads; the corresponding Jaccard indices are
+0.743100 and 0.860950.
+
+The expansion contains 2,400 unique BC2/BC3 variants from 96 canonical 8-mers,
+with no collisions, and 1,614 unique BC1 variants from 96 canonical 6-mers.
+For BC1, 206 expanded sequences have two or three possible canonical owners.
+Matchbox uses these lists as an acceptance filter and emits the observed
+sequence, so this configuration means "accept once" rather than performing an
+unambiguous correction to a canonical barcode. That ambiguity policy and the
+need for an external expansion step are material usability differences from
+seqproc's native approximate-whitelist matching.
+
+Approximate-linker matching must not be combined with this expansion: the
+tested configuration shifted capture endpoints and emitted 237,655 records of
+33--47 nt instead of the intended 32 nt. Exact linkers produced 406,257/406,257
+correct-length outputs. The expanded exact-linker result was recomputed against
+the current 560,699-read reference from a deterministic August 11 output whose
+input, Matchbox binary, configuration, and expanded-list hashes are unchanged.
+Its original one-run diagnostic cost was 4,308 s (71.8 min) and 434.1 MiB peak
+RSS; this is not a final `/dev/null` performance result.
+
 ## Frozen artifacts
 
 - `publication_results/journal_rerun_2026-08-17/publication-core-correctness-t32.yaml`
@@ -58,6 +94,7 @@ component outputs had identical read-ID sets within each pass.
 - `publication_results/journal_rerun_2026-08-17/lr_splitseq_dual_accuracy_metrics.json`
 - `publication_results/journal_rerun_2026-08-17/lr_splitseq_dual_accuracy_metrics.csv`
 - `publication_results/journal_rerun_2026-08-17/lr_splitseq_dual_pairwise_metrics.csv`
+- `publication_results/journal_rerun_2026-08-17/lr_matchbox_hamming_expansion_sensitivity.json`
 
 Large materialized FASTQs and compact accession bitmaps remain in the external
 campaign directory recorded by the metrics artifact.

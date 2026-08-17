@@ -12,3 +12,10 @@ and computes accuracy against the revised conservative structural references.
 
 See `PUBLICATION_RERUN_STATUS.md` at the repository root for the active matrix
 of completed and pending accuracy and performance results.
+
+`lr_matchbox_hamming_expansion_sensitivity.json` evaluates the deterministic
+August 11 Matchbox Hamming-expanded/exact-linker output against the revised
+current LR-SPLiT-seq reference and current seqproc/splitcode outputs. Complete
+binary, input, configuration, expansion-list, timing, and ambiguity provenance
+for that output is retained in
+`../lr_splitseq_hamming_expansion_grid_2026-08-11/results.json`.
