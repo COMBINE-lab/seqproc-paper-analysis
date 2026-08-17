@@ -15,7 +15,7 @@ count as complete here.
 | LR-SPLiT-seq dual orientation, primary | Complete | **Complete** | Pending |
 | LR-SPLiT-seq forward-only, supplementary | Definition/configs complete; forward-only reference subset pending | Pending | Pending |
 | 10x Chromium v2, primary | Complete | Pending | Pending |
-| sci-RNA-seq3, primary | Complete | Pending | Pending |
+| sci-RNA-seq3, primary | Complete | **Complete** | Pending |
 
 Final performance runs direct biological outputs to `/dev/null`; correctness
 runs materialize and validate outputs. Therefore, diagnostic time/RSS recorded
@@ -87,6 +87,52 @@ input, Matchbox binary, configuration, and expanded-list hashes are unchanged.
 Its original one-run diagnostic cost was 4,308 s (71.8 min) and 434.1 MiB peak
 RSS; this is not a final `/dev/null` performance result.
 
+## Newly completed: sci-RNA-seq3 accuracy
+
+Input: 22,088,821 read pairs. Conservative structural reference: 19,864,110
+pairs. All tools used one frozen 32-thread run pinned to physical CPUs 1--32
+and performed the aligned anchor-filter plus BC1+BC2+UMI projection workload.
+
+| Tool | Emitted | Intersection | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|---:|
+| seqproc | 19,879,895 | 19,853,935 | 0.998694 | 0.999488 | 0.999091 |
+| matchbox | 19,559,040 | 19,533,875 | 0.998713 | 0.983375 | 0.990985 |
+| splitcode | 19,695,955 | 19,669,995 | 0.998682 | 0.990228 | 0.994437 |
+
+Matchbox required a configuration correction before this result was frozen.
+The first attempt expressed the documented 9- and 10-nt BC1 geometries as two
+ordered approximate-match branches. A match of the first branch shadows the
+second branch before its length guard is evaluated, leaving only 4,571 28-nt
+products and reducing recall to 0.600593. The corrected script captures one
+variable-length prefix and then accepts only lengths 9 or 10. It emits
+7,901,629 28-nt and 11,657,411 27-nt products, raising recall to 0.983375
+without reducing precision. The superseded result is diagnostic and is not a
+publication result.
+
+All Matchbox and splitcode accepted IDs are subsets of seqproc's accepted IDs.
+seqproc and splitcode overlap on 19,695,955 IDs (Jaccard 0.990747); seqproc and
+Matchbox overlap on 19,559,040 (Jaccard 0.983860); Matchbox and splitcode
+overlap on 19,489,430 (Jaccard 0.986029).
+
+The reference rejects 25,960 reads whose equally good edit-one anchor matches
+occur at both allowed BC1 offsets. seqproc and splitcode each retain all 25,960
+of these, while Matchbox retains 25,165. This accounts for essentially all
+nominal false positives and should be described as an ambiguity-policy
+difference rather than evidence of biologically invalid reads.
+
+### Accuracy-run resource diagnostics (not final performance numbers)
+
+| Tool | Wall time | Peak RSS |
+|---|---:|---:|
+| seqproc | 6.772 s | 74.0 MiB |
+| matchbox | 78.061 s | 3,102.2 MiB |
+| splitcode | 11.179 s | 1,834.9 MiB |
+
+These runs materialized and validated outputs. In particular, Matchbox's
+corrected variable-prefix search changes its performance profile, so the old
+Matchbox sci-RNA-seq3 `/dev/null` timing results must be replaced in the final
+performance campaign.
+
 ## Frozen artifacts
 
 - `publication_results/journal_rerun_2026-08-17/publication-core-correctness-t32.yaml`
@@ -95,6 +141,11 @@ RSS; this is not a final `/dev/null` performance result.
 - `publication_results/journal_rerun_2026-08-17/lr_splitseq_dual_accuracy_metrics.csv`
 - `publication_results/journal_rerun_2026-08-17/lr_splitseq_dual_pairwise_metrics.csv`
 - `publication_results/journal_rerun_2026-08-17/lr_matchbox_hamming_expansion_sensitivity.json`
+- `publication_results/journal_rerun_2026-08-17/publication-core-correctness-t32-r2.yaml`
+- `publication_results/journal_rerun_2026-08-17/publication-core-correctness-t32-r2.schedule.json`
+- `publication_results/journal_rerun_2026-08-17/scirnaseq3_accuracy_metrics.json`
+- `publication_results/journal_rerun_2026-08-17/scirnaseq3_accuracy_metrics.csv`
+- `publication_results/journal_rerun_2026-08-17/scirnaseq3_pairwise_metrics.csv`
 
 Large materialized FASTQs and compact accession bitmaps remain in the external
 campaign directory recorded by the metrics artifact.

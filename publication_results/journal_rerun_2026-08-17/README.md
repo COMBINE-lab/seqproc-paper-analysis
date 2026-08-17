@@ -2,7 +2,9 @@
 
 This directory contains curated, commit-sized artifacts from the staged journal
 rerun. The full materialized outputs live under
-`/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17/`.
+`/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17/` and its
+configuration-correction revision
+`/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/`.
 
 The accuracy manifest contains all current technology blocks. Blocks are run
 incrementally with `run_frozen_schedule.py --dataset ...`, and the reusable
@@ -19,3 +21,8 @@ current LR-SPLiT-seq reference and current seqproc/splitcode outputs. Complete
 binary, input, configuration, expansion-list, timing, and ambiguity provenance
 for that output is retained in
 `../lr_splitseq_hamming_expansion_grid_2026-08-11/results.json`.
+
+The `scirnaseq3_*` artifacts and the `*-r2` frozen manifest/schedule record the
+official sci-RNA-seq3 accuracy block. Revision 2 replaces an ordered two-branch
+Matchbox expression that accidentally shadowed the 10-nt BC1 geometry with a
+single variable-prefix capture guarded to the documented 9- or 10-nt lengths.

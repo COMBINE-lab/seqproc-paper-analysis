@@ -1,0 +1,374 @@
+{
+  "auditor": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit",
+    "sha256": "06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca"
+  },
+  "campaign": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2",
+  "datasets": [
+    "scirnaseq3"
+  ],
+  "manifest": {
+    "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/specs/publication-core-correctness-t32.yaml",
+    "sha256": "fd38ea2e6c8f3028aa2bca93b5fbbbbba78b95f9b1fdf8d2c017dacf57512214"
+  },
+  "metrics": [
+    {
+      "dataset": "scirnaseq3",
+      "emitted_fraction": 0.8999980125693444,
+      "emitted_records": 19879895,
+      "f1": 0.9990908062738015,
+      "input_records": 22088821,
+      "intersection_records": 19853935,
+      "precision": 0.9986941580928873,
+      "recall": 0.999487769650893,
+      "reference_records": 19864110,
+      "tool": "seqproc"
+    },
+    {
+      "dataset": "scirnaseq3",
+      "emitted_fraction": 0.8854723391529136,
+      "emitted_records": 19559040,
+      "f1": 0.9909849923205021,
+      "input_records": 22088821,
+      "intersection_records": 19533875,
+      "precision": 0.9987133826609077,
+      "recall": 0.9833752934312184,
+      "reference_records": 19864110,
+      "tool": "matchbox"
+    },
+    {
+      "dataset": "scirnaseq3",
+      "emitted_fraction": 0.8916707233944265,
+      "emitted_records": 19695955,
+      "f1": 0.9944369403841982,
+      "input_records": 22088821,
+      "intersection_records": 19669995,
+      "precision": 0.9986819628700411,
+      "recall": 0.9902278531482156,
+      "reference_records": 19864110,
+      "tool": "splitcode"
+    }
+  ],
+  "pairwise": [
+    {
+      "dataset": "scirnaseq3",
+      "intersection_records": 19559040,
+      "jaccard": 0.9838603272300985,
+      "left": "seqproc",
+      "left_only_records": 320855,
+      "right": "matchbox",
+      "right_only_records": 0,
+      "union_records": 19879895
+    },
+    {
+      "dataset": "scirnaseq3",
+      "intersection_records": 19695955,
+      "jaccard": 0.9907474360402809,
+      "left": "seqproc",
+      "left_only_records": 183940,
+      "right": "splitcode",
+      "right_only_records": 0,
+      "union_records": 19879895
+    },
+    {
+      "dataset": "scirnaseq3",
+      "intersection_records": 19489430,
+      "jaccard": 0.9860294911883369,
+      "left": "matchbox",
+      "left_only_records": 69610,
+      "right": "splitcode",
+      "right_only_records": 206525,
+      "union_records": 19765565
+    }
+  ],
+  "provenance": {
+    "scirnaseq3/matchbox": {
+      "attempt": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/191359a8f64c7ff2c07d92aa21c47418cc4fe5e525f84f47637a10e918d695e1/attempt-0001",
+      "condition_id": "scirnaseq3-t32-r1-matchbox",
+      "configs": [
+        {
+          "bytes": 642,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/matchbox/publication_sciseq3.mb",
+          "sha256": "e0cf3e1f5e7a4939b8a47431b51d9cd78476d4fbd6db622739d13b6c8457c47f"
+        }
+      ],
+      "executables": [
+        {
+          "bytes": 23784,
+          "digest_source": "verified",
+          "path": "/usr/bin/taskset",
+          "sha256": "a72254178813c4ff63c3dc4540c558e0264452a0cdeae8c00f7e74c106d062fa"
+        },
+        {
+          "bytes": 109772224,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2/target/release/matchbox",
+          "sha256": "992ebc5b0f447162bc5d999f51d490df3c38b7f0c1fb9b9f8e31aeda4fe6b2ec"
+        },
+        {
+          "bytes": 4400696,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit",
+          "sha256": "06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca"
+        }
+      ],
+      "group_records": {
+        "accepted": 19559040
+      },
+      "repositories": [
+        {
+          "commit": "48ebfc66f87955e3e7c687c6c9bab1cabdd382fc",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "analysis",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "76afc9941bd2bdc901a3cb5667f8785704c8c40d",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "matchbox",
+          "path": "/scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2",
+          "status": [],
+          "untracked": []
+        }
+      ],
+      "run": {
+        "peak_rss_kib": 3176672,
+        "system_cpu_seconds": 9.83,
+        "user_cpu_seconds": 411.35,
+        "wall_seconds": 78.060961024
+      },
+      "sources": [
+        {
+          "audit": {
+            "max_sequence_length": 28,
+            "min_sequence_length": 27,
+            "records": 19559040,
+            "sequence_length_counts": {
+              "27": 11657411,
+              "28": 7901629
+            }
+          },
+          "bitmap": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/scirnaseq3.matchbox.accepted.1.bitmap",
+          "bitmap_sha256": "b3fe76a430b0e93a71b5390629799d0b02eebc3bc5901ecd3f2aac6cd0c7e31e",
+          "fastq": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/191359a8f64c7ff2c07d92aa21c47418cc4fe5e525f84f47637a10e918d695e1/attempt-0001/tool-work/mb_r1.fq",
+          "fastq_sha256": "9bdef854f328e8fd103e041c5690cffbd126d20e7b9ba02777a4dc41a9dd7406"
+        },
+        {
+          "audit": {
+            "max_sequence_length": 56,
+            "min_sequence_length": 56,
+            "records": 19559040,
+            "sequence_length_counts": {
+              "56": 19559040
+            }
+          },
+          "bitmap": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/scirnaseq3.matchbox.accepted.2.bitmap",
+          "bitmap_sha256": "b3fe76a430b0e93a71b5390629799d0b02eebc3bc5901ecd3f2aac6cd0c7e31e",
+          "fastq": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/191359a8f64c7ff2c07d92aa21c47418cc4fe5e525f84f47637a10e918d695e1/attempt-0001/tool-work/mb_r2.fq",
+          "fastq_sha256": "b5bc76d0a05ecfdfc0313367d9cbf5fa3953349d6b9b70a975438fa4326a27f6"
+        }
+      ]
+    },
+    "scirnaseq3/seqproc": {
+      "attempt": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/6ded5ce1df2cfd2f75bafec61c4b98ced43676c477d552279db74bef4807ccbe/attempt-0001",
+      "condition_id": "scirnaseq3-t32-r1-seqproc",
+      "configs": [
+        {
+          "bytes": 324,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/sciseq3_edit.geom",
+          "sha256": "a26b4399362f4045dd25d9433a7b1c6eba5d18fafc39b3f4412ea1e537ba80bf"
+        }
+      ],
+      "executables": [
+        {
+          "bytes": 23784,
+          "digest_source": "verified",
+          "path": "/usr/bin/taskset",
+          "sha256": "a72254178813c4ff63c3dc4540c558e0264452a0cdeae8c00f7e74c106d062fa"
+        },
+        {
+          "bytes": 9397296,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc/target/release/seqproc",
+          "sha256": "bd671c841e1cf97e25ea9113cd5f4fcd8c08496b3c63ec78786031ec17cbaa7f"
+        },
+        {
+          "bytes": 4400696,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit",
+          "sha256": "06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca"
+        }
+      ],
+      "group_records": {
+        "accepted": 19879895
+      },
+      "repositories": [
+        {
+          "commit": "48ebfc66f87955e3e7c687c6c9bab1cabdd382fc",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "analysis",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "cbc156bea6f5d713ea73bbba1e6c55b7a85a58d8",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "seqproc",
+          "path": "/scratch1/seqproc-ecosystem/seqproc",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "f3b0f1ea0b286b680d963382f2bf7316058d83e4",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "antisequence",
+          "path": "/scratch1/seqproc-ecosystem/antisequence",
+          "status": [],
+          "untracked": []
+        }
+      ],
+      "run": {
+        "peak_rss_kib": 75776,
+        "system_cpu_seconds": 1.49,
+        "user_cpu_seconds": 20.84,
+        "wall_seconds": 6.772047833
+      },
+      "sources": [
+        {
+          "audit": {
+            "max_sequence_length": 28,
+            "min_sequence_length": 27,
+            "records": 19879895,
+            "sequence_length_counts": {
+              "27": 11951692,
+              "28": 7928203
+            }
+          },
+          "bitmap": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/scirnaseq3.seqproc.accepted.1.bitmap",
+          "bitmap_sha256": "8f19cf4c46bf773b242a9a8cb432f4a29d664874055be6ddf255f68eed0c3334",
+          "fastq": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/6ded5ce1df2cfd2f75bafec61c4b98ced43676c477d552279db74bef4807ccbe/attempt-0001/R1.fastq",
+          "fastq_sha256": "28dc308f722a473aaeb6b01f7624e6c80bfc082e34540ab544ac46cb3240adb5"
+        },
+        {
+          "audit": {
+            "max_sequence_length": 56,
+            "min_sequence_length": 56,
+            "records": 19879895,
+            "sequence_length_counts": {
+              "56": 19879895
+            }
+          },
+          "bitmap": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/scirnaseq3.seqproc.accepted.2.bitmap",
+          "bitmap_sha256": "8f19cf4c46bf773b242a9a8cb432f4a29d664874055be6ddf255f68eed0c3334",
+          "fastq": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/6ded5ce1df2cfd2f75bafec61c4b98ced43676c477d552279db74bef4807ccbe/attempt-0001/R2.fastq",
+          "fastq_sha256": "679412ea6d32cc8234ac522df3885f20a9990d5b3800e58da8a58a0e6a9b1d24"
+        }
+      ]
+    },
+    "scirnaseq3/splitcode": {
+      "attempt": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/410421334a3882ba50d06535f8e35070dc7124fbdc0d210ad68ec4d0dd55af51/attempt-0001",
+      "condition_id": "scirnaseq3-t32-r1-splitcode",
+      "configs": [
+        {
+          "bytes": 271,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/splitcode/sciseq3.config",
+          "sha256": "82b92df7c3a20736e9f4de04236076a97197237a67ff368c4322bd169a92981c"
+        }
+      ],
+      "executables": [
+        {
+          "bytes": 23784,
+          "digest_source": "verified",
+          "path": "/usr/bin/taskset",
+          "sha256": "a72254178813c4ff63c3dc4540c558e0264452a0cdeae8c00f7e74c106d062fa"
+        },
+        {
+          "bytes": 2248280,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/competitors/splitcode-v0.31.6/build/src/splitcode",
+          "sha256": "ff0df2e3bc7e8b2893ede0552b776ee543764493dbf8d9316fb6aa0ca4aa0c23"
+        },
+        {
+          "bytes": 4400696,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit",
+          "sha256": "06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca"
+        }
+      ],
+      "group_records": {
+        "accepted": 19695955
+      },
+      "repositories": [
+        {
+          "commit": "48ebfc66f87955e3e7c687c6c9bab1cabdd382fc",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "analysis",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "530d1fef9f5a17bd85a5ade436da7f52c0485c39",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "splitcode",
+          "path": "/scratch1/seqproc-ecosystem/competitors/splitcode-v0.31.6",
+          "status": [],
+          "untracked": []
+        }
+      ],
+      "run": {
+        "peak_rss_kib": 1878912,
+        "system_cpu_seconds": 0.92,
+        "user_cpu_seconds": 32.78,
+        "wall_seconds": 11.178614635
+      },
+      "sources": [
+        {
+          "audit": {
+            "max_sequence_length": 28,
+            "min_sequence_length": 27,
+            "records": 19695955,
+            "sequence_length_counts": {
+              "27": 11796875,
+              "28": 7899080
+            }
+          },
+          "bitmap": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/scirnaseq3.splitcode.accepted.1.bitmap",
+          "bitmap_sha256": "f30aa8474580c1267c89e84abde232e81ed611e1673f6845c7209484844c7f7c",
+          "fastq": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/410421334a3882ba50d06535f8e35070dc7124fbdc0d210ad68ec4d0dd55af51/attempt-0001/tool-work/splitcode_sci_rna_seq3.fastq",
+          "fastq_sha256": "c28f8cf6359107973ef7ee4cdbb52173e9eb14cc92bdb791ef5953dd879175f0"
+        }
+      ]
+    }
+  },
+  "references": {
+    "scirnaseq3": {
+      "interpretation": "conservative structural reference, not biological ground truth",
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/scirnaseq3_core.valid_ids.txt",
+      "records": 19864110,
+      "sha256": "d685a28119972ffb6d456873391d8cb52ad10e24676890d6dadcbb2dae526b74"
+    }
+  },
+  "schedule": {
+    "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/specs/publication-core-correctness-t32.schedule.json",
+    "sha256": "6e40aced9474b73b5d2e77e0278d7fd070d3d417f6e654388066d7a4769e5a5a"
+  },
+  "schema_version": "1.0.0",
+  "summarizer": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/summarize_publication_accuracy.py",
+    "sha256": "e88fa9300eea55b754eed76398f25d081c6f0bb35ccf98ef6b6f96aaf9e3276d"
+  }
+}
