@@ -13,9 +13,9 @@ count as complete here.
 |---|---|---|---|
 | SPLiT-seq PE, primary | Complete | **Complete** | Pending |
 | LR-SPLiT-seq dual orientation, primary | Complete | **Complete** | Pending |
-| LR-SPLiT-seq forward-only, supplementary | Definition/configs complete; forward-only reference subset pending | Pending | Pending |
+| LR-SPLiT-seq forward-only, supplementary | Definition/configs complete; forward-only reference subset pending | Pending | **Complete** |
 | 10x Chromium v2, primary | Complete | **Complete** | Pending |
-| sci-RNA-seq3, primary | Complete | **Complete** | Pending |
+| sci-RNA-seq3, primary | Complete | **Complete** | **Complete** |
 
 Final performance runs direct biological outputs to `/dev/null`; correctness
 runs materialize and validate outputs. Therefore, diagnostic time/RSS recorded
@@ -188,6 +188,57 @@ because no pair fails the sole retention criterion.
 | matchbox | 601.264 s | 40.1 MiB |
 | splitcode | 88.674 s | 1,234.8 MiB |
 
+## Newly completed: sci-RNA-seq3 final performance
+
+The final timing block used uncompressed inputs and directed requested
+biological sequence output to `/dev/null`. Values are mean wall time +/- sample
+standard deviation over three randomized full-data replicates.
+
+| Threads | seqproc | splitcode | matchbox |
+|---:|---:|---:|---:|
+| 1 | 16.118 +/- 0.029 s | 26.966 +/- 0.226 s | 233.997 +/- 2.616 s |
+| 4 | 6.423 +/- 0.150 s | 12.881 +/- 0.000 s | 88.241 +/- 0.958 s |
+| 16 | 6.456 +/- 0.029 s | 11.664 +/- 0.031 s | 72.204 +/- 0.655 s |
+| 32 | 7.256 +/- 0.838 s | 10.379 +/- 0.050 s | 75.156 +/- 0.834 s |
+
+seqproc is fastest at every thread count. At one thread it is 1.67-fold faster
+than splitcode and 14.52-fold faster than Matchbox; at 32 threads those ratios
+are 1.43-fold and 10.36-fold. seqproc reaches its best mean at four threads,
+consistent with an I/O or memory-bandwidth ceiling on this uncompressed input.
+Maximum observed 32-thread RSS was 73.0 MiB for seqproc, 1,833.7 MiB for
+splitcode, and 3,104.4 MiB for Matchbox.
+
+These Matchbox timings use the corrected variable-prefix expression that
+accepts both documented 9- and 10-nt BC1 geometries. Timings from the
+superseded shadowing two-branch script are not publication results.
+
+## Newly completed: LR-SPLiT-seq forward-only final performance
+
+This supplementary controlled comparison uses the same complete-component,
+canonical-list constraints as the primary dual-orientation block. Matchbox is
+boundary-safe exact, splitcode linker matching is substitution-only, and all
+requested biological outputs are directed to `/dev/null`.
+
+| Threads | seqproc | splitcode | matchbox |
+|---:|---:|---:|---:|
+| 1 | 14.650 +/- 0.058 s | 221.907 +/- 1.950 s | 3,075.491 +/- 4.018 s |
+| 4 | 3.753 +/- 0.029 s | 57.324 +/- 0.603 s | 780.362 +/- 2.330 s |
+| 16 | 2.801 +/- 0.029 s | 16.554 +/- 0.307 s | 206.140 +/- 1.468 s |
+| 32 | 3.118 +/- 0.050 s | 8.610 +/- 0.175 s | 106.246 +/- 0.347 s |
+
+seqproc is fastest at every thread count. At one thread it is 15.15-fold faster
+than splitcode and 209.93-fold faster than Matchbox; at 32 threads those ratios
+are 2.76-fold and 34.07-fold. Maximum observed 32-thread RSS was 71.0 MiB for
+seqproc, 532.9 MiB for splitcode, and 30.8 MiB for Matchbox.
+
+The Matchbox result is intentionally very different from the old performance
+table. The conservative-reference audit showed that native fuzzy adjacent
+captures can move biological field boundaries, so the semantically aligned
+configuration uses exact canonical barcode and linker lists. That corrected
+configuration is highly reproducible and scales almost linearly, but takes
+51.26 minutes at one thread and 106.25 seconds at 32 threads. The old fast
+fuzzy configuration must not be used for either timing or accuracy claims.
+
 ## Frozen artifacts
 
 - `publication_results/journal_rerun_2026-08-17/publication-core-correctness-t32.yaml`
@@ -207,6 +258,11 @@ because no pair fails the sole retention criterion.
 - `publication_results/journal_rerun_2026-08-17/tenx_v2_accuracy_metrics.json`
 - `publication_results/journal_rerun_2026-08-17/tenx_v2_accuracy_metrics.csv`
 - `publication_results/journal_rerun_2026-08-17/tenx_v2_pairwise_metrics.csv`
+- `publication_results/journal_performance_2026-08-17/frozen_manifest.yaml`
+- `publication_results/journal_performance_2026-08-17/frozen_schedule.json`
+- `publication_results/journal_performance_2026-08-17/execution-log.jsonl`
+- `publication_results/journal_performance_2026-08-17/scirnaseq3/`
+- `publication_results/journal_performance_2026-08-17/lr_splitseq_forward/`
 
 Large materialized FASTQs and compact accession bitmaps remain in the external
 campaign directory recorded by the metrics artifact.
