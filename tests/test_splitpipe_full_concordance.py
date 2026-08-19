@@ -1,3 +1,4 @@
+import gzip
 import importlib.util
 import sys
 from pathlib import Path
@@ -53,3 +54,17 @@ def test_splitpipe_fastq_rejects_bad_quality_length(tmp_path):
     path.write_bytes(b"@x__OH_@ACC.1 1/1\nACGT\n+\nIII\n")
     with pytest.raises(ValueError, match="sequence/quality length mismatch"):
         MODULE.splitpipe_fastq_bitmap(path, 8, "ACC")
+
+
+def test_compressed_input_matches_campaign_file(tmp_path):
+    plain = tmp_path / "input.fastq"
+    compressed = tmp_path / "input.fastq.gz"
+    plain.write_bytes(b"@ACC.1 1/1\nACGT\n+\nIIII\n")
+    with gzip.open(compressed, "wb") as handle:
+        handle.write(plain.read_bytes())
+    provenance = MODULE.compressed_input_provenance(compressed, plain)
+    assert provenance["decompressed_payload"]["byte_identical_to_campaign_input"]
+    assert (
+        provenance["decompressed_payload"]["sha256"]
+        == provenance["campaign_uncompressed"]["sha256"]
+    )

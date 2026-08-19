@@ -296,6 +296,8 @@ python3 scripts/splitpipe_full_concordance.py \
   --archived-records 10000000 \
   --input-r1 /path/to/SRR6750041_1.fastq.gz \
   --input-r2 /path/to/SRR6750041_2.fastq.gz \
+  --campaign-input-r1 /path/to/SRR6750041_R1.fastq \
+  --campaign-input-r2 /path/to/SRR6750041_R2.fastq \
   --splitpipe-run-def /path/to/splitpipe/process/run_proc_def.json \
   --splitpipe-log /path/to/splitpipe/split-pipe_v1_4_0.log \
   --splitpipe-config configs/split-pipe/splitseq_pe_v1.par

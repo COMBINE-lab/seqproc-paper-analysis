@@ -34,17 +34,37 @@
     "records_considered": 10000000
   },
   "comparison": "agreement with a fresh split-pipe vendor accepted-read set",
-  "created_at_utc": "2026-08-19T15:37:06.639178+00:00",
+  "created_at_utc": "2026-08-19T15:44:22.562942+00:00",
   "dataset": "splitseq_pe",
   "input_records": 77621181,
   "inputs": {
     "r1": {
       "bytes": 2765238536,
+      "campaign_uncompressed": {
+        "bytes": 13018136202,
+        "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq",
+        "sha256": "33eb06ed9633973e8a254d82dfbf728ebc47791b2bf6cb6344572b64da8a6597"
+      },
+      "decompressed_payload": {
+        "byte_identical_to_campaign_input": true,
+        "bytes": 13018136202,
+        "sha256": "33eb06ed9633973e8a254d82dfbf728ebc47791b2bf6cb6344572b64da8a6597"
+      },
       "path": "/scratch1/seqproc-benchmark-data/full/compressed/SRR6750041_1.fastq.gz",
       "sha256": "9a297eff8193123b1ba097330a136a3a665a9987ee7ea90cb811b8493caad94a"
     },
     "r2": {
       "bytes": 3088224291,
+      "campaign_uncompressed": {
+        "bytes": 17364922338,
+        "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq",
+        "sha256": "6bebdc56002acb3097df464f73fd853da0f855521e25d1845a36a1162c848731"
+      },
+      "decompressed_payload": {
+        "byte_identical_to_campaign_input": true,
+        "bytes": 17364922338,
+        "sha256": "6bebdc56002acb3097df464f73fd853da0f855521e25d1845a36a1162c848731"
+      },
       "path": "/scratch1/seqproc-benchmark-data/full/compressed/SRR6750041_2.fastq.gz",
       "sha256": "96b45cf242685c4ed574c115768a0ee5844a81b386fe2f0083f21a9eafe82b64"
     }
@@ -53,7 +73,7 @@
   "program": {
     "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/splitpipe_full_concordance.py",
     "python": "3.9.25",
-    "sha256": "8abf1330d5a51255fd654229f020d543b95414e9b14b0927c78dd44bd1dff441"
+    "sha256": "69bf5b28571bd652a6904c334e5a8b3e515ba5c75590e2d7c2da49fb7504b833"
   },
   "schema_version": "1.0.0",
   "splitpipe": {

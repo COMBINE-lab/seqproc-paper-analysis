@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import hashlib
 import json
 import sys
@@ -140,6 +141,54 @@ def optional_file(path: Path | None, include_json: bool = False) -> dict[str, ob
     return result
 
 
+def compressed_input_provenance(
+    compressed: Path, campaign_plain: Path | None
+) -> dict[str, object]:
+    """Record a gzip input and optionally prove its payload equals a plain file."""
+    result = optional_file(compressed)
+    assert result is not None
+    if campaign_plain is None:
+        return result
+
+    plain = campaign_plain.resolve()
+    compressed_digest = hashlib.sha256()
+    plain_digest = hashlib.sha256()
+    decompressed_bytes = 0
+    plain_bytes = 0
+    identical = True
+    with gzip.open(compressed, "rb") as left, plain.open("rb") as right:
+        while True:
+            left_chunk = left.read(8 * 1024 * 1024)
+            right_chunk = right.read(8 * 1024 * 1024)
+            if left_chunk:
+                compressed_digest.update(left_chunk)
+                decompressed_bytes += len(left_chunk)
+            if right_chunk:
+                plain_digest.update(right_chunk)
+                plain_bytes += len(right_chunk)
+            if left_chunk != right_chunk:
+                identical = False
+                break
+            if not left_chunk:
+                break
+    if not identical:
+        raise ValueError(
+            f"decompressed split-pipe input {compressed} differs from "
+            f"campaign input {campaign_plain}"
+        )
+    result["campaign_uncompressed"] = {
+        "path": str(plain),
+        "bytes": plain_bytes,
+        "sha256": plain_digest.hexdigest(),
+    }
+    result["decompressed_payload"] = {
+        "bytes": decompressed_bytes,
+        "sha256": compressed_digest.hexdigest(),
+        "byte_identical_to_campaign_input": True,
+    }
+    return result
+
+
 def write_csv(path: Path, result: dict[str, object]) -> None:
     fields = [
         "dataset",
@@ -183,6 +232,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--archived-records", type=int, default=10_000_000)
     parser.add_argument("--input-r1", type=Path)
     parser.add_argument("--input-r2", type=Path)
+    parser.add_argument("--campaign-input-r1", type=Path)
+    parser.add_argument("--campaign-input-r2", type=Path)
     parser.add_argument("--splitpipe-run-def", type=Path)
     parser.add_argument("--splitpipe-log", type=Path)
     parser.add_argument("--splitpipe-config", type=Path)
@@ -198,6 +249,12 @@ def main(argv: list[str] | None = None) -> int:
         raise ValueError("--input-records must be positive")
     if (args.input_r1 is None) != (args.input_r2 is None):
         raise ValueError("provide both --input-r1 and --input-r2, or neither")
+    if (args.campaign_input_r1 is None) != (args.campaign_input_r2 is None):
+        raise ValueError(
+            "provide both --campaign-input-r1 and --campaign-input-r2, or neither"
+        )
+    if args.campaign_input_r1 is not None and args.input_r1 is None:
+        raise ValueError("campaign inputs require corresponding split-pipe inputs")
     if args.archived_records <= 0 or args.archived_records > args.input_records:
         raise ValueError("--archived-records must be in 1..--input-records")
 
@@ -254,8 +311,12 @@ def main(argv: list[str] | None = None) -> int:
     }
     if args.input_r1 is not None:
         result["inputs"] = {
-            "r1": optional_file(args.input_r1),
-            "r2": optional_file(args.input_r2),
+            "r1": compressed_input_provenance(
+                args.input_r1, args.campaign_input_r1
+            ),
+            "r2": compressed_input_provenance(
+                args.input_r2, args.campaign_input_r2
+            ),
         }
 
     metric_rows = {row["tool"]: row for row in accuracy["metrics"]}
