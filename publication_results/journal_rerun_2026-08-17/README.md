@@ -51,8 +51,9 @@ in the JSON. This remains vendor-set agreement, not biological ground truth.
 `fig_emitted_set_upset.{svg,pdf,png}` replaces the manuscript's emitted-set
 concordance table with a faceted UpSet plot. The bars are the seven mutually
 exclusive three-tool intersections as percentages of each dataset's any-tool
-union; labels also show exact counts. The accompanying CSV and JSON preserve
-the unrounded values and complete bitmap provenance. Regenerate all five files
+union; the bars are labeled only with percentages for legibility. The
+accompanying CSV and JSON preserve exact counts, unrounded values, and complete
+bitmap provenance. Regenerate all five files
 from the canonical publication bitmaps with:
 
 ```bash

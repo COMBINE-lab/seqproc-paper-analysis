@@ -209,22 +209,6 @@ def collect(results_dir: Path, search_roots: list[Path]) -> list[dict[str, objec
     return datasets
 
 
-def compact_count(value: int) -> str:
-    if value >= 100_000_000:
-        return f"{value / 1_000_000:.0f}M"
-    if value >= 10_000_000:
-        return f"{value / 1_000_000:.1f}M"
-    if value >= 1_000_000:
-        return f"{value / 1_000_000:.2f}M"
-    if value >= 100_000:
-        return f"{value / 1_000:.0f}k"
-    if value >= 10_000:
-        return f"{value / 1_000:.1f}k"
-    if value >= 1_000:
-        return f"{value / 1_000:.2f}k"
-    return f"{value:,}"
-
-
 def percent_label(records: int, percent: float) -> str:
     if records == 0:
         return ""
@@ -254,14 +238,17 @@ def text_element(
 
 def render_svg(datasets: list[dict[str, object]]) -> str:
     width = 1220
-    height = 800
-    left = 205
-    right = 28
-    top = 32
-    panel_height = 130
+    height = 840
+    left = 215
+    right = 25
+    top = 44
+    panel_height = 140
+    plot_top_offset = 24
     plot_height = 82
-    matrix_top = 590
-    matrix_row_gap = 34
+    matrix_rule_y = 620
+    matrix_heading_y = 651
+    matrix_top = 682
+    matrix_row_gap = 38
     centers = [
         left + (index + 0.5) * (width - left - right) / len(INTERSECTIONS)
         for index in range(len(INTERSECTIONS))
@@ -285,23 +272,24 @@ def render_svg(datasets: list[dict[str, object]]) -> str:
         ),
         text_element(
             20,
-            26,
+            30,
             "Exclusive intersections (% of any-tool union)",
-            size=17,
+            size=20,
             weight=600,
         ),
     ]
 
     for panel_index, dataset in enumerate(datasets):
         panel_top = top + panel_index * panel_height
-        baseline = panel_top + plot_height
+        plot_top = panel_top + plot_top_offset
+        baseline = plot_top + plot_height
         color = str(dataset["color"])
         svg.append(
             text_element(
                 20,
-                panel_top + 25,
+                panel_top + 22,
                 str(dataset["label"]),
-                size=16,
+                size=17,
                 weight=700,
             )
         )
@@ -310,7 +298,7 @@ def render_svg(datasets: list[dict[str, object]]) -> str:
                 20,
                 panel_top + 47,
                 f'union = {int(dataset["union_records"]):,}',
-                size=12,
+                size=13,
                 fill="#5F6368",
             )
         )
@@ -325,9 +313,9 @@ def render_svg(datasets: list[dict[str, object]]) -> str:
                 svg.append(
                     text_element(
                         left - 10,
-                        y + 4,
+                        y + 5,
                         str(tick),
-                        size=11,
+                        size=12,
                         anchor="end",
                         fill="#5F6368",
                     )
@@ -344,36 +332,37 @@ def render_svg(datasets: list[dict[str, object]]) -> str:
                     f'<rect x="{x:.1f}" y="{y:.1f}" width="{bar_width:.1f}" '
                     f'height="{max(bar_height, 0.8):.1f}" fill="{color}"/>'
                 )
-                label_y = max(panel_top + 12, y - 17)
+                # The label band above the 100% grid line is reserved inside
+                # each panel so a full-height bar cannot collide with the
+                # preceding panel or title.
+                label_y = max(panel_top + 15, y - 9)
                 svg.append(
                     text_element(
                         centers[column_index],
                         label_y,
                         percent_label(records, percent),
-                        size=11,
-                        weight=600,
+                        size=14,
+                        weight=700,
                         anchor="middle",
-                    )
-                )
-                svg.append(
-                    text_element(
-                        centers[column_index],
-                        label_y + 13,
-                        compact_count(records),
-                        size=9,
-                        anchor="middle",
-                        fill="#5F6368",
                     )
                 )
 
     svg.append(
-        f'<line x1="{left}" y1="{matrix_top-20}" x2="{width-right}" '
-        f'y2="{matrix_top-20}" stroke="#9AA0A6" stroke-width="1"/>'
+        f'<line x1="{left}" y1="{matrix_rule_y}" x2="{width-right}" '
+        f'y2="{matrix_rule_y}" stroke="#9AA0A6" stroke-width="1"/>'
     )
-    svg.append(text_element(20, matrix_top - 2, "Tool membership", size=15, weight=700))
+    svg.append(
+        text_element(
+            20,
+            matrix_heading_y,
+            "Tool membership",
+            size=17,
+            weight=700,
+        )
+    )
     row_positions = [matrix_top + index * matrix_row_gap for index in range(len(TOOLS))]
     for tool, y in zip(TOOLS, row_positions):
-        svg.append(text_element(left - 22, y + 5, tool, size=13, anchor="end"))
+        svg.append(text_element(left - 22, y + 5, tool, size=14, anchor="end"))
         svg.append(
             f'<line x1="{left}" y1="{y:.1f}" x2="{width-right}" y2="{y:.1f}" '
             'stroke="#EEF0F2" stroke-width="1"/>'
@@ -395,16 +384,16 @@ def render_svg(datasets: list[dict[str, object]]) -> str:
         for tool_index, y in enumerate(row_positions):
             included = bool(membership & (1 << tool_index))
             svg.append(
-                f'<circle cx="{x:.1f}" cy="{y:.1f}" r="7" '
+                f'<circle cx="{x:.1f}" cy="{y:.1f}" r="8" '
                 f'fill="{("#202124" if included else "#DADCE0")}"/>'
             )
         words = intersection_label.replace(" + ", "+").split()
         svg.append(
             text_element(
                 x,
-                matrix_top + 3 * matrix_row_gap + 13,
+                matrix_top + 3 * matrix_row_gap + 17,
                 " ".join(words),
-                size=11,
+                size=12,
                 anchor="middle",
                 fill="#3C4043",
             )

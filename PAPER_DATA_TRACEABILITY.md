@@ -126,8 +126,9 @@ The plotted percentages exactly reproduce the superseded table values:
 SPLiT-seq PE `61.41/31.57/0.00/0.00/6.56/0.46/0.00`, LR-SPLiT-seq dual
 `1.46/76.00/0.05/0.00/21.85/0.64/<0.01`, 10x Chromium v2
 `100.00/0/0/0/0/0/0`, and sci-RNA-seq3
-`98.04/1.04/0.35/0.00/0.58/0.00/0.00` in matrix-column order. The exact
-counts and union denominators appear in the plot and machine-readable outputs.
+`98.04/1.04/0.35/0.00/0.58/0.00/0.00` in matrix-column order. The panel union
+denominators appear in the plot; exact intersection counts remain in the
+machine-readable outputs.
 
 ## Table 4 — V_total sizes (`tab:v_total_splitseq`)
 
