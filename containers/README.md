@@ -29,6 +29,33 @@ and digest
 Rebuilds should be recorded by immutable digest rather than assumed to have this
 digest.
 
+## Captured environment locks
+
+The exact resolved environments from that calibration image are committed in
+`containers/locks/`:
+
+- `split-pipe-1.4.0-conda-linux-64.explicit.txt` is the Linux x86-64 output of
+  `conda list --explicit` (SHA-256
+  `e46034f8cd85e39e178239bdeb92d2ebe0d702e1021eba296b90135593792430`).
+- `split-pipe-1.4.0-pip-freeze.txt` is the output of `python -m pip freeze`
+  (SHA-256
+  `22d28b017120448cd93d4e692347a5bc3579da3b5a6b3e19df7455c778942b8c`).
+
+These files are byte-identical to `/opt/split-pipe-1.4.0-conda-explicit.txt`
+and `/opt/split-pipe-1.4.0-pip-freeze.txt` in the recorded image. The explicit
+conda file can recreate the conda portion with:
+
+```bash
+conda create --name spipe \
+  --file containers/locks/split-pipe-1.4.0-conda-linux-64.explicit.txt
+```
+
+The pip file is primarily a provenance and audit snapshot. Its `splitpipe`
+entry intentionally points to the licensed source tree inside the image; it
+does not redistribute that source and is not a standalone split-pipe installer.
+Use the verified archive workflow in the Dockerfile to recreate the complete
+environment.
+
 ## Preprocessing-only reference
 
 split-pipe 1.4.0 validates a split-pipe-formatted genome reference during
