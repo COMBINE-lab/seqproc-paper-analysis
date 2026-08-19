@@ -1,6 +1,6 @@
 # Publication rerun status
 
-Last updated: 2026-08-17
+Last updated: 2026-08-19
 
 This is the active checklist for results computed with the revised structural
 references and semantically aligned publication configurations. Historical
@@ -11,10 +11,10 @@ count as complete here.
 
 | Technology block | Structural reference | Accuracy: 1 run/tool, 32 threads | Final speed/RSS: 3 replicates at 1/4/16/32 threads |
 |---|---|---|---|
-| SPLiT-seq PE, primary | Complete | **Complete** | Pending |
-| LR-SPLiT-seq dual orientation, primary | Complete | **Complete** | Pending |
+| SPLiT-seq PE, primary | Complete | **Complete** | **Complete** |
+| LR-SPLiT-seq dual orientation, primary | Complete | **Complete** | **Complete** |
 | LR-SPLiT-seq forward-only, supplementary | Definition/configs complete; forward-only reference subset pending | Pending | **Complete** |
-| 10x Chromium v2, primary | Complete | **Complete** | Pending |
+| 10x Chromium v2, primary | Complete | **Complete** | **Complete** |
 | sci-RNA-seq3, primary | Complete | **Complete** | **Complete** |
 
 Final performance runs direct biological outputs to `/dev/null`; correctness
@@ -238,6 +238,63 @@ configuration uses exact canonical barcode and linker lists. That corrected
 configuration is highly reproducible and scales almost linearly, but takes
 51.26 minutes at one thread and 106.25 seconds at 32 threads. The old fast
 fuzzy configuration must not be used for either timing or accuracy claims.
+
+## Newly completed: paired-end SPLiT-seq final performance
+
+| Threads | seqproc | splitcode | matchbox |
+|---:|---:|---:|---:|
+| 1 | 116.487 +/- 0.411 s | 418.842 +/- 4.026 s | 3,880.932 +/- 16.800 s |
+| 4 | 29.386 +/- 0.029 s | 116.283 +/- 0.922 s | 1,018.420 +/- 4.812 s |
+| 16 | 25.611 +/- 0.073 s | 49.190 +/- 0.192 s | 369.942 +/- 2.372 s |
+| 32 | 26.998 +/- 0.173 s | 48.716 +/- 0.064 s | 278.445 +/- 1.097 s |
+
+seqproc is fastest at every thread count. Maximum observed 32-thread RSS was
+93.0 MiB for seqproc, 1,284.1 MiB for splitcode, and 7,751.8 MiB for Matchbox.
+
+## Newly completed: LR-SPLiT-seq dual-orientation final performance
+
+The primary comparison uses native dual-orientation processing in seqproc and
+Matchbox and splitcode's measured forward plus reverse-complement two-pass
+wrapper. It does not time a duplicate-reconciliation step; that unsupported
+post-processing requirement is disclosed as a capability limitation.
+
+| Threads | seqproc | splitcode, two pass | matchbox |
+|---:|---:|---:|---:|
+| 1 | 30.520 +/- 0.077 s | 446.242 +/- 6.575 s | 6,107.127 +/- 9.577 s |
+| 4 | 7.757 +/- 0.030 s | 114.265 +/- 0.377 s | 1,544.750 +/- 1.402 s |
+| 16 | 3.519 +/- 0.050 s | 32.825 +/- 1.099 s | 397.976 +/- 1.864 s |
+| 32 | 4.271 +/- 0.051 s | 17.239 +/- 0.100 s | 202.946 +/- 0.504 s |
+
+seqproc is fastest at every thread count. Maximum observed 32-thread RSS was
+112.0 MiB for seqproc, 532.2 MiB for splitcode, and 56.6 MiB for Matchbox.
+
+## Newly completed: 10x Chromium v2 final performance
+
+The aligned workload applies the 26-nucleotide R1 structural filter and writes
+requested biological sequence output to `/dev/null`. Values are mean wall time
++/- sample standard deviation over three randomized full-data replicates.
+
+| Threads | seqproc | splitcode | matchbox |
+|---:|---:|---:|---:|
+| 1 | 102.928 +/- 1.012 s | 142.211 +/- 0.757 s | 1,468.733 +/- 3.354 s |
+| 4 | 36.612 +/- 0.087 s | 68.821 +/- 0.236 s | 582.965 +/- 6.491 s |
+| 16 | 42.314 +/- 0.100 s | 68.847 +/- 0.584 s | 534.499 +/- 24.954 s |
+| 32 | 43.319 +/- 0.218 s | 67.761 +/- 0.380 s | 575.029 +/- 1.886 s |
+
+seqproc is fastest at every measured thread count. At one thread it is
+1.38-fold faster than splitcode and 14.27-fold faster than Matchbox; at 32
+threads those ratios are 1.56-fold and 13.27-fold. seqproc reaches its best
+mean at four threads, after which this simple pass-through/filter workload is
+limited by input and coordination overhead rather than graph computation.
+Maximum observed 32-thread RSS was 74.0 MiB for seqproc, 1,250.8 MiB for
+splitcode, and 40.6 MiB for Matchbox.
+
+All 36 scheduled conditions are valid. During the block, the coordinator was
+interrupted after two valid conditions while a Matchbox condition was in
+flight. Its orphaned attempt had an empty GNU-time file and no terminal
+`run.json`, so it supplied no measurement. Resume retained the two valid
+conditions, reran the incomplete condition in a new immutable attempt, and
+completed the other conditions with zero failures.
 
 ## Frozen artifacts
 

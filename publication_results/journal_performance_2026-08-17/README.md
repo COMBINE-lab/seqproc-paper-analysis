@@ -17,6 +17,16 @@ Completed in this checkpoint:
 
 - `scirnaseq3`: 36/36 successful conditions.
 - `lr_splitseq_forward`: 36/36 successful conditions.
+- `splitseq_pe`: 36/36 successful conditions.
+- `lr_splitseq_dual`: 36/36 successful conditions.
+- `tenx_v2`: 36/36 successful conditions.
+
+The 10x block survived a coordinator interruption without duplicating valid
+measurements: two completed conditions were retained, the incomplete Matchbox
+attempt had no timing or terminal run record, and the resumed coordinator
+skipped the two valid conditions and completed the remaining 34 with zero
+failures. The empty interrupted attempt remains in the scratch run tree for
+auditability and is not included in the aggregate.
 
 Timing runs intentionally do not materialize FASTQ output. Exact read-set and
 output-shape validation is reported separately in the journal accuracy
