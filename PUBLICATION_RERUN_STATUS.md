@@ -162,6 +162,27 @@ splitcode overlap on 53,232,995 IDs (Jaccard 0.929769); seqproc contains
 | matchbox | 281.690 s | 7,751.1 MiB |
 | splitcode | 50.249 s | 1,282.5 MiB |
 
+## Newly completed: full SPLiT-seq PE split-pipe agreement
+
+A containerized split-pipe 1.4.0 preprocessing configuration was calibrated on
+the first 10,000,000 pairs before being run on the full input. The calibration
+reproduced all 7,539,920 archived accepted IDs exactly (zero symmetric
+difference). On all 77,621,181 pairs, split-pipe accepted 59,697,558 (76.91%).
+These are vendor-set agreement statistics, not biological ground-truth metrics.
+
+| Tool | Emitted | Intersection | Precision | Recall | F1 | Jaccard |
+|---|---:|---:|---:|---:|---:|---:|
+| seqproc | 56,991,381 | 55,464,563 | 0.973210 | 0.929093 | 0.950640 | 0.905923 |
+| matchbox | 35,160,366 | 35,151,520 | 0.999748 | 0.588827 | 0.741140 | 0.588740 |
+| splitcode | 53,495,595 | 52,904,336 | 0.988948 | 0.886206 | 0.934762 | 0.877515 |
+
+The source artifact is
+`publication_results/journal_rerun_2026-08-17/splitseq_pe_splitpipe_vendor_full.json`;
+the associated CSV and compact vendor bitmap are stored beside it. The JSON
+records the input, image, configuration, split-pipe run definition, final tool
+bitmaps, executables, and repositories. Container build and run instructions
+are in `containers/README.md`.
+
 ## Newly completed: 10x Chromium v2 accuracy
 
 Input: 234,382,218 read pairs. Every R1 in this accession satisfied the

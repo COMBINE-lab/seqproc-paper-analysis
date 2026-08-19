@@ -1,0 +1,4 @@
+# STAR's default suffix-array parameter assumes a mammalian genome. This tiny
+# reference exists only because split-pipe 1.4.0 validates a genome in `pre`
+# mode; no alignment is run and the reference cannot affect barcode retention.
+mkref_star_args --genomeSAindexNbases,1,--genomeSAsparseD,2,--limitGenomeGenerateRAM,24000000000

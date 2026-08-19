@@ -6,8 +6,8 @@
 > [`performance`](publication_results/journal_performance_2026-08-17/) and
 > one-run, 32-thread
 > [`accuracy`](publication_results/journal_rerun_2026-08-17/) bundles. The
-> current SPLiT-seq PE vendor-set comparison is
-> [`splitseq_pe_splitpipe_vendor_10m.json`](publication_results/journal_rerun_2026-08-17/splitseq_pe_splitpipe_vendor_10m.json).
+> current SPLiT-seq PE vendor-set comparison is the full-data
+> [`splitseq_pe_splitpipe_vendor_full.json`](publication_results/journal_rerun_2026-08-17/splitseq_pe_splitpipe_vendor_full.json).
 > Do not use the old values below to rebuild the revised manuscript.
 
 Every table cell, figure quantity, and prose number in the original seqproc preprint, mapped to the script that generates it, the exact command, and the output file. Built by 10 tracer agents reading `/home/ubuntu/paper` against this repo, then reconciled by hand.
@@ -24,11 +24,11 @@ The tracers found that a subset of headline numbers **cannot be reproduced by ru
 
 1. **Input sizes are ENA-confirmed manual corrections.** Table 1 uses **77,621,181** (PE) and **234,382,218** (10x), but `scripts/data_config.py:SRA_INFO` and `results_final/benchmark_results.json` still hold the **old wrong** 86,820,578 and 56,514,800. `count_fastq_reads` on the FASTQs reproduces the *wrong* PE value. The **Emitted %** column is then derived by hand as `emit / ENA-input`, not the script's `recovery_rate`. → *A reviewer re-running the benchmark gets different Emitted % unless they use the ENA denominators.*
 2. **Table 1 runtime/memory come from a snapshot, not the JSON.** The corrected full-dataset runtime/memory live in `results_final/fig3_summary_table.png`; `notebooks/regenerate_figures.ipynb` explicitly warns that `benchmark_results.json` holds stale 1M-subset numbers that "must NOT be used." → *Trust `fig3_summary_table`, not the JSON, for those cells.*
-3. **split-pipe vendor concordance is not reproducible** (results.tex:64–66: 7,539,920 valid; seqproc P 89.8 / R 99.6 / F1 0.944 / J 0.895). `split-pipe` is proprietary (Parse Biosciences). Verify against the shipped ground truth: `results_final/splitpipe_valid_ids_10M.txt.gz` + `vendor_concordance_pe_10M.json` via `scripts/verify_vendor_concordance_pe.py`.
+3. **The original-preprint split-pipe workflow was not reproducible from this repository.** The journal revision resolves this for licensed users with the checksummed container recipe and protocol configuration in `containers/`, then validates the full output with `scripts/splitpipe_full_concordance.py`. The recovered command exactly reproduces the archived 10-million-pair ID set before running the full input. Use remains subject to the Parse Biosciences license.
 4. **Appendix B engineering numbers are from a different repo.** The allocator/SIMD/recycling percentages (B.2–B.8) come from the **seqproc Rust** `cargo bench` suite, not this analysis repo. Only the **LR recovery progression** (the `tab:lr_progression` cells) is reproducible here, via `scripts/lr_perf_rerun.py`.
 5. **The two schematic figures are hand-drawn.** `fig:seqproc_workflow` (`Figures/seqproc_flow.pdf`) and `fig:illustrative_example` (`Figures/antisequence_graph.pdf`) have no generator — vector art committed in `paper/Figures/`.
 
-**37 of the traced data points are marked 🔴** below (input sizes, all Appendix B engineering values, the vendor concordance, and the SI throughput timings).
+**37 original-preprint data points are marked 🔴** below (input sizes, all Appendix B engineering values, the historical vendor concordance, and the SI throughput timings). The journal-revision vendor comparison is now separately reproducible as described above.
 
 ---
 
@@ -282,26 +282,31 @@ python3 biological_analysis/scripts/count_concordance.py downstream_out/analysis
 
 ## PE prose numbers (results.tex)
 
-### Current archived split-pipe vendor-set comparison
+### Current full split-pipe vendor-set comparison
 
-Regenerate the current JSON and CSV from the three final accepted-ID bitmaps:
+Build and run split-pipe 1.4.0 as documented in `containers/README.md`. Then
+regenerate the full JSON, CSV, and compact vendor bitmap from the fresh
+`barcode_head.fastq` and the three final accepted-ID bitmaps:
 
 ```bash
-python3 scripts/verify_vendor_concordance_pe.py \
-  --bitmap-dir /scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps \
-  --subset-r1 data/SRR6750041_10M_R1.fastq \
-  --subset-r2 data/SRR6750041_10M_R2.fastq \
-  --full-r1 /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq \
-  --full-r2 /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq
+python3 scripts/splitpipe_full_concordance.py \
+  --splitpipe-fastq /path/to/splitpipe/process/barcode_head.fastq \
+  --input-records 77621181 \
+  --archived-vendor-ids results_final/splitpipe_valid_ids_10M.txt.gz \
+  --archived-records 10000000 \
+  --input-r1 /path/to/SRR6750041_1.fastq.gz \
+  --input-r2 /path/to/SRR6750041_2.fastq.gz \
+  --splitpipe-run-def /path/to/splitpipe/process/run_proc_def.json \
+  --splitpipe-log /path/to/splitpipe/split-pipe_v1_4_0.log \
+  --splitpipe-config configs/split-pipe/splitseq_pe_v1.par
 ```
 
-The output is
-`publication_results/journal_rerun_2026-08-17/splitseq_pe_splitpipe_vendor_10m.{json,csv}`.
-It verifies the final bitmap hashes against the accuracy artifact and verifies
-that the stored 10-million-pair FASTQs are byte-identical prefixes of the full
-benchmark inputs. The archived `results_final/vendor_concordance_pe_10M.json`
-is a supersession pointer only. The historical table below records the
-original-preprint workflow and values.
+The output is `splitseq_pe_splitpipe_vendor_full.{json,csv,vendor.raw}` in the
+current journal-results directory. It validates the full split-pipe FASTQ,
+verifies every final tool bitmap against the accuracy artifact, records the
+full provenance chain, and confirms that the first 10 million fresh calls have
+zero symmetric difference from the archive. The historical table below records
+the original-preprint workflow and values.
 
 **Regenerate:**
 ```bash

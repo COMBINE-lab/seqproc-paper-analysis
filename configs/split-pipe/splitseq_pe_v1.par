@@ -1,0 +1,13 @@
+# ENA's SRR6750041 archive uses mate headers of the form
+#   @SRR6750041.N N/1
+#   @SRR6750041.N N/2
+# The identifiers match, but split-pipe 1.4.0 interprets the first character of
+# the second token as the mate number. Retain identifier-pair checking while
+# disabling only that incompatible mate-number convention check.
+pre_check_name_r1r2 False
+
+# Original SPLiT-seq 94-nt barcode-read layout:
+# 2-nt skip + 8-nt UMI + BC3(8) + linker1(30) + BC2(8) + linker2(30)
+# + BC1(8). split-pipe 1.4.0's built-in v1 template has a 22-nt second
+# linker and would therefore extract BC1 eight bases too early.
+bc_amp_seq NNNNNNNNNN33333333GTGGCCGCTGTTTCGCATCGGCGTACGACT22222222ATCCACGTGCTTGAGAGGCCAGAGCATTCG11111111

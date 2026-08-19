@@ -37,3 +37,13 @@ bitmap against the accuracy artifact's SHA-256, verifies that the stored
 10-million-pair FASTQs are byte-identical prefixes of the full campaign
 inputs, and records the complete tool/configuration/binary provenance. This is
 agreement with an archived vendor set, not a biological ground-truth analysis.
+
+`splitseq_pe_splitpipe_vendor_full.json`, its CSV projection, and its compact
+raw bitmap supersede the subset comparison for the revised manuscript. They
+compare all three final tool sets with a fresh split-pipe 1.4.0 run over all
+77,621,181 input pairs. The containerized command was first calibrated against
+the archived 10-million-pair set and reproduced all 7,539,920 identifiers
+exactly (zero symmetric difference). The full vendor set contains 59,697,558
+accepted pairs. Complete input, container, split-pipe run-definition,
+configuration, tool-bitmap, executable, and repository provenance is recorded
+in the JSON. This remains vendor-set agreement, not biological ground truth.
