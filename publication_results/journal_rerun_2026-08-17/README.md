@@ -47,3 +47,18 @@ exactly (zero symmetric difference). The full vendor set contains 59,697,558
 accepted pairs. Complete input, container, split-pipe run-definition,
 configuration, tool-bitmap, executable, and repository provenance is recorded
 in the JSON. This remains vendor-set agreement, not biological ground truth.
+
+`fig_emitted_set_upset.{svg,pdf,png}` replaces the manuscript's emitted-set
+concordance table with a faceted UpSet plot. The bars are the seven mutually
+exclusive three-tool intersections as percentages of each dataset's any-tool
+union; labels also show exact counts. The accompanying CSV and JSON preserve
+the unrounded values and complete bitmap provenance. Regenerate all five files
+from the canonical publication bitmaps with:
+
+```bash
+python3 scripts/generate_emitted_set_upset.py
+```
+
+The generator verifies every recorded bitmap checksum and emitted-record count
+before drawing the figure. For LR-SPLiT-seq, it unions the two splitcode passes
+and any multi-orientation native-tool products before computing intersections.

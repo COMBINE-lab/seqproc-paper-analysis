@@ -104,38 +104,30 @@ python3 scripts/concordance_analysis.py --threads 32 --datasets 10x_short ; pyth
 | Prose (vendor 10M concordance): split-pipe accepted 7,539,920 (75.4%)… | `7,539,920 (75.4%); seqproc 8,367,…` | results.tex prose lines 64-66 | NOT REPRODUCIBLE without the proprietary Parse Biosciences split-pipe tool (its barcode_h… → Shipped reference: results_final/splitpipe_valid_ids_1… | 🔴 NOT REPRODUCIBLE |
 | Experimental setup: 32 threads all tools, 3 replicates, full dataset,… | `32 threads; 3 replicates; CV < 5%` | results.tex Experimental setup, line 5 | scripts/run_paper_benchmarks.py (--threads 32 --replicates 3 --reads full; mean over 3 ru… → results/paper_figures/benchmark_results.json (mean_* a… | ✅ |
 
-## Table 3 — concordance (`tab:concordance`)
+## Emitted-set UpSet plot (`fig:emitted_set_upset`)
 
 **Regenerate:**
+
 ```bash
-python3 scripts/concordance_analysis.py --threads 32 --datasets all
-python3 scripts/concordance_analysis.py --datasets lr_splitseq  (full 5,764,421-read LR FASTQ; part of README step 3 --datasets all)
-python3 scripts/concordance_analysis.py --datasets lr_splitseq
-python3 scripts/discordant_analysis.py
+python3 scripts/generate_emitted_set_upset.py
 ```
-| Datum | Value | Paper loc | Source script → output | Repro |
-|---|---|---|---|---|
-| SPLiT-seq PE, All three = 84.88 | `84.88` | seqproc.tex tab:concordance, row 'SPLiT-s… | scripts/concordance_analysis.py (Venn derived: all_tools_consensus/any_tool_union) → results/concordance/concordance_results.json (shipped … | ✅ |
-| SPLiT-seq PE, seqproc+splitcode = 6.74 | `6.74` | seqproc.tex tab:concordance, row 'SPLiT-s… | scripts/concordance_analysis.py (Venn: (pairwise both - consensus)/union) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| SPLiT-seq PE, seqproc+matchbox = 0.20 | `0.20` | seqproc.tex tab:concordance, row 'SPLiT-s… | scripts/concordance_analysis.py (Venn: (pairwise both - consensus)/union) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| SPLiT-seq PE, splitcode+matchbox = 0.00 | `0.00` | seqproc.tex tab:concordance, row 'SPLiT-s… | scripts/concordance_analysis.py (Venn: (pairwise both - consensus)/union) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| SPLiT-seq PE, seqproc only = 0.08 | `0.08` | seqproc.tex tab:concordance, row 'SPLiT-s… | scripts/concordance_analysis.py (Venn: seqproc_unique/union) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| SPLiT-seq PE, splitcode only = 8.10 | `8.10` | seqproc.tex tab:concordance, row 'SPLiT-s… | scripts/concordance_analysis.py (Venn: splitcode_unique/union) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| SPLiT-seq PE, matchbox only = 0.00 | `0.00` | seqproc.tex tab:concordance, row 'SPLiT-s… | scripts/concordance_analysis.py (Venn: matchbox_unique/union) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| LR-SPLiT-seq, All three = 72.75 | `72.75` | seqproc.tex tab:concordance, row 'LR-SPLi… | scripts/concordance_analysis.py (Venn on FULL LR dataset WITH splitcode dual-pass, run_sp… → results/concordance/lr_splitseq/results.json (on unmou… | ✅ |
-| LR-SPLiT-seq, seqproc+splitcode = 17.91 | `17.91` | seqproc.tex tab:concordance, row 'LR-SPLi… | scripts/concordance_analysis.py (full LR, splitcode dual-pass) → results/concordance/lr_splitseq/results.json (unmounte… | ✅ |
-| LR-SPLiT-seq, seqproc+matchbox = 1.55 | `1.55` | seqproc.tex tab:concordance, row 'LR-SPLi… | scripts/concordance_analysis.py (full LR, splitcode dual-pass) → results/concordance/lr_splitseq/results.json (unmounte… | ✅ |
-| LR-SPLiT-seq, splitcode+matchbox = 0.01 | `0.01` | seqproc.tex tab:concordance, row 'LR-SPLi… | scripts/concordance_analysis.py (full LR, splitcode dual-pass) → results/concordance/lr_splitseq/results.json (unmounte… | ✅ |
-| LR-SPLiT-seq, seqproc only = 1.17 | `1.17` | seqproc.tex tab:concordance, row 'LR-SPLi… | scripts/concordance_analysis.py (full LR, splitcode dual-pass) → results/concordance/lr_splitseq/results.json (unmounte… | ✅ |
-| LR-SPLiT-seq, splitcode only = 6.61 | `6.61` | seqproc.tex tab:concordance, row 'LR-SPLi… | scripts/concordance_analysis.py (full LR, splitcode dual-pass) → results/concordance/lr_splitseq/results.json (unmounte… | ✅ |
-| LR-SPLiT-seq, matchbox only = 0.00 | `0.00` | seqproc.tex tab:concordance, row 'LR-SPLi… | scripts/concordance_analysis.py (full LR, splitcode dual-pass) → results/concordance/lr_splitseq/results.json (unmounte… | ✅ |
-| 10x Chromium v2, All three = 100.00 (remaining six columns all 0.00) | `100.00 (six 0.00 cells: seqproc+s…` | seqproc.tex tab:concordance, row '10x Chr… | scripts/concordance_analysis.py (Venn) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| sci-RNA-seq3, All three = 98.58 | `98.58` | seqproc.tex tab:concordance, row 'sci-RNA… | scripts/concordance_analysis.py (Venn: consensus/union) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| sci-RNA-seq3, seqproc+matchbox = 0.92 | `0.92` | seqproc.tex tab:concordance, row 'sci-RNA… | scripts/concordance_analysis.py (Venn: (pairwise both - consensus)/union) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| sci-RNA-seq3, matchbox only = 0.50 | `0.50` | seqproc.tex tab:concordance, row 'sci-RNA… | scripts/concordance_analysis.py (Venn: matchbox_unique/union) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| sci-RNA-seq3, remaining four columns all 0.00 | `0.00 (four cells: seqproc+splitco…` | seqproc.tex tab:concordance, row 'sci-RNA… | scripts/concordance_analysis.py (Venn) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| Caption: 8.10% recovered by splitcode alone (SPLiT-seq PE) | `8.10` | seqproc.tex tab:concordance caption (line… | scripts/concordance_analysis.py (same as the SPLiT-seq PE splitcode-only cell) → results/concordance/concordance_results.json (shipped:… | ✅ |
-| Caption: splitcode-alone reads are 99.2% structurally invalid (SPLiT-… | `99.2` | seqproc.tex tab:concordance caption (line… | scripts/discordant_analysis.py (structurally_invalid/total on splitcode-unique reads) → results/concordance/splitseq_pe/discordant_analysis.js… | ✅ |
+
+The generator reads each final `*_accuracy_metrics.json` artifact and its
+canonical accession bitmaps, verifies the recorded SHA-256 checksums and
+emitted-record totals, unions multi-product and multi-orientation outputs, and
+computes all seven mutually exclusive three-tool intersections. It writes:
+
+- `publication_results/journal_rerun_2026-08-17/fig_emitted_set_upset.json`
+  with full unrounded values and source provenance;
+- the corresponding exact-count CSV; and
+- publication-ready SVG, PDF, and PNG renderings.
+
+The plotted percentages exactly reproduce the superseded table values:
+SPLiT-seq PE `61.41/31.57/0.00/0.00/6.56/0.46/0.00`, LR-SPLiT-seq dual
+`1.46/76.00/0.05/0.00/21.85/0.64/<0.01`, 10x Chromium v2
+`100.00/0/0/0/0/0/0`, and sci-RNA-seq3
+`98.04/1.04/0.35/0.00/0.58/0.00/0.00` in matrix-column order. The exact
+counts and union denominators appear in the plot and machine-readable outputs.
 
 ## Table 4 — V_total sizes (`tab:v_total_splitseq`)
 
