@@ -29,3 +29,11 @@ expression that accidentally shadowed the 10-nt BC1 geometry with a single
 variable-prefix capture guarded to the documented 9- or 10-nt lengths. The
 paired-end SPLiT-seq and 10x artifacts use the same revision so that every
 reported tool/configuration is pinned to the same campaign definition.
+
+`splitseq_pe_splitpipe_vendor_10m.json` and its CSV projection compare all
+three final SPLiT-seq PE accepted-ID bitmaps with the archived split-pipe
+accepted-ID set on the first 10,000,000 pairs. The program verifies each
+bitmap against the accuracy artifact's SHA-256, verifies that the stored
+10-million-pair FASTQs are byte-identical prefixes of the full campaign
+inputs, and records the complete tool/configuration/binary provenance. This is
+agreement with an archived vendor set, not a biological ground-truth analysis.

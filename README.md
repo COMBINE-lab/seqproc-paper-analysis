@@ -1,11 +1,13 @@
 # seqproc Paper Analysis
 
-> **Revised aligned campaigns (2026-08-10--11).** The revised manuscript uses
-> the frozen [`performance`](publication_results/performance_2026-08-10/README.md)
-> campaign and fresh one-run, 32-thread
-> [`validity`](publication_results/validity_2026-08-11/README.md) results.
-> The older `results_final` artifacts and numerical examples below document the
-> original preprint analysis and must not be used to rebuild the revised tables.
+> **Current journal campaigns (2026-08-17--19).** The revised manuscript uses
+> the frozen [`performance`](publication_results/journal_performance_2026-08-17/)
+> and one-run, 32-thread
+> [`accuracy`](publication_results/journal_rerun_2026-08-17/) results. The
+> latter also contains the current three-tool comparison with the archived
+> split-pipe accepted-ID set. Older `results_final` artifacts and numerical
+> examples below document the original preprint analysis and must not be used
+> to rebuild the revised tables.
 
 The full source repository housing the code used for the seqproc paper. Every number, table cell,
 and figure in the paper is produced by a script in this repository, applied to

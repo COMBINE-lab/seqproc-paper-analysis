@@ -1,14 +1,14 @@
 # Paper data → source-code traceability
 
-> **Revision notice (2026-08-11):** this document traces the original preprint
-> and therefore contains stale benchmark and validity values. The revised,
-> qualitatively aligned campaigns are archived under
-> [`publication_results/`](publication_results/): the
-> [`performance`](publication_results/performance_2026-08-10/README.md) bundle
-> contains replicate-level timing/RSS data, and the
-> [`validity`](publication_results/validity_2026-08-11/README.md) bundle contains
-> the one-run 32-thread outputs, reference provenance, and set metrics.
-> Do not use the old values below to rebuild the revised manuscript tables.
+> **Revision notice (2026-08-19):** this document principally traces the
+> original preprint and therefore contains stale benchmark and validity values.
+> The current journal-revision sources are the frozen
+> [`performance`](publication_results/journal_performance_2026-08-17/) and
+> one-run, 32-thread
+> [`accuracy`](publication_results/journal_rerun_2026-08-17/) bundles. The
+> current SPLiT-seq PE vendor-set comparison is
+> [`splitseq_pe_splitpipe_vendor_10m.json`](publication_results/journal_rerun_2026-08-17/splitseq_pe_splitpipe_vendor_10m.json).
+> Do not use the old values below to rebuild the revised manuscript.
 
 Every table cell, figure quantity, and prose number in the original seqproc preprint, mapped to the script that generates it, the exact command, and the output file. Built by 10 tracer agents reading `/home/ubuntu/paper` against this repo, then reconciled by hand.
 
@@ -281,6 +281,27 @@ python3 biological_analysis/scripts/count_concordance.py downstream_out/analysis
 | Panel C — per-gene total UMI Pearson on log1p scale, seqproc vs other… | `0.994 (seqproc/splitcode) and 0.9…` | seqproc.tex:421 (fig:count_concordance ca… | biological_analysis/scripts/count_concordance.py (per_gene_total_pearson_logspace, code l… → biological_analysis/full_run_results/count_concordance… | ✅ |
 
 ## PE prose numbers (results.tex)
+
+### Current archived split-pipe vendor-set comparison
+
+Regenerate the current JSON and CSV from the three final accepted-ID bitmaps:
+
+```bash
+python3 scripts/verify_vendor_concordance_pe.py \
+  --bitmap-dir /scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps \
+  --subset-r1 data/SRR6750041_10M_R1.fastq \
+  --subset-r2 data/SRR6750041_10M_R2.fastq \
+  --full-r1 /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq \
+  --full-r2 /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq
+```
+
+The output is
+`publication_results/journal_rerun_2026-08-17/splitseq_pe_splitpipe_vendor_10m.{json,csv}`.
+It verifies the final bitmap hashes against the accuracy artifact and verifies
+that the stored 10-million-pair FASTQs are byte-identical prefixes of the full
+benchmark inputs. The archived `results_final/vendor_concordance_pe_10M.json`
+is a supersession pointer only. The historical table below records the
+original-preprint workflow and values.
 
 **Regenerate:**
 ```bash
