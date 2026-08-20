@@ -1,101 +1,96 @@
-# Cluster run
+# Full downstream rerun
 
-You drive this. The sandbox box cannot reach the cluster (VPN plus your credentials), so the code
-is pushed to GitHub from the box and you pull it on the cluster, then run the one command. Paste
-the run log back and I debug from there.
+Run on a dedicated node with at least 48 GB RAM. STARsolo uses approximately
+30 GB with the full GRCm38 index. The final campaign uses 32 physical cores.
 
-## 0. Get on the cluster (your VPN, then ssh, then an interactive node)
+## One-time setup
+
 ```bash
-ssh <user>@<cluster-host>
-# request a node with enough RAM for STARsolo + the full genome index (~30GB),
-# and enough wall time for full-data STARsolo. Adjust partition to your cluster.
-srun --pty -c 8 --mem=48G -t 8:00:00 bash
+cd /path/to/seqproc-paper-analysis
+bash biological_analysis/setup_env.sh
+bash biological_analysis/reference/prepare_reference.sh
 ```
 
-## 1. Pull the latest code
+`prepare_reference.sh` downloads and verifies the GRCm38 primary assembly and
+Ensembl release-102 GTF, builds STAR 2.7.11b from its tagged source archive,
+generates the index with `sjdbOverhang=65`, and records SHA-256 provenance for
+all inputs and generated index files.
+
+## Materialize the final splitcode pair
+
+The accuracy campaign retained splitcode's extracted barcode product but sent
+its ordinary read output to `/dev/null`. Re-run the identical frozen
+configuration once while retaining R1:
+
 ```bash
-cd /path/to/seqproc-paper-analysis   # wherever the repo lives
-git pull
+biological_analysis/materialize_splitcode_downstream.sh \
+  --r1 /path/to/SRR6750041_R1.fastq \
+  --r2 /path/to/SRR6750041_R2.fastq \
+  --outdir "$WORK/splitcode-final-downstream" --threads 32
 ```
 
-## 2. One-time setup (skip whatever already exists)
+The materializer validates all paired IDs and writes checksums. Its generated
+34-nt barcode FASTQ must be byte-identical to the final campaign artifact.
+
+## Quantify and analyze
+
 ```bash
-bash biological_analysis/setup_env.sh                # python env (scanpy etc.)
-# STAR index: point --genome at an existing GRCm38 index if you have one, or build once.
-# On a big-RAM node drop --genomeSAsparseD (it is only needed when memory is tight).
-STAR --runMode genomeGenerate --genomeDir <IDX> \
-     --genomeFastaFiles <GRCm38.primary_assembly.fa> \
-     --sjdbGTFfile <GRCm38.102.gtf> --sjdbOverhang 65 --runThreadN 8
+BMAP=/path/to/final-campaign/aggregates/accuracy/bitmaps
+biological_analysis/run_current_downstream.sh \
+  --genome biological_analysis/reference/star_GRCm38_ensembl102 \
+  --outdir "$WORK/downstream-final" \
+  --seqproc-r1 <final-seqproc-R1> --seqproc-r2 <final-seqproc-R2> \
+  --splitcode-r1 "$WORK/splitcode-final-downstream/sc_cdna.fastq" \
+  --splitcode-r2 "$WORK/splitcode-final-downstream/umi_bc3_bc2_bc1.fastq" \
+  --matchbox-r1 <final-matchbox-R1> --matchbox-r2 <final-matchbox-R2> \
+  --seqproc-bitmap "$BMAP/splitseq_pe.seqproc.accepted.1.bitmap" \
+  --splitcode-bitmap "$BMAP/splitseq_pe.splitcode.accepted.1.bitmap" \
+  --matchbox-bitmap "$BMAP/splitseq_pe.matchbox.accepted.1.bitmap" \
+  --threads 32 --min-umi 200 --cb-match 1MM
 ```
 
-## 3. Run the full dataset (one command)
-```bash
-SEQPROC_BIN=<path/to/seqproc> \
-SPLITCODE_BIN=<path/to/splitcode> \
-MATCHBOX_BIN=<path/to/matchbox> \
-biological_analysis/run_downstream.sh \
-  --r1 <full_R1.fastq> --r2 <full_R2.fastq> \
-  --genome <IDX> --outdir <OUT> --threads 8
-```
-STAR and the three tool binaries must be on PATH or pointed at via the `*_BIN` env vars.
+The driver verifies every FASTQ before STARsolo and produces a compact
+`downstream_bundle.tar.gz`. The large STAR matrices remain in the output
+directory and are not committed.
 
-## 4. Bring results back
+The command above exactly reproduces the historical STARsolo `1MM` matching
+choice on the final upstream outputs. For a controlled correction sensitivity,
+rerun to a separate output directory with `--cb-match EditDist_2`. STARsolo's
+complex `1MM` mode permits a mismatch in only one barcode piece, whereas
+`EditDist_2` corrects the three pieces independently. This matters because
+seqproc retains observed barcode bases, while splitcode's extracted tag output
+is already canonicalized and Matchbox's primary PE output is exact.
+
+After materializing the expanded-whitelist Matchbox FASTQs, reproduce the
+separate sensitivity analysis with:
+
 ```bash
-# the small bundle (figures, tables, metrics) is all you need to review:
-scp <OUT>/downstream_bundle.tar.gz  <your machine or the box>
+biological_analysis/run_matchbox_ham1_sensitivity.sh \
+  --genome biological_analysis/reference/star_GRCm38_ensembl102 \
+  --primary-run "$WORK/downstream-final" \
+  --outdir "$WORK/downstream-matchbox-ham1" \
+  --matchbox-r1 <expanded-matchbox-R1> --matchbox-r2 <expanded-matchbox-R2> \
+  --reference-bitmap "$BMAP/splitseq_pe.reference.raw" \
+  --seqproc-bitmap "$BMAP/splitseq_pe.seqproc.accepted.1.bitmap" \
+  --splitcode-bitmap "$BMAP/splitseq_pe.splitcode.accepted.1.bitmap" \
+  --matchbox-exact-bitmap "$BMAP/splitseq_pe.matchbox.accepted.1.bitmap" \
+  --threads 32 --min-umi 200 --cb-match 1MM
 ```
 
-## 5. Refresh downstream metrics/figures without re-aligning
-When only the analysis code changed (a new metric, a relabelled figure), re-run the analysis
-scripts on the STARsolo matrices already on disk. This is a ~1 minute step and does not re-run
-STARsolo.
+The script refuses to reuse primary matrices generated with a different
+barcode-matching mode.
+
+## Refresh analysis without realignment
+
 ```bash
-cd /path/to/seqproc-paper-analysis && git pull
 PY=biological_analysis/.venv_downstream/bin/python
-OUT="${WORK:?set WORK to your project scratch space}/downstream_out"
-$PY biological_analysis/scripts/biological_analysis.py $OUT/analysis 200 \
-  seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene
-$PY biological_analysis/scripts/count_concordance.py $OUT/analysis \
-  seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene
-$PY biological_analysis/scripts/read_set_jaccard.py $OUT/analysis/read_set_jaccard.json \
-  seqproc:$OUT/sp_bc.fq splitcode:$OUT/sc_bc.fq matchbox:$OUT/mb_bc.fq
-```
-Then commit the refreshed outputs back to the repo:
-```bash
-cp $OUT/analysis/biological_metrics.json $OUT/analysis/count_concordance.json \
-   $OUT/analysis/read_set_jaccard.json $OUT/analysis/jaccard_supplement.md \
-   biological_analysis/full_run_results/
-git add biological_analysis/full_run_results/
-git commit --no-verify -m "refresh downstream metrics from cluster"
-git push origin biological-validation
+OUT="$WORK/downstream-final"
+ARGS=(seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene)
+$PY biological_analysis/scripts/biological_analysis.py "$OUT/analysis" 200 "${ARGS[@]}"
+$PY biological_analysis/scripts/count_concordance.py "$OUT/analysis" "${ARGS[@]}"
+$PY biological_analysis/scripts/jaccard_confusion.py "$OUT/analysis" 200 "${ARGS[@]}"
 ```
 
-## 6. Barcode-rank knee
-`count_concordance.py` reports the barcode-rank knee per tool (kneedle on the log-log curve; a
-chord-distance fallback runs if `kneed` is absent). The knee lands in `count_concordance.json` under
-`barcode_rank_knee` and feeds the inflection ranks reported in Supplementary Note~S2.
-```bash
-cd /path/to/seqproc-paper-analysis && git pull
-PY=biological_analysis/.venv_downstream/bin/python
-OUT="${WORK:?set WORK to your project scratch space}/downstream_out"
-biological_analysis/.venv_downstream/bin/pip install kneed        # canonical kneedle (one time)
-
-# knee: re-run count_concordance.py (also part of the section-5 refresh)
-$PY biological_analysis/scripts/count_concordance.py $OUT/analysis \
-  seqproc:$OUT/sp_Solo.out/Gene splitcode:$OUT/sc_Solo.out/Gene matchbox:$OUT/mb_Solo.out/Gene
-```
-Then commit the outputs back:
-```bash
-cp $OUT/analysis/count_concordance.json biological_analysis/full_run_results/
-git add biological_analysis/full_run_results/
-git commit --no-verify -m "add barcode-rank knee from cluster"
-git push origin biological-validation
-```
-
-## Notes
-- Full 86.8M-read STARsolo is the long step. If your interactive `srun` might disconnect, wrap the
-  step 3 command in an `sbatch` script instead so it survives the session ending.
-- Everything else (read processing, analysis, figures, resource report) finishes in well under a
-  minute on the box, so the full-data wall time is dominated by STAR alignment.
-- The outputs are identical in structure to the box rehearsal, just full-depth numbers, plus you can
-  add the split-pipe vendor comparison since the vendor matrix is on the cluster.
+The barcode-rank inflection comes from the committed Python port of
+`DropletUtils::barcodeRanks`; no `kneed` dependency or ad hoc manual step is
+used.

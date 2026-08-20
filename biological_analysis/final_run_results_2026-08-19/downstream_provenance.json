@@ -1,0 +1,422 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-08-20T02:29:10.736516+00:00",
+  "host": {
+    "hostname": "nomad01.umiacs.umd.edu",
+    "platform": "Linux-5.14.0-687.31.1.el9_8.x86_64-x86_64-with-glibc2.34",
+    "cpu_count": 128
+  },
+  "parameters": {
+    "threads": 32,
+    "min_umi": 200,
+    "random_seed": 0,
+    "solo_type": "CB_UMI_Complex",
+    "cb_positions": [
+      "0_10_0_17",
+      "0_18_0_25",
+      "0_26_0_33"
+    ],
+    "umi_position": "0_0_0_9",
+    "cb_match_whitelist_type": "1MM",
+    "features": "Gene",
+    "cell_filter": "None",
+    "out_sam_type": "None"
+  },
+  "software": {
+    "STAR": "2.7.11b",
+    "python": "Python 3.12.3",
+    "python_packages": "PyYAML==6.0.3\nPygments==2.21.0\nanndata==0.13.2\nannotated-types==0.8.0\narray-api-compat==1.15.0\nasttokens==3.0.2\nattrs==26.1.0\ncertifi==2026.7.22\ncomm==0.2.3\ncontourpy==1.3.3\ncycler==0.12.1\ndebugpy==1.8.21\ndonfig==0.8.1.post1\nexecuting==2.2.1\nfast-array-utils==1.5\nfastjsonschema==2.22.2\nfonttools==4.63.0\ngoogle-crc32c==1.8.0\nh5py==3.16.0\nigraph==1.0.0\nipykernel==7.3.0\nipython==9.16.1\nipython_pygments_lexers==1.1.1\njedi==0.20.0\njoblib==1.5.3\njsonschema-specifications==2025.9.1\njsonschema==4.26.0\njupyter_client==8.9.1\njupyter_core==5.9.1\nkiwisolver==1.5.0\nlegacy-api-wrap==1.5\nleidenalg==0.12.0\nllvmlite==0.49.0\nmatplotlib-inline==0.2.2\nmatplotlib==3.11.1\nnarwhals==2.24.0\nnatsort==8.4.0\nnbclient==0.11.0\nnbformat==5.11.1\nnest-asyncio2==1.7.2\nnetworkx==3.6.1\nnumba==0.67.0\nnumcodecs==0.16.5\nnumpy==2.5.2\npackaging==26.3\npandas==3.0.5\nparso==0.8.7\npatsy==1.0.2\npexpect==4.9.0\npillow==12.3.0\nplatformdirs==4.11.3\nprompt_toolkit==3.0.53\npsutil==7.2.2\nptyprocess==0.7.0\npure_eval==0.2.3\npydantic-settings==2.15.0\npydantic==2.13.4\npydantic_core==2.46.4\npynndescent==0.6.0\npyparsing==3.3.2\npython-dateutil==2.9.0.post0\npython-dotenv==1.2.3\npyzmq==27.1.0\nreferencing==0.37.0\nrpds-py==2026.6.3\nscanpy==1.12.2\nscikit-learn==1.9.0\nscipy==1.18.0\nscverse-misc==0.1.3\nseaborn==0.13.2\nsession-info2==0.4.2\nsix==1.17.0\nstack-data==0.6.3\nstatsmodels==0.14.6\ntexttable==1.7.0\nthreadpoolctl==3.6.0\ntornado==6.5.8\ntqdm==4.70.0\ntraitlets==5.16.1\ntyping-inspection==0.4.4\ntyping_extensions==4.16.0\numap-learn==0.5.12\nwcwidth==0.8.2\nzarr==3.3.0"
+  },
+  "whitelist": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc8_whitelist.txt",
+    "sha256": "346ecc6bf50e72c91e0ec115ca22918abbfa8d3dae7be0dab9e602a1564de199",
+    "entries": 96
+  },
+  "genome_index": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102",
+    "manifest": {
+      "schema_version": 1,
+      "created_utc": "2026-08-20T00:13:20.796753+00:00",
+      "reference": "Mus musculus GRCm38, Ensembl release 102",
+      "fasta": {
+        "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/GRCm38_ensembl102/Mus_musculus.GRCm38.dna.primary_assembly.fa",
+        "bytes": 2776390504,
+        "sha256": "a3628d245170e72f2f7c40354c4c496052f46808264d73c94720bfd546322184",
+        "url": "https://ftp.ensembl.org/pub/release-102/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz",
+        "download_gzip_sha256": "285bc481d583ab65b13d91853bf743acf950710afb3302264a4b4f116b6049c1"
+      },
+      "gtf": {
+        "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/GRCm38_ensembl102/Mus_musculus.GRCm38.102.gtf",
+        "bytes": 1036917979,
+        "sha256": "69b1e658c68f1d4bf3be4165e85220fb2cd89b23eb6d4a5fd92268ace17c9585",
+        "url": "https://ftp.ensembl.org/pub/release-102/gtf/mus_musculus/Mus_musculus.GRCm38.102.gtf.gz",
+        "download_gzip_sha256": "8321415404aaf788c7da79774488ff227ac006d09a57ce6c616573a510338f64"
+      },
+      "STAR": {
+        "version": "2.7.11b",
+        "binary": {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/tools/STAR-2.7.11b/bin/STAR",
+          "bytes": 3018608,
+          "sha256": "0ca892888090c4a1866209b510c522daa19a16f286ee018cf5e8d9e32a30f586"
+        },
+        "source_url": "https://github.com/alexdobin/STAR/archive/refs/tags/2.7.11b.tar.gz",
+        "source_sha256": "3f65305e4112bd154c7e22b333dcdaafc681f4a895048fa30fa7ae56cac408e7"
+      },
+      "genome_generate": {
+        "sjdbOverhang": 65,
+        "command_template": [
+          "STAR",
+          "--runMode",
+          "genomeGenerate",
+          "--runThreadN",
+          "32",
+          "--genomeDir",
+          "INDEX",
+          "--genomeFastaFiles",
+          "FASTA",
+          "--sjdbGTFfile",
+          "GTF",
+          "--sjdbOverhang",
+          "65"
+        ]
+      },
+      "index_files": [
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/Genome",
+          "bytes": 2778601401,
+          "sha256": "ddd793f7c1a3b2951363a668336f88c3a187c82ce2442bf3f25948a61dabbeb3"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/Log.out",
+          "bytes": 42398,
+          "sha256": "fa5f72165cac7b381cf01c989431417774b750babaf3568513e2beff4e5869f4"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/SA",
+          "bytes": 22191343560,
+          "sha256": "ae428d94334cf2d30c39542f684c08a3b9a40891375024b6d0d78a4c1ae81d91"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/SAindex",
+          "bytes": 1565873619,
+          "sha256": "bc4f42b85066f58b75c08f512270f6a95fe7765bd98e0b966aab2817a064a67a"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/chrLength.txt",
+          "bytes": 493,
+          "sha256": "66902de362a6ec07f99a72164a1a508433d3d02dfa2eebd8ee40aed7f67b7607"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/chrName.txt",
+          "bytes": 539,
+          "sha256": "60e9707e087e588850c628f9c443812a8554cf4bf0a0d9d971fe9df59ab5f581"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/chrNameLength.txt",
+          "bytes": 1032,
+          "sha256": "b711ba9c7fb8fb4e0a5edd51fb799dcf017c418532665a1dd59efc55b07ba86a"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/chrStart.txt",
+          "bytes": 721,
+          "sha256": "20f0f5846db0faa924ceab4b0493e1e4ac8cab0ac9de6f316cee34d1bf55cdc7"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/exonGeTrInfo.tab",
+          "bytes": 29737504,
+          "sha256": "93500958da5bda4bf26d15516da6d4ded1d576444164a66a69d6fcc71c1fa84d"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/exonInfo.tab",
+          "bytes": 12136835,
+          "sha256": "22fce6a6e2ab8d00bacbbe686d63ecbbd8971433d55ed1c6f0cc517aa50a4329"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/geneInfo.tab",
+          "bytes": 2277816,
+          "sha256": "d0b15d814a0e173c1de2e9c3cb7f82fb059e47df773f0f90523646be74e1e93f"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/genomeParameters.txt",
+          "bytes": 1282,
+          "sha256": "83658d9306b527dc7fa675e75608b9431a58679c69df0aa70471e71fee012d74"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/sjdbInfo.txt",
+          "bytes": 8333288,
+          "sha256": "34d5cc488c1f4266da2ae371feb1a3bd33df45b6ab113b0a56f5e129471e924a"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/sjdbList.fromGTF.out.tab",
+          "bytes": 8207924,
+          "sha256": "bf8954059ddca57c96c9e918fc3cbbf429d231a718e7bf705a197c95796ebfdf"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/sjdbList.out.tab",
+          "bytes": 6537926,
+          "sha256": "8555a3b2e3d5f99b1ba6e0dc092ef19f4c77dd51d4641c01c00a6c6a44f176e5"
+        },
+        {
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/reference/star_GRCm38_ensembl102/transcriptInfo.tab",
+          "bytes": 9661727,
+          "sha256": "f77bc3678cdb3b5e21e363b9a5f253ff1ef66e669811e7a0a3058de2cbdf1262"
+        }
+      ]
+    }
+  },
+  "fastqs": [
+    {
+      "schema_version": 1,
+      "tool": "seqproc",
+      "records": 56991381,
+      "first_id": "SRR6750041.1",
+      "last_id": "SRR6750041.77620992",
+      "r1": {
+        "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/5dc804d7ba47a92b9bd776199fad06929bef018109078c8392995ea9fce9892d/attempt-0001/R1.fastq",
+        "bytes": 9558561112,
+        "sha256": "70ac7f77895ebf197999d9298878a9069d56cf53a2f90ee5a9437286a4d8ba04",
+        "lengths": [
+          66
+        ]
+      },
+      "r2": {
+        "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/5dc804d7ba47a92b9bd776199fad06929bef018109078c8392995ea9fce9892d/attempt-0001/R2.fastq",
+        "bytes": 5911112728,
+        "sha256": "fb7b9bc19cfb7d268537b9d14dbf5ffd816a4f522565a8214ec01fd28e431241",
+        "lengths": [
+          34
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "tool": "splitcode",
+      "records": 53495595,
+      "first_id": "SRR6750041.1",
+      "last_id": "SRR6750041.77621181",
+      "r1": {
+        "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/splitcode-final-downstream/sc_cdna.fastq",
+        "bytes": 8391299321,
+        "sha256": "48d3424a6413bec4b80fb8955cfaea8ce8225aa4c714e674fd9c05b75a7c7034",
+        "lengths": [
+          66
+        ]
+      },
+      "r2": {
+        "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/splitcode-final-downstream/umi_bc3_bc2_bc1.fastq",
+        "bytes": 4967581241,
+        "sha256": "aa75f07d3d59701a0f57d364033eddcb64d90752837ef3f9969a0ee95a89b3e4",
+        "lengths": [
+          34
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "tool": "matchbox",
+      "records": 35160366,
+      "first_id": "SRR6750041.201",
+      "last_id": "SRR6750041.77621181",
+      "r1": {
+        "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/af1d47011bb452a0f492631bb34ee91d756d40a7dbcb0f433074085ac6f2cf63/attempt-0001/tool-work/mb_r1.fq",
+        "bytes": 5897633340,
+        "sha256": "6822534d7b3db5230d3bbc0ba147e695b1ff48b48be3122ca2cce738f32c9709",
+        "lengths": [
+          66
+        ]
+      },
+      "r2": {
+        "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/af1d47011bb452a0f492631bb34ee91d756d40a7dbcb0f433074085ac6f2cf63/attempt-0001/tool-work/mb_r2.fq",
+        "bytes": 3647369916,
+        "sha256": "a42ee4e1a588e8ce94f598b013521e4ddda0317ce7bdb16cdcbad8be361057f0",
+        "lengths": [
+          34
+        ]
+      }
+    }
+  ],
+  "workflow_files": [
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/run_current_downstream.sh",
+      "bytes": 8150,
+      "sha256": "eba3dc8c60bd4368cbe7fdeb3478ed2513e3b15727f9abcfe8a8222b599910b5"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/requirements.lock",
+      "bytes": 120704,
+      "sha256": "c0b4cbc976b24413016d8668ceda80a5fd014767c72e7a82d428bbbe1869a227"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/scripts/biological_analysis.py",
+      "bytes": 10923,
+      "sha256": "abffc9cd3d05bb929f02642737574539f1195da80a7703d421a6c6fde5c118a1"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/scripts/count_concordance.py",
+      "bytes": 7442,
+      "sha256": "af2f6a671e6c6c39fdc4d1b90b5474c28b375019b8daa84bce0fcb4b6aaeb8b3"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/scripts/jaccard_confusion.py",
+      "bytes": 2930,
+      "sha256": "d4558373821674ed0de80a34d1aa2074f98a7320aec082698c7be28808a89727"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/scripts/read_set_jaccard_bitmaps.py",
+      "bytes": 2415,
+      "sha256": "b230021b7148388c7a5894bd7b1a11c8ae4fbe42cfa1ce0dffc6031c8cbe485d"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/scripts/summarize_downstream_run.py",
+      "bytes": 5188,
+      "sha256": "4626cba6c5483cada447b56547068836ac44e2815f8d1ea268f3faf0434b0062"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/biological_analysis.pdf",
+      "bytes": 21531,
+      "sha256": "81a2196ea75be56d6a55eb06f7999da3625d6cfbecbac0740638bac20e5559cf"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/biological_analysis.png",
+      "bytes": 194253,
+      "sha256": "907940416e38e68277f17b52fa3a940eb23ee7be8bb49cd24d58b0468fa11e1c"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/biological_analysis_jaccard.pdf",
+      "bytes": 21787,
+      "sha256": "6a8b39557d2d0a997bd37739abd1b1e9921f80ca48ce48548e2b0ff20e162ab9"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/biological_analysis_jaccard.png",
+      "bytes": 207951,
+      "sha256": "63e60d28dcf89c2f5174037fc4a729e651b844682c6ef9b784e05aab0f243b21"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/biological_metrics.json",
+      "bytes": 1407,
+      "sha256": "306abc5dc9b5cc479e1e035e9da1f59f210a421a877cdad7ffed7d3d7cbbc2f7"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/count_concordance.json",
+      "bytes": 977,
+      "sha256": "ccb931a55c1d66edbaf9067277a1ab75b8c65bc0576d4dc1d66a825186ad7e14"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/count_concordance.pdf",
+      "bytes": 378952,
+      "sha256": "48ab33269a7704e3b403fcb556797aacf9c1c589c24a865820de510b78f421ab"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/count_concordance.png",
+      "bytes": 401477,
+      "sha256": "5c76fe8ea122a9bc381a5ebdf0b04b761141fc7d4b879a1136e3b43adc88e8ba"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/downstream_summary.json",
+      "bytes": 4459,
+      "sha256": "aebccfd657df1689a9971fac7350d06f8fd2ff8a2b344dcdf62669690833c69b"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/downstream_summary.md",
+      "bytes": 847,
+      "sha256": "4b176c4017d02be59b7e3a71c867d49c3f1ff104d026ad9b3fd71289440c972b"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/jaccard_confusion.json",
+      "bytes": 1477,
+      "sha256": "32b87b7442488b068a67a3b524ae5b5114ef5dff69d7f61092c41bdeeeb5b99a"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/jaccard_supplement.md",
+      "bytes": 200,
+      "sha256": "bfd3cd6da27fd00bc2598b43c54ef2534e49b6b8bd08d837a33ee11bb431c70f"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/analysis/read_set_jaccard.json",
+      "bytes": 1659,
+      "sha256": "1139662e12de1944e85830f38c2d5d66ef669dc2b1a96510ee6de6afc0bcdf9f"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/mb_Solo.out/Barcodes.stats",
+      "bytes": 792,
+      "sha256": "498bda78e1de7b3d3024b7a57b19c311f1093b777eeb3119ab17fba001f8bb29"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/mb_Solo.out/Gene/Summary.csv",
+      "bytes": 333,
+      "sha256": "25dea3038cdfbdf889aa4116d93cf658c3d042028b8c539acbdb55e979b9a906"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/mb_Solo.out/Gene/raw/barcodes.tsv",
+      "bytes": 23887872,
+      "sha256": "11fd2af493f79c9a32470c6d43abd66007c413d4125d29f382e50607b7ba4fe9"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/mb_Solo.out/Gene/raw/features.tsv",
+      "bytes": 2376027,
+      "sha256": "46864c02d690b01d5979bfaafddc792c73f5dbfc5a50c3e4c3f35fea7f57cfb1"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/mb_Solo.out/Gene/raw/matrix.mtx",
+      "bytes": 3455100,
+      "sha256": "855b10c68e8d514047f840c63c11d364834c5eb4d47dda9a1bb13b6433b3a1eb"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/resources.csv",
+      "bytes": 187,
+      "sha256": "3f747adb2744fa9c46917dee51306fad9ef124a929df4f13169264b44e6d2042"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/sc_Solo.out/Barcodes.stats",
+      "bytes": 792,
+      "sha256": "730cd9edf796aae9bb3805f901255a37f6f443ba46b2deab39dad580643a6011"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/sc_Solo.out/Gene/Summary.csv",
+      "bytes": 333,
+      "sha256": "2371c8150b440f6e79a2e25d2e7e5d4ba0c7934a8f63370440c70f9ed2c41da7"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/sc_Solo.out/Gene/raw/barcodes.tsv",
+      "bytes": 23887872,
+      "sha256": "11fd2af493f79c9a32470c6d43abd66007c413d4125d29f382e50607b7ba4fe9"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/sc_Solo.out/Gene/raw/features.tsv",
+      "bytes": 2376027,
+      "sha256": "46864c02d690b01d5979bfaafddc792c73f5dbfc5a50c3e4c3f35fea7f57cfb1"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/sc_Solo.out/Gene/raw/matrix.mtx",
+      "bytes": 3897483,
+      "sha256": "407342f78e777ece55e353d8d9c4f2f86ea0c8c114e241460309de035d6c93e7"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/sp_Solo.out/Barcodes.stats",
+      "bytes": 792,
+      "sha256": "f416cb96a5aa0da72d7548af65d5c32d9e34e5fe566af083fa8ae858139742ce"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/sp_Solo.out/Gene/Summary.csv",
+      "bytes": 333,
+      "sha256": "2df48cd70ae9ec5290c15d5392000e3628031e69c83291a0fda43f4b4c97dbac"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/sp_Solo.out/Gene/raw/barcodes.tsv",
+      "bytes": 23887872,
+      "sha256": "11fd2af493f79c9a32470c6d43abd66007c413d4125d29f382e50607b7ba4fe9"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/sp_Solo.out/Gene/raw/features.tsv",
+      "bytes": 2376027,
+      "sha256": "46864c02d690b01d5979bfaafddc792c73f5dbfc5a50c3e4c3f35fea7f57cfb1"
+    },
+    {
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/downstream-final-2026-08-19/sp_Solo.out/Gene/raw/matrix.mtx",
+      "bytes": 4088769,
+      "sha256": "293090185631782cbfc24c32985914a987f4450f28ab4886f707f4ffbe6ff26b"
+    }
+  ]
+}

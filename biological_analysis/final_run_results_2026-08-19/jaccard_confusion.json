@@ -1,0 +1,75 @@
+{
+  "tool_order": [
+    "seqproc",
+    "splitcode",
+    "matchbox"
+  ],
+  "n_shared": 211,
+  "consensus_type_counts": {
+    "Neuron": 135,
+    "Astrocyte": 29,
+    "Oligodendro": 17,
+    "OPC": 12,
+    "Microglia": 12,
+    "Endothelial": 6
+  },
+  "consensus_sum": 211,
+  "confusion_by_type": {
+    "Neuron": {
+      "cells_any_tool": 142,
+      "unanimous_all_three": 131,
+      "dissent_goes_to": {
+        "OPC": 10,
+        "Astrocyte": 4,
+        "Microglia": 3,
+        "Oligodendro": 1
+      }
+    },
+    "Astrocyte": {
+      "cells_any_tool": 30,
+      "unanimous_all_three": 27,
+      "dissent_goes_to": {
+        "Neuron": 2,
+        "Oligodendro": 2
+      }
+    },
+    "Oligodendro": {
+      "cells_any_tool": 20,
+      "unanimous_all_three": 15,
+      "dissent_goes_to": {
+        "Microglia": 4,
+        "Neuron": 2,
+        "OPC": 2,
+        "Astrocyte": 1
+      }
+    },
+    "OPC": {
+      "cells_any_tool": 24,
+      "unanimous_all_three": 3,
+      "dissent_goes_to": {
+        "Microglia": 20,
+        "Neuron": 10,
+        "Endothelial": 2,
+        "Oligodendro": 2
+      }
+    },
+    "Microglia": {
+      "cells_any_tool": 20,
+      "unanimous_all_three": 2,
+      "dissent_goes_to": {
+        "OPC": 20,
+        "Oligodendro": 3,
+        "Endothelial": 3,
+        "Neuron": 2
+      }
+    },
+    "Endothelial": {
+      "cells_any_tool": 8,
+      "unanimous_all_three": 5,
+      "dissent_goes_to": {
+        "Microglia": 4,
+        "OPC": 2
+      }
+    }
+  }
+}

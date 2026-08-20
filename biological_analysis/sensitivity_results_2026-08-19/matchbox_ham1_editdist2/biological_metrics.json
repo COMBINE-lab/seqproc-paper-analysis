@@ -1,0 +1,95 @@
+{
+  "tools": [
+    "seqproc",
+    "splitcode",
+    "matchbox"
+  ],
+  "min_umi": 200,
+  "random_seed": 0,
+  "cells": {
+    "seqproc": 225,
+    "splitcode": 220,
+    "matchbox": 217
+  },
+  "shared_cells": 217,
+  "celltype_agreement_shared": 0.8848,
+  "celltype_agreement_pairwise": {
+    "seqproc|splitcode": 0.9447,
+    "seqproc|matchbox": 0.9032,
+    "splitcode|matchbox": 0.9078
+  },
+  "celltype_jaccard_per_type": {
+    "Neuron": 0.949,
+    "Astrocyte": 0.8728,
+    "Oligodendro": 0.8964,
+    "OPC": 0.3858,
+    "Microglia": 0.4951,
+    "Endothelial": 0.6905
+  },
+  "celltype_jaccard_pairwise_per_type": {
+    "seqproc|splitcode": {
+      "Neuron": 0.9583,
+      "Astrocyte": 0.931,
+      "Oligodendro": 0.85,
+      "OPC": 0.6,
+      "Microglia": 0.7143,
+      "Endothelial": 0.5714
+    },
+    "seqproc|matchbox": {
+      "Neuron": 0.931,
+      "Astrocyte": 0.8438,
+      "Oligodendro": 0.8947,
+      "OPC": 0.2941,
+      "Microglia": 0.4211,
+      "Endothelial": 0.6667
+    },
+    "splitcode|matchbox": {
+      "Neuron": 0.9577,
+      "Astrocyte": 0.8438,
+      "Oligodendro": 0.9444,
+      "OPC": 0.2632,
+      "Microglia": 0.35,
+      "Endothelial": 0.8333
+    }
+  },
+  "celltype_jaccard_pairwise_mean": {
+    "seqproc|splitcode": 0.7708,
+    "seqproc|matchbox": 0.6752,
+    "splitcode|matchbox": 0.6987
+  },
+  "celltype_jaccard_mean": 0.7149,
+  "celltype_fractions": {
+    "seqproc": {
+      "Neuron": 0.6444,
+      "Astrocyte": 0.1244,
+      "Oligodendro": 0.0889,
+      "OPC": 0.0578,
+      "Microglia": 0.0622,
+      "Endothelial": 0.0222
+    },
+    "splitcode": {
+      "Neuron": 0.6409,
+      "Astrocyte": 0.1273,
+      "Oligodendro": 0.0818,
+      "OPC": 0.0636,
+      "Microglia": 0.0591,
+      "Endothelial": 0.0273
+    },
+    "matchbox": {
+      "Neuron": 0.6359,
+      "Astrocyte": 0.1429,
+      "Oligodendro": 0.0783,
+      "OPC": 0.0507,
+      "Microglia": 0.0691,
+      "Endothelial": 0.023
+    }
+  },
+  "cluster_ari_pairwise": {
+    "seqproc|splitcode": 0.6473,
+    "seqproc|matchbox": 0.5473,
+    "splitcode|matchbox": 0.6017
+  },
+  "cluster_ari_mean": 0.5988,
+  "joint_coclustering_agreement": 1.0,
+  "tool_mixing_entropy": 1.0
+}
