@@ -16,7 +16,7 @@ import scanpy as sc
 import anndata as ad
 from scipy.io import mmread
 from sklearn.metrics import adjusted_rand_score
-from paper_style import set_paper_style, tool_color, panel, save
+from paper_style import set_paper_style, tool_color, pair_color, panel, save
 
 sc.settings.verbosity = 0
 set_paper_style()
@@ -233,13 +233,18 @@ def main():
             metrics.insert(1, ("Mean type\nJaccard", ct_jac_pw_mean))
         pair_keys = [f"{a}|{b}" for a, b in pairs]
         pair_labels = [pair.replace("|", " / ") for pair in pair_keys]
-        pair_colors = ("#0072B2", "#D55E00", "#009E73")
         yb = np.arange(len(metrics))[::-1]
         height = 0.22
-        for pair_index, (pair, pair_label, color) in enumerate(zip(pair_keys, pair_labels, pair_colors)):
+        for pair_index, (pair, pair_label) in enumerate(zip(pair_keys, pair_labels)):
             offset = (pair_index - (len(pair_keys) - 1) / 2) * height
             values = [metric_values[pair] for _, metric_values in metrics]
-            bars = ax.barh(yb + offset, values, height, color=color, label=pair_label)
+            bars = ax.barh(
+                yb + offset,
+                values,
+                height,
+                color=pair_color(pair_index),
+                label=pair_label,
+            )
             for bar, value in zip(bars, values):
                 ax.text(
                     min(value + 0.012, 1.005),
@@ -256,13 +261,18 @@ def main():
         # modest pairwise differences are not visually exaggerated.
         ax.set_xlim(0.0, 1.04)
         ax.set_xlabel("Pairwise score (1 = identical)")
-        ax.set_title(f"Pairwise concordance\nshared cells n={len(shared)}", pad=36)
+        ax.set_title(
+            f"Pairwise concordance\n(shared cells, n={len(shared)})",
+            pad=48,
+        )
         ax.legend(
             loc="lower center",
-            bbox_to_anchor=(0.5, 1.01),
+            bbox_to_anchor=(0.5, 1.025),
             ncol=3,
             frameon=False,
             borderaxespad=0,
+            columnspacing=1.8,
+            handletextpad=0.7,
         )
         ax.spines["left"].set_visible(False)
 
@@ -274,9 +284,14 @@ def main():
             ax.bar(x + i * w - 0.4 + w / 2, [fracs[n][c] for c in cts], w, label=n, color=tool_color(n, i))
         ax.set_xticks(x); ax.set_xticklabels(cts, rotation=35, ha="right")
         ax.set_ylabel("Fraction of cells"); ax.set_title("Cell-type composition")
-        ax.legend(loc="upper right"); panel(ax, "A")
-        pairwise_bars(axes[1], include_jaccard); panel(axes[1], "B")
-        fig.tight_layout()
+        ax.legend(loc="upper right")
+        panel(ax, "A", dy=1.18)
+        pairwise_bars(axes[1], include_jaccard)
+        # Panel B has an external legend and a two-line title.  Keep its panel
+        # letter above and to the left of both rather than sharing the legend's
+        # vertical band.
+        panel(axes[1], "B", dx=-0.15, dy=1.18)
+        fig.tight_layout(pad=1.25, w_pad=2.8)
         print("saved", save(fig, os.path.join(outdir, "biological_analysis" + suffix)), "(+ .pdf)")
 
 if __name__ == "__main__":
