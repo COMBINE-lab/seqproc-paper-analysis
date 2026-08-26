@@ -147,9 +147,27 @@ def main():
     pairs = [(a, b) for i, a in enumerate(names) for b in names[i + 1:]]
 
     # cell-type agreement: fraction of shared cells with the same label in EVERY tool
-    type_agree = float(np.mean([all(type_lab[n][c] == type_lab[ref][c] for n in names) for c in shared])) if shared else float("nan")
+    type_agree_count = sum(
+        all(type_lab[n][c] == type_lab[ref][c] for n in names) for c in shared
+    )
+    type_agree = type_agree_count / len(shared) if shared else float("nan")
     # pairwise cell-type agreement: fraction of shared cells each tool pair labels the same
-    ct_agree_pw = {f"{a}|{b}": round(float(np.mean([type_lab[a][c] == type_lab[b][c] for c in shared])), 4) for a, b in pairs} if shared else {}
+    # Preserve full floating-point precision in machine-readable results.  Any
+    # rounding belongs at the presentation boundary (figures, Markdown, or
+    # LaTeX); rounding here can cause a second formatting pass to round in the
+    # opposite direction (for example, 190/211 -> 0.9005 -> 0.901 rather than
+    # the direct three-decimal rendering 0.900).
+    ct_agree_pw = {}
+    ct_agree_pw_counts = {}
+    if shared:
+        for a, b in pairs:
+            pair = f"{a}|{b}"
+            agreement_count = sum(type_lab[a][c] == type_lab[b][c] for c in shared)
+            ct_agree_pw[pair] = agreement_count / len(shared)
+            ct_agree_pw_counts[pair] = {
+                "agree": agreement_count,
+                "total": len(shared),
+            }
 
     # Per-cell-type Jaccard for every tool pair (label-set overlap; no
     # embedding).  Keep the pairwise values as first-class results: averaging
@@ -164,14 +182,14 @@ def main():
             sb = {c for c in shared if type_lab[b][c] == ct}
             u = sa | sb
             value = len(sa & sb) / len(u) if u else None
-            ct_jac_pw[f"{a}|{b}"][ct] = round(float(value), 4) if value is not None else None
+            ct_jac_pw[f"{a}|{b}"][ct] = float(value) if value is not None else None
             if value is not None:
                 js.append(value)
-        ct_jac[ct] = round(float(np.mean(js)), 4) if js else None
+        ct_jac[ct] = float(np.mean(js)) if js else None
     jvals = [v for v in ct_jac.values() if v is not None]
-    mean_ct_jac = round(float(np.mean(jvals)), 4) if jvals else float("nan")
+    mean_ct_jac = float(np.mean(jvals)) if jvals else float("nan")
     ct_jac_pw_mean = {
-        pair: round(float(np.mean([value for value in values.values() if value is not None])), 4)
+        pair: float(np.mean([value for value in values.values() if value is not None]))
         for pair, values in ct_jac_pw.items()
     }
 
@@ -180,8 +198,8 @@ def main():
     if len(shared) > 10:
         leid = {n: proc[n][shared].obs["leiden"].astype(str).values for n in names}
         for a, b in pairs:
-            ari[f"{a}|{b}"] = round(float(adjusted_rand_score(leid[a], leid[b])), 4)
-    mean_ari = round(float(np.mean(list(ari.values()))), 4) if ari else float("nan")
+            ari[f"{a}|{b}"] = float(adjusted_rand_score(leid[a], leid[b]))
+    mean_ari = float(np.mean(list(ari.values()))) if ari else float("nan")
 
     # joint co-clustering (kNN-graph Leiden, no UMAP)
     co_cluster, mixing = (float("nan"), float("nan"))
@@ -192,17 +210,22 @@ def main():
         "tools": names, "min_umi": min_umi, "random_seed": RANDOM_SEED,
         "cells": {n: int(proc[n].n_obs) for n in names},
         "shared_cells": len(shared),
-        "celltype_agreement_shared": round(type_agree, 4),
+        "celltype_agreement_shared": type_agree,
+        "celltype_agreement_shared_counts": {
+            "agree": type_agree_count,
+            "total": len(shared),
+        },
         "celltype_agreement_pairwise": ct_agree_pw,
+        "celltype_agreement_pairwise_counts": ct_agree_pw_counts,
         "celltype_jaccard_per_type": ct_jac,
         "celltype_jaccard_pairwise_per_type": ct_jac_pw,
         "celltype_jaccard_pairwise_mean": ct_jac_pw_mean,
         "celltype_jaccard_mean": mean_ct_jac,
-        "celltype_fractions": {n: {k: round(v, 4) for k, v in fracs[n].items()} for n in names},
+        "celltype_fractions": fracs,
         "cluster_ari_pairwise": ari,
         "cluster_ari_mean": mean_ari,
-        "joint_coclustering_agreement": round(co_cluster, 4),
-        "tool_mixing_entropy": round(mixing, 4),
+        "joint_coclustering_agreement": co_cluster,
+        "tool_mixing_entropy": mixing,
     }
     json.dump(metrics, open(os.path.join(outdir, "biological_metrics.json"), "w"), indent=2)
     print("celltype_agree", metrics["celltype_agreement_shared"],

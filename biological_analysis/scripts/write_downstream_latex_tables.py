@@ -37,10 +37,10 @@ def main_table(summary: dict) -> str:
         metrics = summary["pairs"][pair]
         rows.append(
             f"{TOOL_TEX[left]} / {TOOL_TEX[right]} & "
-            f"{metrics['per_gene_pearson_log1p']:.4f} & "
-            f"{metrics['per_barcode_pearson_log1p']:.4f} & "
-            f"{metrics['celltype_agreement']:.4f} & "
-            f"{metrics['celltype_jaccard_mean']:.4f} & {metrics['cluster_ari']:.4f} \\\\"
+            f"{metrics['per_gene_pearson_log1p']:.3f} & "
+            f"{metrics['per_barcode_pearson_log1p']:.3f} & "
+            f"{metrics['celltype_agreement']:.3f} & "
+            f"{metrics['celltype_jaccard_mean']:.3f} & {metrics['cluster_ari']:.3f} \\\\"
         )
     return rf"""\begin{{table*}}[t]
 \centering
@@ -64,8 +64,8 @@ def jaccard_table(summary: dict) -> str:
         values = [summary["celltype_jaccard_pairwise_per_type"][pair][cell_type] for pair in PAIR_ORDER]
         rows.append(
             f"{TYPE_LABEL.get(cell_type, cell_type)} & "
-            + " & ".join(f"{value:.4f}" for value in values)
-            + f" & {summary['celltype_jaccard_per_type'][cell_type]:.4f} \\\\"
+            + " & ".join(f"{value:.3f}" for value in values)
+            + f" & {summary['celltype_jaccard_per_type'][cell_type]:.3f} \\\\"
         )
     return rf"""\begin{{table}}[H]
 \centering
@@ -77,7 +77,7 @@ Cell type & SP/SC & SP/MB & SC/MB & Mean \\
 \midrule
 {chr(10).join(rows)}
 \midrule
-Mean & {summary['celltype_jaccard_pairwise_mean']['seqproc|splitcode']:.4f} & {summary['celltype_jaccard_pairwise_mean']['seqproc|matchbox']:.4f} & {summary['celltype_jaccard_pairwise_mean']['splitcode|matchbox']:.4f} & {summary['celltype_jaccard_mean']:.4f} \\
+Mean & {summary['celltype_jaccard_pairwise_mean']['seqproc|splitcode']:.3f} & {summary['celltype_jaccard_pairwise_mean']['seqproc|matchbox']:.3f} & {summary['celltype_jaccard_pairwise_mean']['splitcode|matchbox']:.3f} & {summary['celltype_jaccard_mean']:.3f} \\
 \bottomrule
 \end{{tabular}}}}
 \caption{{\textcolor{{red}}{{Pairwise per-cell-type Jaccard index of marker-based labels over the {summary['shared_cells']} cells called by all three tools. SP, SC, and MB denote \seqproc, \splitcode, and exact-whitelist \matchbox. The final column and row retain the across-pair summaries.}}}}
@@ -130,9 +130,9 @@ def pairwise_sensitivity_table(summaries: list[tuple[str, dict]]) -> str:
             configuration = rf"\multirow{{3}}{{*}}{{{label}}}" if pair_index == 0 else ""
             rows.append(
                 f"{configuration} & {pair_labels[pair]} & "
-                f"{metrics['celltype_agreement']:.4f} & "
-                f"{metrics['celltype_jaccard_mean']:.4f} & "
-                f"{metrics['cluster_ari']:.4f} \\\\"
+                f"{metrics['celltype_agreement']:.3f} & "
+                f"{metrics['celltype_jaccard_mean']:.3f} & "
+                f"{metrics['cluster_ari']:.3f} \\\\"
             )
         rows.append(r"\addlinespace[0.2em]")
 

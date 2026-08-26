@@ -8,8 +8,8 @@
 
 | Tool pair | Read-set Jaccard | Per-gene Pearson | Per-barcode Pearson | Cell-type agreement | Mean type Jaccard | Cluster ARI |
 |---|---:|---:|---:|---:|---:|---:|
-| seqproc / splitcode | 0.9298 | 0.9949 | 0.9722 | 0.9194 | 0.6989 | 0.6199 |
-| seqproc / matchbox | 0.6169 | 0.9860 | 0.9538 | 0.8910 | 0.6309 | 0.6144 |
-| splitcode / matchbox | 0.6573 | 0.9885 | 0.9564 | 0.9005 | 0.6691 | 0.5976 |
+| seqproc / splitcode | 0.930 | 0.995 | 0.972 | 0.919 | 0.699 | 0.620 |
+| seqproc / matchbox | 0.617 | 0.986 | 0.954 | 0.891 | 0.631 | 0.614 |
+| splitcode / matchbox | 0.657 | 0.989 | 0.956 | 0.900 | 0.669 | 0.598 |
 
-Shared called cells: **211**.  All-tool cell-type agreement: **0.8673**.  Mean per-type Jaccard: **0.6663**.
+Shared called cells: **211**.  All-tool cell-type agreement: **0.867**.  Mean per-type Jaccard: **0.666**.

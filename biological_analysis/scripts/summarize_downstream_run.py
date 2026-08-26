@@ -114,18 +114,18 @@ def main() -> None:
     )
     for pair, item in summary["pairs"].items():
         lines.append(
-            f"| {pair.replace('|', ' / ')} | {item['jaccard']:.4f} | "
-            f"{item['per_gene_pearson_log1p']:.4f} | "
-            f"{item['per_barcode_pearson_log1p']:.4f} | "
-            f"{item['celltype_agreement']:.4f} | {item['celltype_jaccard_mean']:.4f} | "
-            f"{item['cluster_ari']:.4f} |"
+            f"| {pair.replace('|', ' / ')} | {item['jaccard']:.3f} | "
+            f"{item['per_gene_pearson_log1p']:.3f} | "
+            f"{item['per_barcode_pearson_log1p']:.3f} | "
+            f"{item['celltype_agreement']:.3f} | {item['celltype_jaccard_mean']:.3f} | "
+            f"{item['cluster_ari']:.3f} |"
         )
     lines.extend(
         [
             "",
             f"Shared called cells: **{summary['shared_cells']:,}**.  "
-            f"All-tool cell-type agreement: **{summary['all_tool_celltype_agreement']:.4f}**.  "
-            f"Mean per-type Jaccard: **{summary['celltype_jaccard_mean']:.4f}**.",
+            f"All-tool cell-type agreement: **{summary['all_tool_celltype_agreement']:.3f}**.  "
+            f"Mean per-type Jaccard: **{summary['celltype_jaccard_mean']:.3f}**.",
         ]
     )
     args.markdown.write_text("\n".join(lines) + "\n")
