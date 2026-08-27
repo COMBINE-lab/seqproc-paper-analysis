@@ -32,6 +32,7 @@ def collect_rows(
     schedule: Mapping[str, Any],
     runs_root: Path,
     datasets: frozenset[str] | None = None,
+    tools: frozenset[str] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     specs = {str(run["id"]): run for run in manifest["runs"]}
     rows: list[dict[str, Any]] = []
@@ -40,6 +41,8 @@ def collect_rows(
         condition_id = str(entry["condition_id"])
         metadata = dict(specs[condition_id]["spec"].get("metadata", {}))
         if datasets and str(metadata.get("dataset", "")) not in datasets:
+            continue
+        if tools and str(metadata.get("tool", "")) not in tools:
             continue
         attempts = successful_attempts(runs_root / str(entry["run_id"]))
         if len(attempts) != 1:
@@ -272,6 +275,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="append",
         help="summarize only this dataset/technology block; may be repeated",
     )
+    parser.add_argument(
+        "--tool",
+        action="append",
+        help="summarize only this tool; may be repeated",
+    )
     args = parser.parse_args(argv)
 
     manifest_path = args.manifest.resolve()
@@ -279,6 +287,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     expected = build_schedule(manifest, manifest_path)
     schedule = load_verified_schedule(args.schedule, expected)
     selected_datasets = frozenset(args.dataset or ())
+    selected_tools = frozenset(args.tool or ())
     known_datasets = {
         str(run["spec"].get("metadata", {}).get("dataset", ""))
         for run in manifest["runs"]
@@ -289,8 +298,18 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"unknown dataset block(s): {', '.join(unknown)}; "
             f"available: {', '.join(sorted(known_datasets))}"
         )
+    known_tools = {
+        str(run["spec"].get("metadata", {}).get("tool", ""))
+        for run in manifest["runs"]
+    }
+    unknown_tools = sorted(selected_tools - known_tools)
+    if unknown_tools:
+        parser.error(
+            f"unknown tool(s): {', '.join(unknown_tools)}; "
+            f"available: {', '.join(sorted(known_tools))}"
+        )
     rows, exclusions = collect_rows(
-        manifest, schedule, args.runs.resolve(), selected_datasets
+        manifest, schedule, args.runs.resolve(), selected_datasets, selected_tools
     )
     summaries = summarize(rows)
     correctness_report = correctness(rows)
@@ -308,8 +327,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             if not selected_datasets
             or str(run["spec"].get("metadata", {}).get("dataset", ""))
             in selected_datasets
+            if not selected_tools
+            or str(run["spec"].get("metadata", {}).get("tool", ""))
+            in selected_tools
         ),
         "datasets": sorted(selected_datasets or known_datasets),
+        "tools": sorted(selected_tools or known_tools),
         "valid_conditions": len(rows),
         "excluded_conditions": len(exclusions),
         "correctness": correctness_report,

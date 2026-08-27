@@ -219,6 +219,52 @@ def test_unknown_dataset_block_is_rejected(tmp_path):
         )
 
 
+def test_tool_selection_preserves_frozen_relative_order(tmp_path):
+    manifest, manifest_path = make_manifest(tmp_path)
+    schedule = build_schedule(manifest, manifest_path)
+    output = tmp_path / "results"
+
+    assert execute_schedule(
+        manifest,
+        manifest_path,
+        schedule,
+        output,
+        tools=frozenset({"beta"}),
+    ) == (1, 0, 0)
+    events = [
+        json.loads(line)
+        for line in (output / "execution-log.jsonl").read_text().splitlines()
+        if json.loads(line)["event"] == "start"
+    ]
+    observed = [event["condition_id"] for event in events]
+    expected = [
+        entry["condition_id"]
+        for entry in schedule["entries"]
+        if entry["condition_id"].endswith("beta")
+    ]
+    assert observed == expected
+    rows, exclusions = collect_rows(
+        manifest, schedule, output, tools=frozenset({"beta"})
+    )
+    assert len(rows) == 1
+    assert rows[0]["tool"] == "beta"
+    assert exclusions == []
+
+
+def test_unknown_tool_is_rejected(tmp_path):
+    manifest, manifest_path = make_manifest(tmp_path)
+    schedule = build_schedule(manifest, manifest_path)
+
+    with pytest.raises(ScheduleError, match="unknown tool"):
+        execute_schedule(
+            manifest,
+            manifest_path,
+            schedule,
+            tmp_path / "results",
+            tools=frozenset({"missing"}),
+        )
+
+
 def test_failed_attempt_is_preserved_and_retried(tmp_path):
     manifest, manifest_path = make_manifest(tmp_path, fail=True)
     schedule = build_schedule(manifest, manifest_path)

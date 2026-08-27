@@ -349,6 +349,7 @@ def _execute_schedule_unlocked(
     output_root: Path,
     max_runs: int | None = None,
     datasets: frozenset[str] | None = None,
+    tools: frozenset[str] | None = None,
 ) -> tuple[int, int, int]:
     runs = validate_manifest(manifest, manifest_path)
     by_id = {item["condition_id"]: item for item in runs}
@@ -365,14 +366,37 @@ def _execute_schedule_unlocked(
                 f"unknown dataset block(s): {', '.join(unknown)}; "
                 f"available: {', '.join(sorted(known_datasets))}"
             )
+    known_tools = {
+        str(item["spec"].get("metadata", {}).get("tool", "")) for item in runs
+    }
+    if tools:
+        unknown = sorted(tools - known_tools)
+        if unknown:
+            raise ScheduleError(
+                f"unknown tool(s): {', '.join(unknown)}; "
+                f"available: {', '.join(sorted(known_tools))}"
+            )
     selected = [
         entry
         for entry in schedule["entries"]
-        if not datasets
-        or str(
-            by_id[entry["condition_id"]]["spec"].get("metadata", {}).get("dataset", "")
+        if (
+            not datasets
+            or str(
+                by_id[entry["condition_id"]]["spec"]
+                .get("metadata", {})
+                .get("dataset", "")
+            )
+            in datasets
         )
-        in datasets
+        and (
+            not tools
+            or str(
+                by_id[entry["condition_id"]]["spec"]
+                .get("metadata", {})
+                .get("tool", "")
+            )
+            in tools
+        )
     ]
     if max_runs is not None:
         selected = selected[:max_runs]
@@ -433,10 +457,11 @@ def execute_schedule(
     output_root: Path,
     max_runs: int | None = None,
     datasets: frozenset[str] | None = None,
+    tools: frozenset[str] | None = None,
 ) -> tuple[int, int, int]:
     with execution_lock(output_root):
         return _execute_schedule_unlocked(
-            manifest, manifest_path, schedule, output_root, max_runs, datasets
+            manifest, manifest_path, schedule, output_root, max_runs, datasets, tools
         )
 
 
@@ -460,11 +485,19 @@ def main(argv: Sequence[str] | None = None) -> int:
             "The relative order remains the order frozen in the full schedule"
         ),
     )
+    parser.add_argument(
+        "--tool",
+        action="append",
+        help=(
+            "execute or validate only this tool; may be repeated. The relative "
+            "order remains the order frozen in the full schedule"
+        ),
+    )
     args = parser.parse_args(argv)
     if args.max_runs is not None and args.max_runs <= 0:
         parser.error("--max-runs must be positive")
-    if args.generate and args.dataset:
-        parser.error("--dataset cannot be combined with --generate")
+    if args.generate and (args.dataset or args.tool):
+        parser.error("--dataset/--tool cannot be combined with --generate")
 
     try:
         manifest_path = args.manifest.resolve()
@@ -480,14 +513,21 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         schedule = load_verified_schedule(args.schedule, expected_schedule)
         selected_datasets = frozenset(args.dataset or ())
+        selected_tools = frozenset(args.tool or ())
+        runs_by_id = {run["id"]: run for run in manifest["runs"]}
         selected_entries = [
             entry
             for entry in schedule["entries"]
-            if not selected_datasets
-            or next(
-                run for run in manifest["runs"] if run["id"] == entry["condition_id"]
-            )["spec"]["metadata"]["dataset"]
-            in selected_datasets
+            if (
+                not selected_datasets
+                or runs_by_id[entry["condition_id"]]["spec"]["metadata"]["dataset"]
+                in selected_datasets
+            )
+            and (
+                not selected_tools
+                or runs_by_id[entry["condition_id"]]["spec"]["metadata"]["tool"]
+                in selected_tools
+            )
         ]
         known_datasets = {
             str(run["spec"].get("metadata", {}).get("dataset", ""))
@@ -499,6 +539,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                 f"unknown dataset block(s): {', '.join(unknown)}; "
                 f"available: {', '.join(sorted(known_datasets))}"
             )
+        known_tools = {
+            str(run["spec"].get("metadata", {}).get("tool", ""))
+            for run in manifest["runs"]
+        }
+        unknown_tools = sorted(selected_tools - known_tools)
+        if unknown_tools:
+            raise ScheduleError(
+                f"unknown tool(s): {', '.join(unknown_tools)}; "
+                f"available: {', '.join(sorted(known_tools))}"
+            )
         if args.validate_only:
             print(
                 json.dumps(
@@ -507,6 +557,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                         "mode": manifest["mode"],
                         "entries": len(selected_entries),
                         "datasets": sorted(selected_datasets or known_datasets),
+                        "tools": sorted(selected_tools or known_tools),
                         "manifest_sha256": schedule["manifest_sha256"],
                         "schedule_sha256": sha256_file(args.schedule),
                     },
@@ -521,6 +572,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.output,
             args.max_runs,
             selected_datasets,
+            selected_tools,
         )
     except KeyboardInterrupt:
         print("run-frozen-schedule: interrupted", file=sys.stderr)
