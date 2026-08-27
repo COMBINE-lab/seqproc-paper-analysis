@@ -1,8 +1,8 @@
-# Semantically aligned 10x v2 benchmark: retain separate BC and UMI regions,
-# emit their enclosing 26-base region in R1, and retain R2.
-if read.r1 matches {
-    [bcumi:(bc:|16| umi:|10|)] => {
-        bcumi.out!('mb_r1.fq')
-        read.r2.out!('mb_r2.fq')
-    }
+# Semantically aligned 10x v2 benchmark: reject pairs whose R1 is shorter
+# than the 16-base barcode plus 10-base UMI, otherwise pass both reads through
+# unchanged. Avoid materializing unused BC/UMI captures for this filter-only
+# workload.
+if read.r1.seq.len() >= 26 {
+    read.r1.out!('mb_r1.fq')
+    read.r2.out!('mb_r2.fq')
 }
