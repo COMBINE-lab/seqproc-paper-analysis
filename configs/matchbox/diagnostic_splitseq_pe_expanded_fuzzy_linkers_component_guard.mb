@@ -1,8 +1,6 @@
-# Sensitivity-only SPLiT-seq PE configuration.  It expands the canonical
-# 96-member 8-nt whitelist to all unique Hamming-distance-one observations and
-# matches those variants exactly.  Linkers use edit distance three, as in the
-# primary Matchbox PE configuration, and explicit biological-component length
-# guards prevent approximate linker placements from shifting projected fields.
+# Diagnostic sensitivity configuration: exact matching against the externally
+# Hamming-one-expanded barcode list, edit-distance-three linkers, and explicit
+# biological-component length guards.
 l1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
 l2 = ATCCACGTGCTTGAGAGGCCAGAGCATTCG
 bcs23 = csv('configs/diagnostics/splitseq_pe_bc8_ham1.csv')

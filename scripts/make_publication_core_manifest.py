@@ -78,7 +78,8 @@ DATASETS = (
         "semantic_workload": "filter, whitelist-match, and project UMI+BC3+BC2+BC1",
         "equivalence": (
             "best-practical; all tools emit captured UMI/barcode segments, matchbox "
-            "uses exact canonical matching to preserve adjacent boundaries, and "
+            "uses exact canonical barcode matching plus explicit component-length "
+            "guards while allowing edit-distance-three linker matching, and "
             "splitcode linker matching is substitution-only"
         ),
     },
