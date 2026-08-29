@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "sources": {
+    "seqproc": {
+      "mate": 1,
+      "numeric_id_max": 77621181,
+      "accession_prefix": "SRR6750041",
+      "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/splitseq_pe.seqproc.accepted.1.bitmap",
+      "sha256": "2c3484fb3b3ebfcf916cffbffbb0f4d78b0cf0a6527706c6ef07ae77385905b2"
+    },
+    "splitcode": {
+      "mate": 1,
+      "numeric_id_max": 77621181,
+      "accession_prefix": "SRR6750041",
+      "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/splitseq_pe.splitcode.accepted.1.bitmap",
+      "sha256": "b29535abfb0ef900c056fa0549172d132618b31b8b367a764c46a9f5abb64b23"
+    },
+    "matchbox": {
+      "mate": 1,
+      "numeric_id_max": 77621181,
+      "accession_prefix": "SRR6750041",
+      "path": "/scratch1/seqproc-ecosystem/campaigns/journal-matchbox-splitseq-pe-fuzzy-2026-08-28/downstream/expanded-editdist2/matchbox.bitmap",
+      "sha256": "3601e9bb5d6c6dd58a340fa7c15e44cb71600f8b866852bb3dd3362e7cfe562e"
+    }
+  },
+  "tools": {
+    "seqproc": {
+      "records": 56991381
+    },
+    "splitcode": {
+      "records": 53495595
+    },
+    "matchbox": {
+      "records": 57252325
+    }
+  },
+  "pairs": {
+    "seqproc|splitcode": {
+      "intersection": 53232995,
+      "union": 57253981,
+      "jaccard": 0.929769320320276
+    },
+    "seqproc|matchbox": {
+      "intersection": 56617052,
+      "union": 57626654,
+      "jaccard": 0.982480294621999
+    },
+    "splitcode|matchbox": {
+      "intersection": 53113212,
+      "union": 57634708,
+      "jaccard": 0.9215490776842316
+    }
+  }
+}

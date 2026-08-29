@@ -1,0 +1,4 @@
+step,tool,seconds,peak_ram_mb
+starsolo,seqproc,46.54,29311.4
+starsolo,splitcode,41.78,29294.2
+starsolo,matchbox,47.05,29312.8

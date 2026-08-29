@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "tool": "matchbox",
+  "records": 57252325,
+  "first_id": "SRR6750041.1",
+  "last_id": "SRR6750041.77621181",
+  "r1": {
+    "path": "/scratch1/seqproc-ecosystem/campaigns/journal-matchbox-splitseq-pe-fuzzy-2026-08-28/ham1-expanded-v2/runs/be6fe421248354907e5176f607398f23064de9f8b282267a93b61119647036c8/attempt-0001/tool-work/mb_r1.fq",
+    "bytes": 9602346242,
+    "sha256": "0eb040c626230d237a3b2a5d594ea300a7d3042d476b78fd125a287157b1cceb",
+    "lengths": [
+      66
+    ]
+  },
+  "r2": {
+    "path": "/scratch1/seqproc-ecosystem/campaigns/journal-matchbox-splitseq-pe-fuzzy-2026-08-28/ham1-expanded-v2/runs/be6fe421248354907e5176f607398f23064de9f8b282267a93b61119647036c8/attempt-0001/tool-work/mb_r2.fq",
+    "bytes": 5938197442,
+    "sha256": "9d8c8f68e2c395454ee10f7d2c7fd9f1eab5aedd3c7b4ce10924214ace504aab",
+    "lengths": [
+      34
+    ]
+  }
+}

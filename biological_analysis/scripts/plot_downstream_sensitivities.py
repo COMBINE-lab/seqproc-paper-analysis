@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Plot the four frozen SPLiT-seq PE downstream sensitivity configurations."""
+"""Plot the four frozen SPLiT-seq PE downstream sensitivity configurations.
+
+The primary Matchbox variant uses canonical barcode lists, fuzzy linkers, and
+captured-component length guards; ``expanded`` changes only the barcode lists.
+"""
 
 from __future__ import annotations
 
@@ -69,8 +73,8 @@ def main() -> None:
     args = parser.parse_args()
 
     labels = (
-        "Exact\nEditDist_2",
-        "Exact\n1MM",
+        "Canonical\nEditDist_2",
+        "Canonical\n1MM",
         "Expanded\nEditDist_2",
         "Expanded\n1MM",
     )

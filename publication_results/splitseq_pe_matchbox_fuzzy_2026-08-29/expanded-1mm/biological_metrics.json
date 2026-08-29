@@ -1,0 +1,113 @@
+{
+  "tools": [
+    "seqproc",
+    "splitcode",
+    "matchbox"
+  ],
+  "min_umi": 200,
+  "random_seed": 0,
+  "cells": {
+    "seqproc": 225,
+    "splitcode": 220,
+    "matchbox": 225
+  },
+  "shared_cells": 220,
+  "celltype_agreement_shared": 0.8909090909090909,
+  "celltype_agreement_shared_counts": {
+    "agree": 196,
+    "total": 220
+  },
+  "celltype_agreement_pairwise": {
+    "seqproc|splitcode": 0.9136363636363637,
+    "seqproc|matchbox": 0.9363636363636364,
+    "splitcode|matchbox": 0.9272727272727272
+  },
+  "celltype_agreement_pairwise_counts": {
+    "seqproc|splitcode": {
+      "agree": 201,
+      "total": 220
+    },
+    "seqproc|matchbox": {
+      "agree": 206,
+      "total": 220
+    },
+    "splitcode|matchbox": {
+      "agree": 204,
+      "total": 220
+    }
+  },
+  "celltype_jaccard_per_type": {
+    "Neuron": 0.9671352188583234,
+    "Astrocyte": 0.9347670250896059,
+    "Oligodendro": 0.9,
+    "OPC": 0.45158730158730154,
+    "Microglia": 0.37815126050420167,
+    "Endothelial": 0.6527777777777778
+  },
+  "celltype_jaccard_pairwise_per_type": {
+    "seqproc|splitcode": {
+      "Neuron": 0.9577464788732394,
+      "Astrocyte": 0.9032258064516129,
+      "Oligodendro": 0.85,
+      "OPC": 0.42857142857142855,
+      "Microglia": 0.35294117647058826,
+      "Endothelial": 0.625
+    },
+    "seqproc|matchbox": {
+      "Neuron": 0.9716312056737588,
+      "Astrocyte": 0.967741935483871,
+      "Oligodendro": 1.0,
+      "OPC": 0.47619047619047616,
+      "Microglia": 0.42857142857142855,
+      "Endothelial": 0.5
+    },
+    "splitcode|matchbox": {
+      "Neuron": 0.972027972027972,
+      "Astrocyte": 0.9333333333333333,
+      "Oligodendro": 0.85,
+      "OPC": 0.45,
+      "Microglia": 0.35294117647058826,
+      "Endothelial": 0.8333333333333334
+    }
+  },
+  "celltype_jaccard_pairwise_mean": {
+    "seqproc|splitcode": 0.6862474817278116,
+    "seqproc|matchbox": 0.7240225076532557,
+    "splitcode|matchbox": 0.7319393025275378
+  },
+  "celltype_jaccard_mean": 0.714069763969535,
+  "celltype_fractions": {
+    "seqproc": {
+      "Neuron": 0.6177777777777778,
+      "Astrocyte": 0.13777777777777778,
+      "Oligodendro": 0.08888888888888889,
+      "OPC": 0.07111111111111111,
+      "Microglia": 0.04888888888888889,
+      "Endothelial": 0.035555555555555556
+    },
+    "splitcode": {
+      "Neuron": 0.6409090909090909,
+      "Astrocyte": 0.12727272727272726,
+      "Oligodendro": 0.08181818181818182,
+      "OPC": 0.06363636363636363,
+      "Microglia": 0.05909090909090909,
+      "Endothelial": 0.02727272727272727
+    },
+    "matchbox": {
+      "Neuron": 0.6355555555555555,
+      "Astrocyte": 0.13777777777777778,
+      "Oligodendro": 0.08888888888888889,
+      "OPC": 0.06666666666666667,
+      "Microglia": 0.04888888888888889,
+      "Endothelial": 0.022222222222222223
+    }
+  },
+  "cluster_ari_pairwise": {
+    "seqproc|splitcode": 0.5911100327304825,
+    "seqproc|matchbox": 0.6849932476569282,
+    "splitcode|matchbox": 0.6084564646516196
+  },
+  "cluster_ari_mean": 0.6281865816796768,
+  "joint_coclustering_agreement": 1.0,
+  "tool_mixing_entropy": 0.9999999999999998
+}

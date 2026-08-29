@@ -46,35 +46,37 @@ biological_analysis/run_current_downstream.sh \
   --seqproc-bitmap "$BMAP/splitseq_pe.seqproc.accepted.1.bitmap" \
   --splitcode-bitmap "$BMAP/splitseq_pe.splitcode.accepted.1.bitmap" \
   --matchbox-bitmap "$BMAP/splitseq_pe.matchbox.accepted.1.bitmap" \
-  --threads 32 --min-umi 200 --cb-match 1MM
+  --threads 32 --min-umi 200 --cb-match EditDist_2
 ```
 
 The driver verifies every FASTQ before STARsolo and produces a compact
 `downstream_bundle.tar.gz`. The large STAR matrices remain in the output
 directory and are not committed.
 
-The command above exactly reproduces the historical STARsolo `1MM` matching
-choice on the final upstream outputs. For a controlled correction sensitivity,
-rerun to a separate output directory with `--cb-match EditDist_2`. STARsolo's
+The command above reproduces the primary STARsolo `EditDist_2` matching choice
+on the final upstream outputs. For a controlled correction sensitivity, rerun
+to a separate output directory with `--cb-match 1MM`. STARsolo's
 complex `1MM` mode permits a mismatch in only one barcode piece, whereas
 `EditDist_2` corrects the three pieces independently. This matters because
 seqproc retains observed barcode bases, while splitcode's extracted tag output
 is already canonicalized and Matchbox's primary PE output is exact.
 
-After materializing the expanded-whitelist Matchbox FASTQs, reproduce the
-separate sensitivity analysis with:
+After materializing another Matchbox variant, recompute only its STARsolo and
+downstream-dependent results while reusing the unchanged seqproc and splitcode
+matrices with:
 
 ```bash
-biological_analysis/run_matchbox_ham1_sensitivity.sh \
+biological_analysis/run_matchbox_variant_downstream.sh \
   --genome biological_analysis/reference/star_GRCm38_ensembl102 \
-  --primary-run "$WORK/downstream-final" \
-  --outdir "$WORK/downstream-matchbox-ham1" \
-  --matchbox-r1 <expanded-matchbox-R1> --matchbox-r2 <expanded-matchbox-R2> \
+  --base-run "$WORK/downstream-final" \
+  --outdir "$WORK/downstream-matchbox-variant" --variant <VARIANT_NAME> \
+  --matchbox-r1 <matchbox-R1> --matchbox-r2 <matchbox-R2> \
+  --matchbox-fastq-provenance <matchbox-fastq-provenance.json> \
   --reference-bitmap "$BMAP/splitseq_pe.reference.raw" \
   --seqproc-bitmap "$BMAP/splitseq_pe.seqproc.accepted.1.bitmap" \
   --splitcode-bitmap "$BMAP/splitseq_pe.splitcode.accepted.1.bitmap" \
-  --matchbox-exact-bitmap "$BMAP/splitseq_pe.matchbox.accepted.1.bitmap" \
-  --threads 32 --min-umi 200 --cb-match 1MM
+  --matchbox-bitmap <matchbox-accepted.bitmap> \
+  --threads 32 --min-umi 200 --cb-match EditDist_2
 ```
 
 The script refuses to reuse primary matrices generated with a different

@@ -1,0 +1,5 @@
+measurement_track,sequence_output_policy,dataset,tool,execution_mode,threads,replicates,wall_seconds_mean,wall_seconds_median,wall_seconds_sd,input_records_per_second_mean,input_records_per_second_median,peak_rss_kib_mean,peak_rss_kib_max
+timing,dev-null,splitseq_pe,matchbox,best-practical-uncompressed,1,3,4819.407964409667,4783.32327443,69.52277405890746,16108.174269111192,16227.458724133516,11324800.0,11324880
+timing,dev-null,splitseq_pe,matchbox,best-practical-uncompressed,4,3,1273.111807522,1273.818570264,6.768601168955309,60970.79964415066,60935.821483520165,11327220.0,11328856
+timing,dev-null,splitseq_pe,matchbox,best-practical-uncompressed,16,3,470.38612206933334,470.893639812,2.2889585199706195,165018.4914278898,164838.03228047324,11346153.333333334,11346796
+timing,dev-null,splitseq_pe,matchbox,best-practical-uncompressed,32,3,358.17281474,356.76248774,3.6877862908269754,216729.56868987274,217571.02741297305,11347941.333333334,11351580

@@ -44,7 +44,8 @@ def main_table(summary: dict) -> str:
         )
     return rf"""\begin{{table*}}[t]
 \centering
-\color{{red}}
+\changed
+\begin{{adjustbox}}{{width=\textwidth}}
 \begin{{tabular}}{{@{{}}lrrrrr@{{}}}}
 \toprule
 Tool pair & Per-gene Pearson & Per-barcode Pearson & Cell-type agreement & Mean type Jaccard & Cluster ARI \\
@@ -52,7 +53,8 @@ Tool pair & Per-gene Pearson & Per-barcode Pearson & Cell-type agreement & Mean 
 {chr(10).join(rows)}
 \bottomrule
 \end{{tabular}}
-\caption{{\textcolor{{red}}{{Pairwise downstream concordance for the final exact-whitelist SPLiT-seq PE outputs under the common \textsc{{STARsolo}} \texttt{{CB\_UMI\_Complex}} \texttt{{EditDist\_2}} configuration. Pearson correlations use total UMI counts on the $\log(1+x)$ scale. Cell-type agreement, mean Jaccard over the six marker-based cell types, and adjusted Rand index (ARI) are calculated on the cells called by all three tools.}}}}
+\end{{adjustbox}}
+\caption{{\changed{{Pairwise downstream concordance for the final SPLiT-seq PE outputs under the common \textsc{{STARsolo}} \texttt{{CB\_UMI\_Complex}} \texttt{{EditDist\_2}} configuration. The primary \matchbox input uses canonical-barcode matching, edit-distance-three linker matching, and explicit captured-component length guards. Pearson correlations use total UMI counts on the $\log(1+x)$ scale. Cell-type agreement, mean Jaccard over the six marker-based cell types, and adjusted Rand index (ARI) are calculated on the cells called by all three tools.}}}}
 \label{{tab:pairwise_concordance}}
 \end{{table*}}
 """
@@ -69,8 +71,7 @@ def jaccard_table(summary: dict) -> str:
         )
     return rf"""\begin{{table}}[H]
 \centering
-\color{{red}}
-\resizebox{{\columnwidth}}{{!}}{{%
+\changed
 \begin{{tabular}}{{@{{}}lrrrr@{{}}}}
 \toprule
 Cell type & SP/SC & SP/MB & SC/MB & Mean \\
@@ -79,8 +80,8 @@ Cell type & SP/SC & SP/MB & SC/MB & Mean \\
 \midrule
 Mean & {summary['celltype_jaccard_pairwise_mean']['seqproc|splitcode']:.3f} & {summary['celltype_jaccard_pairwise_mean']['seqproc|matchbox']:.3f} & {summary['celltype_jaccard_pairwise_mean']['splitcode|matchbox']:.3f} & {summary['celltype_jaccard_mean']:.3f} \\
 \bottomrule
-\end{{tabular}}}}
-\caption{{\textcolor{{red}}{{Pairwise per-cell-type Jaccard index of marker-based labels over the {summary['shared_cells']} cells called by all three tools. SP, SC, and MB denote \seqproc, \splitcode, and exact-whitelist \matchbox. The final column and row retain the across-pair summaries.}}}}
+\end{{tabular}}
+\caption{{\changed{{Pairwise per-cell-type Jaccard index of marker-based labels over the {summary['shared_cells']} cells called by all three tools. SP, SC, and MB denote \seqproc, \splitcode, and canonical-barcode/fuzzy-linker \matchbox. The final column and row retain the across-pair summaries.}}}}
 \label{{tab:jaccard}}
 \end{{table}}
 """
@@ -102,7 +103,7 @@ def sensitivity_table(summaries: list[tuple[str, dict]]) -> str:
 
     return rf"""\begin{{minipage}}{{\textwidth}}
 \centering
-\color{{red}}
+\changed
 \resizebox{{\textwidth}}{{!}}{{%
 \begin{{tabular}}{{@{{}}lrrrrrrr@{{}}}}
 \toprule
@@ -111,7 +112,7 @@ Configuration & Matchbox reads & Valid BC (\%) & Cells (SP/SC/MB) & All-type & M
 {chr(10).join(rows)}
 \bottomrule
 \end{{tabular}}}}
-\captionof{{table}}{{\textcolor{{red}}{{Sensitivity of the downstream analysis to \textsc{{STARsolo}} barcode correction and to external Hamming-1 expansion of the \matchbox barcode lists. SP, SC, and MB denote \seqproc, \splitcode, and \matchbox. ``Min.'' is the least favorable value among the three tool pairs, avoiding post hoc selection of a favorable comparison.}}}}
+\captionof{{table}}{{\changed{{Sensitivity of the downstream analysis to \textsc{{STARsolo}} barcode correction and to external Hamming-1 expansion of the canonical \matchbox barcode lists. All \matchbox variants use edit-distance-three linker matching and captured-component length guards. SP, SC, and MB denote \seqproc, \splitcode, and \matchbox. ``Min.'' is the least favorable value among the three tool pairs, avoiding post hoc selection of a favorable comparison.}}}}
 \label{{tab:downstream_sensitivities}}
 \end{{minipage}}
 """
@@ -138,7 +139,7 @@ def pairwise_sensitivity_table(summaries: list[tuple[str, dict]]) -> str:
 
     return rf"""\begin{{minipage}}{{\textwidth}}
 \centering
-\color{{red}}
+\changed
 \footnotesize
 \begin{{tabular}}{{@{{}}llrrr@{{}}}}
 \toprule
@@ -147,7 +148,7 @@ Configuration & Pair & Cell-type agreement & Mean type Jaccard & Cluster ARI \\
 {chr(10).join(rows[:-1])}
 \bottomrule
 \end{{tabular}}
-\captionof{{table}}{{\textcolor{{red}}{{Pairwise shared-cell biological concordance underlying the aggregate sensitivity scorecard in \Cref{{fig:downstream_sensitivities}}. SP, SC, and MB denote \seqproc, \splitcode, and \matchbox. Mean type Jaccard is the unweighted mean over the six marker-based cell types.}}}}
+\captionof{{table}}{{\changed{{Pairwise shared-cell biological concordance underlying the aggregate sensitivity scorecard in \Cref{{fig:downstream_sensitivities}}. SP, SC, and MB denote \seqproc, \splitcode, and \matchbox. Mean type Jaccard is the unweighted mean over the six marker-based cell types.}}}}
 \label{{tab:downstream_pairwise_sensitivities}}
 \end{{minipage}}
 """
@@ -155,7 +156,14 @@ Configuration & Pair & Cell-type agreement & Mean type Jaccard & Cluster ARI \\
 
 def accuracy_table(accuracy: dict) -> str:
     accuracy_rows = []
-    for label, key in (("Exact whitelist", "matchbox_exact"), ("Hamming-1 expanded", "matchbox_expanded")):
+    key_pairs = (
+        ("Canonical barcodes", ("canonical-fuzzy", "matchbox_exact")),
+        ("Hamming-1-expanded barcodes", ("ham1-expanded-fuzzy", "matchbox_expanded")),
+    )
+    for label, candidate_keys in key_pairs:
+        key = next((candidate for candidate in candidate_keys if candidate in accuracy["tools"]), None)
+        if key is None:
+            raise KeyError(f"none of {candidate_keys!r} found in accuracy artifact")
         values = accuracy["tools"][key]
         accuracy_rows.append(
             f"{label} & {latex_int(values['emitted_records'])} & "
@@ -164,7 +172,7 @@ def accuracy_table(accuracy: dict) -> str:
 
     return rf"""\begin{{table}}[H]
 \centering
-\color{{red}}
+\changed
 \resizebox{{\columnwidth}}{{!}}{{%
 \begin{{tabular}}{{@{{}}lrrrr@{{}}}}
 \toprule
@@ -173,7 +181,7 @@ def accuracy_table(accuracy: dict) -> str:
 {chr(10).join(accuracy_rows)}
 \bottomrule
 \end{{tabular}}}}
-\caption{{\textcolor{{red}}{{Structural-reference sensitivity for exact and externally Hamming-1-expanded \matchbox barcode lists. Precision and recall are agreement with the conservative structurally retained set, not biological ground truth.}}}}
+\caption{{\changed{{Structural-reference sensitivity for canonical and externally Hamming-1-expanded \matchbox barcode lists, both with edit-distance-three linker matching and captured-component length guards. Precision and recall are agreement with the conservative structurally retained set, not biological ground truth.}}}}
 \label{{tab:matchbox_expansion_accuracy}}
 \end{{table}}
 """
@@ -191,8 +199,8 @@ def main() -> None:
 
     exact_editdist2 = load_summary(args.exact_editdist2)
     summaries = [
-        (r"Exact + \texttt{EditDist\_2}", exact_editdist2),
-        (r"Exact + \texttt{1MM}", load_summary(args.exact_1mm)),
+        (r"Canonical + \texttt{EditDist\_2}", exact_editdist2),
+        (r"Canonical + \texttt{1MM}", load_summary(args.exact_1mm)),
         (r"Expanded + \texttt{EditDist\_2}", load_summary(args.expanded_editdist2)),
         (r"Expanded + \texttt{1MM}", load_summary(args.expanded_1mm)),
     ]

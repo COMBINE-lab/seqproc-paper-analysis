@@ -1,13 +1,18 @@
 # Paper data → source-code traceability
 
-> **Revision notice (2026-08-19):** this document principally traces the
+> **Revision notice (2026-08-29):** this document principally traces the
 > original preprint and therefore contains stale benchmark and validity values.
-> The current journal-revision sources are the frozen
-> [`performance`](publication_results/journal_performance_2026-08-17/) and
-> one-run, 32-thread
-> [`accuracy`](publication_results/journal_rerun_2026-08-17/) bundles. The
+> The current journal-revision sources are the frozen base
+> [`performance`](publication_results/journal_performance_2026-08-17/) bundle,
+> the guarded fuzzy-linker SPLiT-seq PE Matchbox
+> [`performance and downstream`](publication_results/splitseq_pe_matchbox_fuzzy_2026-08-29/)
+> override, and the corresponding one-run, 32-thread
+> [`accuracy`](publication_results/journal_rerun_2026-08-29-matchbox-pe/)
+> bundle. The
 > current SPLiT-seq PE vendor-set comparison is the full-data
-> [`splitseq_pe_splitpipe_vendor_full.json`](publication_results/journal_rerun_2026-08-17/splitseq_pe_splitpipe_vendor_full.json).
+> [`splitseq_pe_splitpipe_vendor_full.json`](publication_results/journal_rerun_2026-08-17/splitseq_pe_splitpipe_vendor_full.json),
+> with the guarded fuzzy-linker Matchbox comparison recorded separately in the
+> 2026-08-29 downstream bundle.
 > Do not use the old values below to rebuild the revised manuscript.
 
 Every table cell, figure quantity, and prose number in the original seqproc preprint, mapped to the script that generates it, the exact command, and the output file. Built by 10 tracer agents reading `/home/ubuntu/paper` against this repo, then reconciled by hand.

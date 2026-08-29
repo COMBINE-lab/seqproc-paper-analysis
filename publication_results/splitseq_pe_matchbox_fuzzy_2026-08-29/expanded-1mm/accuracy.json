@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "input_records": 77621181,
+  "reference": {
+    "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/splitseq_pe.reference.raw",
+    "records": 57437503,
+    "interpretation": "conservative structural reference, not biological ground truth"
+  },
+  "tools": {
+    "seqproc": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/splitseq_pe.seqproc.accepted.1.bitmap"
+      ],
+      "emitted_records": 56991381,
+      "intersection_records": 56796243,
+      "emitted_fraction": 0.7342246055235877,
+      "precision": 0.9965760085722436,
+      "recall": 0.9888355174492874,
+      "f1": 0.9926906741483208
+    },
+    "splitcode": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/splitseq_pe.splitcode.accepted.1.bitmap"
+      ],
+      "emitted_records": 53495595,
+      "intersection_records": 53472550,
+      "emitted_fraction": 0.6891881096217797,
+      "precision": 0.9995692168672954,
+      "recall": 0.9309692658470895,
+      "f1": 0.9640504225348507
+    },
+    "matchbox": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/campaigns/journal-matchbox-splitseq-pe-fuzzy-2026-08-28/downstream/expanded-1mm/matchbox.bitmap"
+      ],
+      "emitted_records": 57252325,
+      "intersection_records": 57009602,
+      "emitted_fraction": 0.7375863683393326,
+      "precision": 0.9957604691163198,
+      "recall": 0.9925501461997748,
+      "f1": 0.9941527159671039
+    }
+  },
+  "pairwise": {
+    "seqproc__splitcode": {
+      "intersection_records": 53232995,
+      "union_records": 57253981,
+      "jaccard": 0.929769320320276,
+      "seqproc_only": 3758386,
+      "splitcode_only": 262600
+    },
+    "seqproc__matchbox": {
+      "intersection_records": 56617052,
+      "union_records": 57626654,
+      "jaccard": 0.982480294621999,
+      "seqproc_only": 374329,
+      "matchbox_only": 635273
+    },
+    "splitcode__matchbox": {
+      "intersection_records": 53113212,
+      "union_records": 57634708,
+      "jaccard": 0.9215490776842316,
+      "splitcode_only": 382383,
+      "matchbox_only": 4139113
+    }
+  }
+}
