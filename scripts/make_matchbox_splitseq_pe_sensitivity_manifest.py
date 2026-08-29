@@ -108,6 +108,13 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
                 "path": str(Path(record["path"]).resolve()),
                 "sha256": str(record["sha256"]),
             }
+    # The harness records and validates argv[0] independently of the explicitly
+    # declared executable collection.  Here that is the taskset affinity wrapper.
+    command_executable = frozen(Path(spec["command"][0]))
+    used_artifacts[command_executable["path"]] = {
+        "path": command_executable["path"],
+        "sha256": command_executable["sha256"],
+    }
     for path in (Path(__file__).resolve(), base_path):
         record = frozen(path)
         used_artifacts[record["path"]] = {
