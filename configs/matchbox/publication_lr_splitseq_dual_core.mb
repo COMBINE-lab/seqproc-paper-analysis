@@ -1,31 +1,60 @@
-# Primary best-practical LR-SPLiT-seq dual-orientation configuration.
+# Primary anchor-first LR-SPLiT-seq dual-orientation configuration.
 #
-# Best-practical native matchbox analogue of seqproc's complete, adjacent,
-# whitelist-aware dual-orientation geometry. Canonical whitelist rows are used
-# directly. Barcode matching is exact because matchbox's approximate read
-# regions can slide within their search windows even in an apparently adjacent
-# pattern. Linkers are also exact in this conservative native mode because an
-# approximate linker can choose an alternate endpoint and shift the following
-# biological barcode boundary.
+# Matchbox chooses among `if read matches` arms from the pattern alone. A body
+# guard therefore cannot make a failed arm fall through to a later arm. This
+# script keeps orientation-discriminating barcodes in the pattern and moves
+# only the barcode preceding the first searched linker to a body guard. The
+# resulting plan searches one linker over the long read, then pins and verifies
+# the remaining fields, rather than scanning 96 barcode candidates first.
+#
+# Two boundary arms handle a cassette flush with the read start or end. Their
+# edge field is an unsized hole because a whitelist-bound region pinned at both
+# ends reaches an unimplemented Matchbox 0.3.2 matcher case.
+#
+# With `--match-mode one-best`, multiple equally good anchor-first placements
+# can make a molecule pattern-ambiguous before the body guard runs. On the
+# publication input this conservatively excludes four reads emitted by the old
+# barcode-first transcription; all four contain one valid cassette plus at
+# least one exact-linker decoy cassette with a non-whitelist terminal barcode.
 
 linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
 linker2 = ATCCACGTGCTTGAGACTGTGG
 rev_linker1 = -linker1
 rev_linker2 = -linker2
 bcs1 = csv('configs/matchbox/rt_6bp.csv')
+# contains() compares whole records, so use a one-column projection rather
+# than rt_6bp.csv, which also has an identifier column.
+bcs1_seqs = csv('configs/matchbox/rt_6bp_barcodes_only.csv')
 bcs23 = csv('configs/matchbox/r2_r3.txt')
 
 if read matches {
-    [_ umi:|10| bc3_hit:bc3.round_23~0.0 linker1~0.0 bc2_hit:bc2.round_23~0.0 linker2~0.0 bc1_hit:bc1.barcode~0.0 _]
-        for bc1 in bcs1, bc2 in bcs23, bc3 in bcs23 => {
-            if bc3_hit.seq.len() == 8 and bc2_hit.seq.len() == 8 and bc1_hit.seq.len() == 6 {
-                (umi.concat(bc3_hit)).concat(bc2_hit.concat(bc1_hit)).out!('mb_r1.fq')
+    [_ umi:|10| bc3:|8| linker1~0.0 bc2_hit:bc2.round_23~0.0 linker2~0.0 bc1_hit:bc1.barcode~0.0 _]
+        for bc1 in bcs1, bc2 in bcs23 => {
+            if bc3.seq.len() == 8 and bc2_hit.seq.len() == 8 and bc1_hit.seq.len() == 6 and
+               bcs23.contains({round_23 = bc3.seq}) {
+                (umi.concat(bc3)).concat(bc2_hit.concat(bc1_hit)).out!('mb_r1.fq')
             }
         }
-    [_ bc1_hit:-bc1.barcode~0.0 rev_linker2~0.0 bc2_hit:-bc2.round_23~0.0 rev_linker1~0.0 bc3_hit:-bc3.round_23~0.0 umi:|10| _]
-        for bc1 in bcs1, bc2 in bcs23, bc3 in bcs23 => {
-            if bc3_hit.seq.len() == 8 and bc2_hit.seq.len() == 8 and bc1_hit.seq.len() == 6 {
-                (-((bc1_hit.concat(bc2_hit)).concat(bc3_hit.concat(umi)))).out!('mb_r1.fq')
+    [_ bc1:|6| rev_linker2~0.0 bc2_hit:-bc2.round_23~0.0 rev_linker1~0.0 bc3_hit:-bc3.round_23~0.0 umi:|10| _]
+        for bc2 in bcs23, bc3 in bcs23 => {
+            if bc1.seq.len() == 6 and bc2_hit.seq.len() == 8 and bc3_hit.seq.len() == 8 and
+               bcs1_seqs.contains({barcode = -(bc1.seq)}) {
+                (-((bc1.concat(bc2_hit)).concat(bc3_hit.concat(umi)))).out!('mb_r1.fq')
+            }
+        }
+    [_ umi:|10| bc3:|8| linker1~0.0 bc2_hit:bc2.round_23~0.0 linker2~0.0 bc1:_]
+        for bc2 in bcs23 => {
+            if bc1.seq.len() == 6 and bc3.seq.len() == 8 and bc2_hit.seq.len() == 8 and
+               bcs23.contains({round_23 = bc3.seq}) and
+               bcs1_seqs.contains({barcode = bc1.seq}) {
+                (umi.concat(bc3)).concat(bc2_hit.concat(bc1)).out!('mb_r1.fq')
+            }
+        }
+    [bc1:_ rev_linker2~0.0 bc2_hit:-bc2.round_23~0.0 rev_linker1~0.0 bc3_hit:-bc3.round_23~0.0 umi:|10| _]
+        for bc2 in bcs23, bc3 in bcs23 => {
+            if bc1.seq.len() == 6 and bc2_hit.seq.len() == 8 and bc3_hit.seq.len() == 8 and
+               bcs1_seqs.contains({barcode = -(bc1.seq)}) {
+                (-((bc1.concat(bc2_hit)).concat(bc3_hit.concat(umi)))).out!('mb_r1.fq')
             }
         }
 }

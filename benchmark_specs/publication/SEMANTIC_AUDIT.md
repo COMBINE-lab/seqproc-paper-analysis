@@ -44,6 +44,15 @@ cross-tool concordance.
    restricts all tags to realistic R2 position windows and requires at least
    one hit from each of the BC1, BC2, BC3, linker1, and linker2 groups. It emits
    7,114,602/10,000,000 on the same subset.
+8. The final LR Matchbox configuration searches an exact linker before
+   resolving the adjacent barcodes, rather than scanning 96 barcode candidates
+   over the whole long read. On the full input this preserves 8,273/8,277 reads
+   from the direct barcode-first transcription and reduces a diagnostic
+   32-thread wall time from 203.01 to 25.27 seconds. The four excluded reads are
+   multi-cassette molecules containing one whitelist-valid cassette and at
+   least one exact-linker decoy cassette with an invalid terminal barcode.
+   Matchbox `all` mode recovers them but duplicates multi-cassette FASTQ records,
+   so publication runs retain the established conservative `one-best` policy.
 
 ## Real 10M SPLiT-seq paired-end gate
 

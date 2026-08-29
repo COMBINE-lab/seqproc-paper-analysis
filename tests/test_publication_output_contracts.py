@@ -77,4 +77,7 @@ def test_lr_core_configs_require_whitelists_and_complete_components():
     assert "#[edit(3)] linker_b" in dual
     assert "#[match_ori" not in forward
     assert "bc3_hit.seq.len() == 8" in matchbox
+    assert "bcs1_seqs.contains" in matchbox
+    assert "bc3:|8| linker1~0.0" in matchbox
+    assert "bc3_hit:bc3.round_23~0.0 linker1" not in matchbox
     assert "@extract\t<prefix[18]>{linker1}" in splitcode

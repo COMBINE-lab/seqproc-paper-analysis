@@ -95,7 +95,11 @@ DATASETS = (
             "splitseq_bc8_whitelist.txt",
             "splitseq_bc1_whitelist_6bp.txt",
         ),
-        "matchbox_support": ("rt_6bp.csv", "r2_r3.txt"),
+        "matchbox_support": (
+            "rt_6bp.csv",
+            "rt_6bp_barcodes_only.csv",
+            "r2_r3.txt",
+        ),
         "splitcode_assign": True,
         "splitcode_dual_pass": True,
         "splitcode_x_only": True,
@@ -110,9 +114,10 @@ DATASETS = (
             "components and canonical barcode lists; seqproc and matchbox "
             "process both orientations natively; splitcode is measured as two sequential "
             "passes over forward and precomputed reverse-complement inputs without "
-            "duplicate reconciliation. Matchbox uses exact barcode/linker matching because "
-            "its fuzzy captures can move biological field boundaries; splitcode linkers "
-            "are substitution-only"
+            "duplicate reconciliation. Matchbox uses exact barcode/linker matching and an "
+            "anchor-first plan because its fuzzy captures can move biological field "
+            "boundaries; its one-best policy can reject repeated exact-anchor cassettes. "
+            "Splitcode linkers are substitution-only"
         ),
     },
     {
