@@ -32,6 +32,11 @@ def test_publication_campaign_defaults_and_lr_roles():
     )
     assert datasets["lr_splitseq_forward"]["analysis_role"] == "supplementary"
     assert datasets["lr_splitseq_forward"]["splitcode_dual_pass"] is False
+    assert datasets["lr_splitseq_forward"]["matchbox_support"] == (
+        "rt_6bp.csv",
+        "rt_6bp_barcodes_only.csv",
+        "r2_r3.txt",
+    )
     assert datasets["tenx_v2"]["splitcode_trim_only"] is True
     assert datasets["tenx_v2"]["splitcode_extract_outputs"] == ()
     assert datasets["splitseq_pe"]["splitcode_select"] == (0,)

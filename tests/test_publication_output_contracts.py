@@ -80,4 +80,10 @@ def test_lr_core_configs_require_whitelists_and_complete_components():
     assert "bcs1_seqs.contains" in matchbox
     assert "bc3:|8| linker1~0.0" in matchbox
     assert "bc3_hit:bc3.round_23~0.0 linker1" not in matchbox
+    matchbox_forward = config(
+        "configs/matchbox/publication_lr_splitseq_forward_core.mb"
+    )
+    assert "bcs1_seqs.contains" in matchbox_forward
+    assert "bc3:|8| linker1~0.0" in matchbox_forward
+    assert "bc3_hit:bc3.round_23~0.0 linker1" not in matchbox_forward
     assert "@extract\t<prefix[18]>{linker1}" in splitcode

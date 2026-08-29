@@ -53,6 +53,13 @@ cross-tool concordance.
    least one exact-linker decoy cassette with an invalid terminal barcode.
    Matchbox `all` mode recovers them but duplicates multi-cassette FASTQ records,
    so publication runs retain the established conservative `one-best` policy.
+9. The same anchor-first transcription applies directly to the forward-only LR
+   supplementary configuration. On the complete 5,764,421-read input it emits
+   a byte-identical 4,162-record FASTQ relative to the former barcode-first
+   transcription (SHA-256
+   `89980c6083754d654a7548df1289e7e2d759487b065d4145dea2f4c0d5eb5164`).
+   In a 32-thread materialized-output diagnostic, wall time fell from 106.94 to
+   21.67 seconds and peak RSS increased from 30 to 35 MiB.
 
 ## Real 10M SPLiT-seq paired-end gate
 

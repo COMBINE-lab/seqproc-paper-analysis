@@ -132,7 +132,11 @@ DATASETS = (
             "splitseq_bc8_whitelist.txt",
             "splitseq_bc1_whitelist_6bp.txt",
         ),
-        "matchbox_support": ("rt_6bp.csv", "r2_r3.txt"),
+        "matchbox_support": (
+            "rt_6bp.csv",
+            "rt_6bp_barcodes_only.csv",
+            "r2_r3.txt",
+        ),
         "splitcode_assign": True,
         "splitcode_dual_pass": False,
         "splitcode_x_only": True,
@@ -145,7 +149,8 @@ DATASETS = (
         "equivalence": (
             "forward-orientation controlled supplementary comparison with the same "
             "complete-component and canonical-list constraints as the primary block; "
-            "matchbox is exact and splitcode linker matching is substitution-only"
+            "matchbox uses an exact anchor-first plan and splitcode linker matching is "
+            "substitution-only"
         ),
     },
     {
