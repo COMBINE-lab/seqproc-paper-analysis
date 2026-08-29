@@ -1,0 +1,29 @@
+dataset,intersection_mask,intersection,seqproc,splitcode,matchbox,records,union_records,percent_of_union
+splitseq_pe,7,All three,1,1,1,46795385,57579759,81.2705468253
+splitseq_pe,3,seqproc + splitcode,1,1,0,6437610,57579759,11.1803350896
+splitseq_pe,5,seqproc + matchbox,1,0,1,3112147,57579759,5.4049323131
+splitseq_pe,6,splitcode + matchbox,0,1,1,32831,57579759,0.0570183005
+splitseq_pe,1,seqproc only,1,0,0,646239,57579759,1.1223371046
+splitseq_pe,2,splitcode only,0,1,0,229769,57579759,0.3990447407
+splitseq_pe,4,matchbox only,0,0,1,325778,57579759,0.5657856262
+lr_splitseq_dual,7,All three,1,1,1,7994,549221,1.4555160855
+lr_splitseq_dual,3,seqproc + splitcode,1,1,0,417436,549221,76.0051054129
+lr_splitseq_dual,5,seqproc + matchbox,1,0,1,271,549221,0.0493426144
+lr_splitseq_dual,6,splitcode + matchbox,0,1,1,0,549221,0.0000000000
+lr_splitseq_dual,1,seqproc only,1,0,0,120001,549221,21.8493102048
+lr_splitseq_dual,2,splitcode only,0,1,0,3511,549221,0.6392690738
+lr_splitseq_dual,4,matchbox only,0,0,1,8,549221,0.0014566085
+tenx_v2,7,All three,1,1,1,234382218,234382218,100.0000000000
+tenx_v2,3,seqproc + splitcode,1,1,0,0,234382218,0.0000000000
+tenx_v2,5,seqproc + matchbox,1,0,1,0,234382218,0.0000000000
+tenx_v2,6,splitcode + matchbox,0,1,1,0,234382218,0.0000000000
+tenx_v2,1,seqproc only,1,0,0,0,234382218,0.0000000000
+tenx_v2,2,splitcode only,0,1,0,0,234382218,0.0000000000
+tenx_v2,4,matchbox only,0,0,1,0,234382218,0.0000000000
+scirnaseq3,7,All three,1,1,1,19489430,19879895,98.0358799682
+scirnaseq3,3,seqproc + splitcode,1,1,0,206525,19879895,1.0388636358
+scirnaseq3,5,seqproc + matchbox,1,0,1,69610,19879895,0.3501527548
+scirnaseq3,6,splitcode + matchbox,0,1,1,0,19879895,0.0000000000
+scirnaseq3,1,seqproc only,1,0,0,114330,19879895,0.5751036411
+scirnaseq3,2,splitcode only,0,1,0,0,19879895,0.0000000000
+scirnaseq3,4,matchbox only,0,0,1,0,19879895,0.0000000000

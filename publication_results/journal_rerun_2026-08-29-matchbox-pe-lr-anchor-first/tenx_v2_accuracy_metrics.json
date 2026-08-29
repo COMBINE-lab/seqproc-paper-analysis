@@ -1,0 +1,385 @@
+{
+  "auditor": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit",
+    "sha256": "06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca"
+  },
+  "campaign": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2",
+  "datasets": [
+    "tenx_v2"
+  ],
+  "manifest": {
+    "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/specs/publication-core-correctness-t32.yaml",
+    "sha256": "fd38ea2e6c8f3028aa2bca93b5fbbbbba78b95f9b1fdf8d2c017dacf57512214"
+  },
+  "metrics": [
+    {
+      "dataset": "tenx_v2",
+      "emitted_fraction": 1.0,
+      "emitted_records": 234382218,
+      "f1": 1.0,
+      "input_records": 234382218,
+      "intersection_records": 234382218,
+      "precision": 1.0,
+      "recall": 1.0,
+      "reference_records": 234382218,
+      "tool": "seqproc"
+    },
+    {
+      "dataset": "tenx_v2",
+      "emitted_fraction": 1.0,
+      "emitted_records": 234382218,
+      "f1": 1.0,
+      "input_records": 234382218,
+      "intersection_records": 234382218,
+      "precision": 1.0,
+      "recall": 1.0,
+      "reference_records": 234382218,
+      "tool": "matchbox"
+    },
+    {
+      "dataset": "tenx_v2",
+      "emitted_fraction": 1.0,
+      "emitted_records": 234382218,
+      "f1": 1.0,
+      "input_records": 234382218,
+      "intersection_records": 234382218,
+      "precision": 1.0,
+      "recall": 1.0,
+      "reference_records": 234382218,
+      "tool": "splitcode"
+    }
+  ],
+  "pairwise": [
+    {
+      "dataset": "tenx_v2",
+      "intersection_records": 234382218,
+      "jaccard": 1.0,
+      "left": "seqproc",
+      "left_only_records": 0,
+      "right": "matchbox",
+      "right_only_records": 0,
+      "union_records": 234382218
+    },
+    {
+      "dataset": "tenx_v2",
+      "intersection_records": 234382218,
+      "jaccard": 1.0,
+      "left": "seqproc",
+      "left_only_records": 0,
+      "right": "splitcode",
+      "right_only_records": 0,
+      "union_records": 234382218
+    },
+    {
+      "dataset": "tenx_v2",
+      "intersection_records": 234382218,
+      "jaccard": 1.0,
+      "left": "matchbox",
+      "left_only_records": 0,
+      "right": "splitcode",
+      "right_only_records": 0,
+      "union_records": 234382218
+    }
+  ],
+  "provenance": {
+    "tenx_v2/matchbox": {
+      "attempt": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/4bfee3e318c1e04decf247ee66f3df1328c4f90de31931ecd5f0ac00813be186/attempt-0001",
+      "condition_id": "tenx_v2-t32-r1-matchbox",
+      "configs": [
+        {
+          "bytes": 266,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/matchbox/publication_10x_v2.mb",
+          "sha256": "53ede94234ea745bbc2ff67adb5bab4edbca139b5e05a39c807d95a6be841a01"
+        }
+      ],
+      "executables": [
+        {
+          "bytes": 23784,
+          "digest_source": "verified",
+          "path": "/usr/bin/taskset",
+          "sha256": "a72254178813c4ff63c3dc4540c558e0264452a0cdeae8c00f7e74c106d062fa"
+        },
+        {
+          "bytes": 109772224,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2/target/release/matchbox",
+          "sha256": "992ebc5b0f447162bc5d999f51d490df3c38b7f0c1fb9b9f8e31aeda4fe6b2ec"
+        },
+        {
+          "bytes": 4400696,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit",
+          "sha256": "06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca"
+        }
+      ],
+      "group_records": {
+        "accepted": 234382218
+      },
+      "repositories": [
+        {
+          "commit": "48ebfc66f87955e3e7c687c6c9bab1cabdd382fc",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "analysis",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "76afc9941bd2bdc901a3cb5667f8785704c8c40d",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "matchbox",
+          "path": "/scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2",
+          "status": [],
+          "untracked": []
+        }
+      ],
+      "run": {
+        "peak_rss_kib": 41076,
+        "system_cpu_seconds": 35.48,
+        "user_cpu_seconds": 2411.16,
+        "wall_seconds": 601.263558445
+      },
+      "sources": [
+        {
+          "audit": {
+            "max_sequence_length": 26,
+            "min_sequence_length": 26,
+            "records": 234382218,
+            "sequence_length_counts": {
+              "26": 234382218
+            }
+          },
+          "bitmap": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/tenx_v2.matchbox.accepted.1.bitmap",
+          "bitmap_sha256": "bd6002d2fb29d2022efa8820803a6c177aa850fe422188334c158d6849194827",
+          "fastq": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/4bfee3e318c1e04decf247ee66f3df1328c4f90de31931ecd5f0ac00813be186/attempt-0001/tool-work/mb_r1.fq",
+          "fastq_sha256": "897948da54c77b583a5be0244408d1fd990d9452b7dcb06ae9ca9d516f3dd0e5"
+        },
+        {
+          "audit": {
+            "max_sequence_length": 98,
+            "min_sequence_length": 98,
+            "records": 234382218,
+            "sequence_length_counts": {
+              "98": 234382218
+            }
+          },
+          "bitmap": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/tenx_v2.matchbox.accepted.2.bitmap",
+          "bitmap_sha256": "bd6002d2fb29d2022efa8820803a6c177aa850fe422188334c158d6849194827",
+          "fastq": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/4bfee3e318c1e04decf247ee66f3df1328c4f90de31931ecd5f0ac00813be186/attempt-0001/tool-work/mb_r2.fq",
+          "fastq_sha256": "550012b0cadcb6cc10a68f3db8f56294fe08c773cd81c15c0275f7cd519c40df"
+        }
+      ]
+    },
+    "tenx_v2/seqproc": {
+      "attempt": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/4eb895e93cab8e6161ae7fda372220a71e6026bc1d3cf8ec9c20824ab526fe94/attempt-0001",
+      "condition_id": "tenx_v2-t32-r1-seqproc",
+      "configs": [
+        {
+          "bytes": 297,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/10x_v2.geom",
+          "sha256": "cc7c443f13153919e8e7afba0980e6dfecf1b74aa52d23050f07fafa090a527b"
+        }
+      ],
+      "executables": [
+        {
+          "bytes": 23784,
+          "digest_source": "verified",
+          "path": "/usr/bin/taskset",
+          "sha256": "a72254178813c4ff63c3dc4540c558e0264452a0cdeae8c00f7e74c106d062fa"
+        },
+        {
+          "bytes": 9397296,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc/target/release/seqproc",
+          "sha256": "bd671c841e1cf97e25ea9113cd5f4fcd8c08496b3c63ec78786031ec17cbaa7f"
+        },
+        {
+          "bytes": 4400696,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit",
+          "sha256": "06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca"
+        }
+      ],
+      "group_records": {
+        "accepted": 234382218
+      },
+      "repositories": [
+        {
+          "commit": "48ebfc66f87955e3e7c687c6c9bab1cabdd382fc",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "analysis",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "cbc156bea6f5d713ea73bbba1e6c55b7a85a58d8",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "seqproc",
+          "path": "/scratch1/seqproc-ecosystem/seqproc",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "f3b0f1ea0b286b680d963382f2bf7316058d83e4",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "antisequence",
+          "path": "/scratch1/seqproc-ecosystem/antisequence",
+          "status": [],
+          "untracked": []
+        }
+      ],
+      "run": {
+        "peak_rss_kib": 77824,
+        "system_cpu_seconds": 20.73,
+        "user_cpu_seconds": 164.78,
+        "wall_seconds": 43.561859014
+      },
+      "sources": [
+        {
+          "audit": {
+            "max_sequence_length": 26,
+            "min_sequence_length": 26,
+            "records": 234382218,
+            "sequence_length_counts": {
+              "26": 234382218
+            }
+          },
+          "bitmap": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/tenx_v2.seqproc.accepted.1.bitmap",
+          "bitmap_sha256": "bd6002d2fb29d2022efa8820803a6c177aa850fe422188334c158d6849194827",
+          "fastq": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/4eb895e93cab8e6161ae7fda372220a71e6026bc1d3cf8ec9c20824ab526fe94/attempt-0001/R1.fastq",
+          "fastq_sha256": "32ec348ecafcf0f1780b8f2d0711471cbf904e55b861a85391212a8b4dcb804b"
+        },
+        {
+          "audit": {
+            "max_sequence_length": 98,
+            "min_sequence_length": 98,
+            "records": 234382218,
+            "sequence_length_counts": {
+              "98": 234382218
+            }
+          },
+          "bitmap": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/tenx_v2.seqproc.accepted.2.bitmap",
+          "bitmap_sha256": "bd6002d2fb29d2022efa8820803a6c177aa850fe422188334c158d6849194827",
+          "fastq": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/4eb895e93cab8e6161ae7fda372220a71e6026bc1d3cf8ec9c20824ab526fe94/attempt-0001/R2.fastq",
+          "fastq_sha256": "2a9374b92e56366e4a9071e878adde7c2cc627049234f95553bd40e84a8df74c"
+        }
+      ]
+    },
+    "tenx_v2/splitcode": {
+      "attempt": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/c8516c3b7ba431daf6951d7be9bbe647b2a90d655588f30f1ca429d14fb73ec8/attempt-0001",
+      "condition_id": "tenx_v2-t32-r1-splitcode",
+      "configs": [
+        {
+          "bytes": 305,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/splitcode/publication_10x_v2_filter.config",
+          "sha256": "51a5e7c9775c5be3a21cfabfe13d3d4bf4f209ddc8f8cb8018551e5b7eb7242f"
+        }
+      ],
+      "executables": [
+        {
+          "bytes": 23784,
+          "digest_source": "verified",
+          "path": "/usr/bin/taskset",
+          "sha256": "a72254178813c4ff63c3dc4540c558e0264452a0cdeae8c00f7e74c106d062fa"
+        },
+        {
+          "bytes": 2248280,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/competitors/splitcode-v0.31.6/build/src/splitcode",
+          "sha256": "ff0df2e3bc7e8b2893ede0552b776ee543764493dbf8d9316fb6aa0ca4aa0c23"
+        },
+        {
+          "bytes": 4400696,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit",
+          "sha256": "06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca"
+        }
+      ],
+      "group_records": {
+        "accepted": 234382218
+      },
+      "repositories": [
+        {
+          "commit": "48ebfc66f87955e3e7c687c6c9bab1cabdd382fc",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "analysis",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "530d1fef9f5a17bd85a5ade436da7f52c0485c39",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "splitcode",
+          "path": "/scratch1/seqproc-ecosystem/competitors/splitcode-v0.31.6",
+          "status": [],
+          "untracked": []
+        }
+      ],
+      "run": {
+        "peak_rss_kib": 1264468,
+        "system_cpu_seconds": 20.21,
+        "user_cpu_seconds": 150.81,
+        "wall_seconds": 88.674426782
+      },
+      "sources": [
+        {
+          "audit": {
+            "max_sequence_length": 26,
+            "min_sequence_length": 26,
+            "records": 234382218,
+            "sequence_length_counts": {
+              "26": 234382218
+            }
+          },
+          "bitmap": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/tenx_v2.splitcode.accepted.1.bitmap",
+          "bitmap_sha256": "bd6002d2fb29d2022efa8820803a6c177aa850fe422188334c158d6849194827",
+          "fastq": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/c8516c3b7ba431daf6951d7be9bbe647b2a90d655588f30f1ca429d14fb73ec8/attempt-0001/R1.fastq",
+          "fastq_sha256": "bd52cffa3cc44fb1bb1d8eae406fc4f8f92cbb222c9d0366e94191df8ed7fe28"
+        },
+        {
+          "audit": {
+            "max_sequence_length": 98,
+            "min_sequence_length": 98,
+            "records": 234382218,
+            "sequence_length_counts": {
+              "98": 234382218
+            }
+          },
+          "bitmap": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/tenx_v2.splitcode.accepted.2.bitmap",
+          "bitmap_sha256": "bd6002d2fb29d2022efa8820803a6c177aa850fe422188334c158d6849194827",
+          "fastq": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/c8516c3b7ba431daf6951d7be9bbe647b2a90d655588f30f1ca429d14fb73ec8/attempt-0001/R2.fastq",
+          "fastq_sha256": "850ad8cdaef12e1c47af9b9fac8b7d86255644ad69863bb2cc8f38fac2c5954d"
+        }
+      ]
+    }
+  },
+  "references": {
+    "tenx_v2": {
+      "interpretation": "conservative structural reference, not biological ground truth",
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/tenx_v2_core.valid_ids.txt",
+      "records": 234382218,
+      "sha256": "d73a4ee34f58b9bb399fad6fcdc26d2ed3941276d11d2868f1b10eb66be54077"
+    }
+  },
+  "schedule": {
+    "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/specs/publication-core-correctness-t32.schedule.json",
+    "sha256": "6e40aced9474b73b5d2e77e0278d7fd070d3d417f6e654388066d7a4769e5a5a"
+  },
+  "schema_version": "1.0.0",
+  "summarizer": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/summarize_publication_accuracy.py",
+    "sha256": "e88fa9300eea55b754eed76398f25d081c6f0bb35ccf98ef6b6f96aaf9e3276d"
+  }
+}

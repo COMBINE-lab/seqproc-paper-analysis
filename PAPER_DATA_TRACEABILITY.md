@@ -6,8 +6,11 @@
 > [`performance`](publication_results/journal_performance_2026-08-17/) bundle,
 > the guarded fuzzy-linker SPLiT-seq PE Matchbox
 > [`performance and downstream`](publication_results/splitseq_pe_matchbox_fuzzy_2026-08-29/)
-> override, and the corresponding one-run, 32-thread
-> [`accuracy`](publication_results/journal_rerun_2026-08-29-matchbox-pe/)
+> override, the LR Matchbox
+> [`anchor-first`](publication_results/lr_splitseq_matchbox_anchor_first_2026-08-29/)
+> performance/accuracy override, and the corresponding combined one-run,
+> 32-thread
+> [`accuracy`](publication_results/journal_rerun_2026-08-29-matchbox-pe-lr-anchor-first/)
 > bundle. The
 > current SPLiT-seq PE vendor-set comparison is the full-data
 > [`splitseq_pe_splitpipe_vendor_full.json`](publication_results/journal_rerun_2026-08-17/splitseq_pe_splitpipe_vendor_full.json),
@@ -114,7 +117,9 @@ python3 scripts/concordance_analysis.py --threads 32 --datasets 10x_short ; pyth
 **Regenerate:**
 
 ```bash
-python3 scripts/generate_emitted_set_upset.py
+python3 scripts/generate_emitted_set_upset.py \
+  --results-dir publication_results/journal_rerun_2026-08-29-matchbox-pe-lr-anchor-first \
+  --output-prefix publication_results/journal_rerun_2026-08-29-matchbox-pe-lr-anchor-first/fig_emitted_set_upset
 ```
 
 The generator reads each final `*_accuracy_metrics.json` artifact and its
@@ -122,14 +127,14 @@ canonical accession bitmaps, verifies the recorded SHA-256 checksums and
 emitted-record totals, unions multi-product and multi-orientation outputs, and
 computes all seven mutually exclusive three-tool intersections. It writes:
 
-- `publication_results/journal_rerun_2026-08-17/fig_emitted_set_upset.json`
+- `publication_results/journal_rerun_2026-08-29-matchbox-pe-lr-anchor-first/fig_emitted_set_upset.json`
   with full unrounded values and source provenance;
 - the corresponding exact-count CSV; and
 - publication-ready SVG, PDF, and PNG renderings.
 
-The plotted percentages exactly reproduce the superseded table values:
-SPLiT-seq PE `61.41/31.57/0.00/0.00/6.56/0.46/0.00`, LR-SPLiT-seq dual
-`1.46/76.00/0.05/0.00/21.85/0.64/<0.01`, 10x Chromium v2
+The plotted percentages exactly reproduce the current accuracy artifacts:
+SPLiT-seq PE `81.27/11.18/5.40/0.06/1.12/0.40/0.57`, LR-SPLiT-seq dual
+`1.46/76.01/0.05/0.00/21.85/0.64/0.00`, 10x Chromium v2
 `100.00/0/0/0/0/0/0`, and sci-RNA-seq3
 `98.04/1.04/0.35/0.00/0.58/0.00/0.00` in matrix-column order. The panel union
 denominators appear in the plot; exact intersection counts remain in the

@@ -1,11 +1,15 @@
 # seqproc Paper Analysis
 
-> **Current journal campaigns (2026-08-17--19).** The revised manuscript uses
+> **Current journal campaigns (2026-08-17--29).** The revised manuscript uses
 > the frozen [`performance`](publication_results/journal_performance_2026-08-17/)
-> and one-run, 32-thread
-> [`accuracy`](publication_results/journal_rerun_2026-08-17/) results. The
-> latter also contains the current full-data three-tool comparison with a fresh,
-> exactly calibrated split-pipe 1.4.0 accepted-ID set. Older `results_final`
+> bundle, the final SPLiT-seq PE Matchbox
+> [`performance and downstream`](publication_results/splitseq_pe_matchbox_fuzzy_2026-08-29/)
+> override, the LR Matchbox
+> [`anchor-first`](publication_results/lr_splitseq_matchbox_anchor_first_2026-08-29/)
+> timing/accuracy override, and the combined one-run, 32-thread
+> [`accuracy`](publication_results/journal_rerun_2026-08-29-matchbox-pe-lr-anchor-first/)
+> results. The archived full-data split-pipe 1.4.0 comparison remains under the
+> 2026-08-17 result bundle. Older `results_final`
 > artifacts and numerical examples below document the original preprint analysis
 > and must not be used to rebuild the revised tables.
 
