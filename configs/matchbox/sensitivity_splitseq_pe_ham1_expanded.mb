@@ -1,18 +1,24 @@
 # Sensitivity-only SPLiT-seq PE configuration.  It expands the canonical
 # 96-member 8-nt whitelist to all unique Hamming-distance-one observations and
-# matches those variants exactly.  Linkers use edit distance three, as in the
-# primary Matchbox PE configuration, and explicit biological-component length
-# guards prevent approximate linker placements from shifting projected fields.
+# matches those variants exactly. Linkers use edit distance three, as in the
+# primary Matchbox PE configuration. The terminal BC1 remains an exact pattern
+# anchor, while the fixed-position BC3 and BC2 windows are checked for list
+# membership after linker placement. This avoids a three-list Cartesian search
+# without changing the emitted read set. Canonical sequences are listed first
+# because Matchbox 0.3.2 evaluates contains() by a linear scan.
 l1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
 l2 = ATCCACGTGCTTGAGAGGCCAGAGCATTCG
 bcs23 = csv('configs/diagnostics/splitseq_pe_bc8_ham1.csv')
 
 if read.r2 matches {
-    [umi:|10| bc3_hit:bc3.barcode~0.0 l1~0.10 bc2_hit:bc2.barcode~0.0 l2~0.10 bc1_hit:bc1.barcode~0.0 _]
-        for bc1 in bcs23, bc2 in bcs23, bc3 in bcs23 => {
-            if umi.seq.len() == 10 and bc3_hit.seq.len() == 8 and bc2_hit.seq.len() == 8 and bc1_hit.seq.len() == 8 {
+    [umi:|10| bc3:|8| l1~0.10 bc2:|8| l2~0.10 bc1_hit:bc1.barcode~0.0 _]
+        for bc1 in bcs23 => {
+            if umi.seq.len() == 10 and bc3.seq.len() == 8 and
+               bc2.seq.len() == 8 and bc1_hit.seq.len() == 8 and
+               bcs23.contains({barcode = bc3.seq}) and
+               bcs23.contains({barcode = bc2.seq}) {
                 read.r1.out!('mb_r1.fq')
-                (umi.concat(bc3_hit)).concat(bc2_hit.concat(bc1_hit)).out!('mb_r2.fq')
+                (umi.concat(bc3)).concat(bc2.concat(bc1_hit)).out!('mb_r2.fq')
             }
         }
 }

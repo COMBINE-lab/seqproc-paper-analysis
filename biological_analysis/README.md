@@ -92,9 +92,17 @@ an approximate linker hit cannot be accepted if it shifts a captured field.
 not the primary benchmark configuration. It matches an automatically
 generated, exact radius-one expansion of the 96-member barcode whitelist.
 The barcode code has minimum Hamming distance four, so all 2,400 expanded
-sequences have one owner. It uses the same fuzzy linkers and length guards as
-the primary configuration, but requires external configuration generation and
-management. `run_matchbox_variant_downstream.sh` regenerates any Matchbox
+sequences have one owner. It uses the same fuzzy linkers and fixed component
+lengths as the primary configuration. To avoid an unnecessary three-list
+search, the terminal BC1 is retained as an exact pattern anchor while the
+fixed-position BC3 and BC2 windows are checked against the list after linker
+placement. The list places canonical sequences first because Matchbox 0.3.2
+implements `contains()` as an ordered linear scan. The complete transformed
+FASTQ is required to remain byte-identical to the former three-anchor form.
+The expansion still requires external configuration generation and management;
+regenerate or validate it with
+`scripts/generate_splitseq_pe_ham1_whitelist.py [--check]`.
+`run_matchbox_variant_downstream.sh` regenerates any Matchbox
 variant's accession accuracy, STARsolo matrix, downstream concordance, and
 provenance while reusing the unchanged seqproc and splitcode matrices for the
 same STAR matching mode.

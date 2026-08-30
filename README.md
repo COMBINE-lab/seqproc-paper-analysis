@@ -385,6 +385,9 @@ configs/
     publication_sciseq3.mb            # aligned sci-RNA-seq3 projection
     r2_r3.txt                         # matchbox support file for SPLiT-seq
 
+  diagnostics/
+    splitseq_pe_bc8_ham1.csv          # generated canonical-first radius-one PE sensitivity list
+
   splitcode/
     publication_splitseq_pe.config    # aligned SPLiT-seq PE projection
     publication_lr_splitseq_core.config  # aligned LR canonical-list projection
@@ -396,6 +399,9 @@ The `publication_*` files are the current manuscript configurations. Older
 files are retained only for reproducing historical/preprint and diagnostic
 runs; the dated manifests under `benchmark_specs/` are immutable records and
 are not silently rewritten when the publication configurations change.
+The PE sensitivity list is regenerated deterministically with
+`scripts/generate_splitseq_pe_ham1_whitelist.py`; pass `--check` to validate it
+without rewriting the file.
 
 The previous `10x_longread_*` configs (from an aborted long-read 10x
 experiment that did not make the paper) have been removed in this branch.

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Derive a frozen Matchbox SPLiT-seq PE sensitivity manifest.
 
-The input is a standard publication correctness manifest.  This tool selects
-its single 32-thread Matchbox SPLiT-seq PE condition and substitutes an
-explicit sensitivity configuration and its support files.  Keeping this
+The input is a standard publication correctness or timing manifest. This tool
+selects one 32-thread Matchbox SPLiT-seq PE condition and substitutes an
+explicit sensitivity configuration and its support files. Keeping this
 transformation separate prevents externally expanded barcode resources from
 being mistaken for the primary, canonical-list workload.
 """
@@ -51,17 +51,24 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
         if run.get("spec", {}).get("metadata", {}).get("dataset") == "splitseq_pe"
         and run.get("spec", {}).get("metadata", {}).get("tool") == "matchbox"
         and run.get("spec", {}).get("metadata", {}).get("measurement_track")
-        == "correctness"
+        == args.measurement_track
         and int(run.get("spec", {}).get("metadata", {}).get("threads", -1)) == 32
+        and (
+            args.measurement_track != "timing"
+            or int(run.get("spec", {}).get("metadata", {}).get("replicate", -1))
+            == args.replicate
+        )
     ]
     if len(candidates) != 1:
         raise ValueError(
-            f"expected one 32-thread Matchbox SPLiT-seq PE correctness run; found {len(candidates)}"
+            "expected one 32-thread Matchbox SPLiT-seq PE "
+            f"{args.measurement_track} run; found {len(candidates)}"
         )
 
     run = copy.deepcopy(candidates[0])
     spec = run["spec"]
     metadata = spec["metadata"]
+    selected_replicate = int(metadata.get("replicate", 1))
     sensitivity_config = args.config.resolve()
     support = [path.resolve() for path in args.support]
 
@@ -74,8 +81,14 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
     spec["command"] = command
     spec["configs"] = [frozen(sensitivity_config), *(frozen(path) for path in support)]
 
-    condition_id = "splitseq_pe-t32-r1-matchbox-ham1-expanded-fuzzy-linkers"
-    block_id = "splitseq_pe-ham1-expanded-t32-r1"
+    condition_id = (
+        f"splitseq_pe-t32-r{selected_replicate}-matchbox-"
+        f"ham1-expanded-fuzzy-linkers-{args.measurement_track}"
+    )
+    block_id = (
+        f"splitseq_pe-ham1-expanded-{args.measurement_track}-"
+        f"t32-r{selected_replicate}"
+    )
     run["id"] = condition_id
     run["block"] = block_id
     metadata.update(
@@ -87,9 +100,10 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
             "equivalence_scope": (
                 "sensitivity-only; exact matching against an externally generated "
                 "Hamming-distance-one-expanded barcode list, edit-distance-three "
-                "linkers, and explicit component-length guards"
+                "linkers, fixed component lengths, a terminal exact-barcode anchor, "
+                "and post-placement membership checks for the two upstream windows"
             ),
-            "tier": "publication-sensitivity-full-data-correctness",
+            "tier": f"publication-sensitivity-full-data-{args.measurement_track}",
             "external_resource_preprocessing": "Hamming-distance-one barcode expansion",
         }
     )
@@ -134,12 +148,15 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
         "schema_version": "1.0.0",
         "mode": "publication",
         "study": {
-            "name": "matchbox-splitseq-pe-hamming1-expanded-sensitivity",
+            "name": (
+                "matchbox-splitseq-pe-hamming1-expanded-sensitivity-"
+                f"{args.measurement_track}"
+            ),
             "random_seed": args.seed,
             "purpose": (
-                "single materialized 32-thread sensitivity run using externally "
-                "Hamming-distance-one-expanded barcodes, fuzzy linkers, and "
-                "component-length guards"
+                f"single 32-thread {args.measurement_track} sensitivity run using externally "
+                "Hamming-distance-one-expanded barcodes, fuzzy linkers, a terminal "
+                "exact-barcode anchor, and fixed-window membership checks"
             ),
             "require_cross_tool_identity": False,
         },
@@ -156,6 +173,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--base-manifest", type=Path, required=True)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--support", type=Path, nargs="+", required=True)
+    parser.add_argument(
+        "--measurement-track",
+        choices=("correctness", "timing"),
+        default="correctness",
+    )
+    parser.add_argument(
+        "--replicate",
+        type=int,
+        default=1,
+        help="source timing replicate to select; ignored for correctness",
+    )
     parser.add_argument("--analysis-repo", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--seed", type=int, default=8282028)
     parser.add_argument("--output", type=Path, required=True)

@@ -29,6 +29,42 @@ def test_splitseq_pe_configs_model_the_documented_10_8_30_8_30_8_layout():
     assert "umi:|10|" in matchbox
     assert "bc1.round_23" in matchbox
     assert "rt_6bp.csv" not in matchbox
+
+
+def test_splitseq_pe_expanded_matchbox_uses_terminal_anchor_and_fixed_windows():
+    text = config("configs/matchbox/sensitivity_splitseq_pe_ham1_expanded.mb")
+
+    assert "bc3:|8|" in text
+    assert "bc2:|8|" in text
+    assert "bc1_hit:bc1.barcode~0.0" in text
+    assert "for bc1 in bcs23" in text
+    assert "for bc1 in bcs23, bc2 in bcs23" not in text
+    assert "bcs23.contains({barcode = bc3.seq})" in text
+    assert "bcs23.contains({barcode = bc2.seq})" in text
+
+
+def test_splitseq_pe_expansion_is_canonical_first_and_complete():
+    canonical_lines = config("configs/matchbox/r2_r3.txt").splitlines()
+    expanded_lines = config(
+        "configs/diagnostics/splitseq_pe_bc8_ham1.csv"
+    ).splitlines()
+    canonical = set(canonical_lines[1:])
+    expanded = expanded_lines[1:]
+
+    assert expanded_lines[0] == "barcode"
+    assert len(canonical) == 96
+    assert len(expanded) == len(set(expanded)) == 2400
+    assert expanded[: len(canonical)] == sorted(canonical)
+    assert set(expanded[: len(canonical)]) == canonical
+    assert expanded[len(canonical) :] == sorted(expanded[len(canonical) :])
+    assert all(
+        min(sum(left != right for left, right in zip(sequence, barcode))
+            for barcode in canonical)
+        <= 1
+        for sequence in expanded
+    )
+
+
 def test_lr_publication_configs_project_six_base_bc1_and_require_both_linkers():
     splitcode = config("configs/splitcode/publication_lr_splitseq.config")
 
