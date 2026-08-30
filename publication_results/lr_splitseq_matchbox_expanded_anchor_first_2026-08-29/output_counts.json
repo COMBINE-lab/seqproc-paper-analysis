@@ -1,0 +1,17 @@
+[
+  {
+    "format": "fastq",
+    "max_sequence_length": 32,
+    "min_sequence_length": 32,
+    "nominal_sequence_lengths": [
+      32
+    ],
+    "non_nominal_sequence_records": 0,
+    "path": "/scratch1/seqproc-ecosystem/campaigns/journal-matchbox-lr-expanded-anchor-first-2026-08-29/correctness/e4b46dca51e0bc5cac2ae1a1d711af95db6468e125cfd53ce943affd12ae09ce/attempt-0001/tool-work/mb_r1.fq",
+    "records": 406132,
+    "sequence_length_counts": {
+      "32": 406132
+    },
+    "valid": true
+  }
+]

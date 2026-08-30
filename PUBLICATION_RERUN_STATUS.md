@@ -59,15 +59,15 @@ Matchbox without moving cassette boundaries:
 
 | Matchbox configuration | Emitted | Intersection | Precision | Recall | F1 |
 |---|---:|---:|---:|---:|---:|
-| Canonical lists, exact matching (primary) | 8,277 | 8,277 | 1.000000 | 0.014762 | 0.029094 |
-| Hamming-expanded barcodes, exact linkers (sensitivity) | 406,257 | 406,257 | 1.000000 | 0.724555 | 0.840280 |
+| Canonical lists, exact matching (primary anchor-first) | 8,273 | 8,273 | 1.000000 | 0.014755 | 0.029081 |
+| Hamming-expanded barcodes, exact linkers (anchor-first sensitivity) | 406,132 | 406,132 | 1.000000 | 0.724332 | 0.840130 |
 
-This is a 49.1-fold increase in retained reads and a 70.98-percentage-point
+This is a 49.1-fold increase in retained reads and a 70.96-percentage-point
 increase in recall. Against the same reference, it approaches but remains below
 splitcode (recall 0.763146, F1 0.864749), and remains below seqproc (recall
-0.973253, F1 0.986445). The expanded Matchbox set overlaps 405,829 seqproc
-reads and 386,396 splitcode reads; the corresponding Jaccard indices are
-0.743100 and 0.860950.
+0.973253, F1 0.986445). The expanded Matchbox set overlaps 405,772 seqproc
+reads and 386,351 splitcode reads; the corresponding Jaccard indices are
+0.743088 and 0.861003.
 
 The expansion contains 2,400 unique BC2/BC3 variants from 96 canonical 8-mers,
 with no collisions, and 1,614 unique BC1 variants from 96 canonical 6-mers.
@@ -80,12 +80,15 @@ seqproc's native approximate-whitelist matching.
 
 Approximate-linker matching must not be combined with this expansion: the
 tested configuration shifted capture endpoints and emitted 237,655 records of
-33--47 nt instead of the intended 32 nt. Exact linkers produced 406,257/406,257
-correct-length outputs. The expanded exact-linker result was recomputed against
-the current 560,699-read reference from a deterministic August 11 output whose
-input, Matchbox binary, configuration, and expanded-list hashes are unchanged.
-Its original one-run diagnostic cost was 4,308 s (71.8 min) and 434.1 MiB peak
-RSS; this is not a final `/dev/null` performance result.
+33--47 nt instead of the intended 32 nt. The final anchor-first, exact-linker
+sensitivity produced 406,132/406,132 correct-length outputs. Its frozen
+32-thread `/dev/null` condition took 512.661 s and 347.1 MiB peak RSS. Relative
+to the former 4,308 s, 434.1 MiB barcode-first materialized diagnostic, the
+anchor-first execution plan is about 8.4-fold faster. The old and new products
+share 406,101 read IDs (Jaccard 0.999540); all discordant reads are in the
+structural reference, and every shared transformed sequence and quality is
+identical. Complete provenance and adjudication are archived under
+`publication_results/lr_splitseq_matchbox_expanded_anchor_first_2026-08-29`.
 
 ## Newly completed: sci-RNA-seq3 accuracy
 
