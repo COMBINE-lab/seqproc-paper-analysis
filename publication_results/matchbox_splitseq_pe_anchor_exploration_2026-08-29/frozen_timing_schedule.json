@@ -1,0 +1,14 @@
+{
+  "entries": [
+    {
+      "block_id": "splitseq_pe-ham1-expanded-timing-t32-r1",
+      "condition_id": "splitseq_pe-t32-r1-matchbox-ham1-expanded-fuzzy-linkers-timing",
+      "ordinal": 1,
+      "run_id": "74c950bdb14b944032b7d6117bd3369d7fb3d168b95f1a1c8353bf17ffdc599d"
+    }
+  ],
+  "generator_version": "seqproc-frozen-schedule-1",
+  "manifest_sha256": "ecd0175a32fc4a3d9468998ac1ff09aa261104df0ae487f088e4d0c5176cd309",
+  "random_seed": 8282028,
+  "schema_version": "1.0.0"
+}

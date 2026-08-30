@@ -6,7 +6,9 @@
 > [`performance and downstream`](publication_results/splitseq_pe_matchbox_fuzzy_2026-08-29/)
 > override, the LR Matchbox
 > [`anchor-first`](publication_results/lr_splitseq_matchbox_anchor_first_2026-08-29/)
-> timing/accuracy override, and the combined one-run, 32-thread
+> timing/accuracy override, the byte-equivalent optimized Matchbox PE expanded-list
+> [`sensitivity timing`](publication_results/matchbox_splitseq_pe_anchor_exploration_2026-08-29/)
+> override, and the combined one-run, 32-thread
 > [`accuracy`](publication_results/journal_rerun_2026-08-29-matchbox-pe-lr-anchor-first/)
 > results. The archived full-data split-pipe 1.4.0 comparison remains under the
 > 2026-08-17 result bundle. Older `results_final`

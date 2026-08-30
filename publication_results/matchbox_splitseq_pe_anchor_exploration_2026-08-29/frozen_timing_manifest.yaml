@@ -1,0 +1,140 @@
+schema_version: 1.0.0
+mode: publication
+study:
+  name: matchbox-splitseq-pe-hamming1-expanded-sensitivity-timing
+  random_seed: 8282028
+  purpose: single 32-thread timing sensitivity run using externally Hamming-distance-one-expanded
+    barcodes, fuzzy linkers, a terminal exact-barcode anchor, and fixed-window membership
+    checks
+  require_cross_tool_identity: false
+artifacts:
+- path: /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq
+  sha256: 33eb06ed9633973e8a254d82dfbf728ebc47791b2bf6cb6344572b64da8a6597
+- path: /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq
+  sha256: 6bebdc56002acb3097df464f73fd853da0f855521e25d1845a36a1162c848731
+- path: /scratch1/seqproc-ecosystem/campaigns/journal-matchbox-splitseq-pe-fuzzy-2026-08-28/timing/frozen_manifest.yaml
+  sha256: 18875873a6c39a87fba78b46cb758fd99640e3da2cd3941facfe282a9e85fdec
+- path: /scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2/target/release/matchbox
+  sha256: 992ebc5b0f447162bc5d999f51d490df3c38b7f0c1fb9b9f8e31aeda4fe6b2ec
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/diagnostics/splitseq_pe_bc8_ham1.csv
+  sha256: 9df54f2516a1fb13adfa88f5cb456976168505b82ae6324f2fb2b9bb0104a66b
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/matchbox/sensitivity_splitseq_pe_ham1_expanded.mb
+  sha256: e0bea172c09316fe8dea5adb31830cff72e0fd96b7b72a20002792dc47dcae2b
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/make_matchbox_splitseq_pe_sensitivity_manifest.py
+  sha256: 8c8517f6fd8c4656bcb47a52a5bba6c7166591c0c54da4abfbff3448273f7184
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit
+  sha256: 06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca
+- path: /usr/bin/taskset
+  sha256: a72254178813c4ff63c3dc4540c558e0264452a0cdeae8c00f7e74c106d062fa
+source_manifest:
+  path: /scratch1/seqproc-ecosystem/campaigns/journal-matchbox-splitseq-pe-fuzzy-2026-08-28/timing/frozen_manifest.yaml
+  sha256: 18875873a6c39a87fba78b46cb758fd99640e3da2cd3941facfe282a9e85fdec
+  verify: false
+datasets:
+- name: splitseq_pe
+  analysis_role: primary
+  records: 77621181
+  r1:
+    path: /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq
+    sha256: 33eb06ed9633973e8a254d82dfbf728ebc47791b2bf6cb6344572b64da8a6597
+    verify: false
+  r2:
+    path: /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq
+    sha256: 6bebdc56002acb3097df464f73fd853da0f855521e25d1845a36a1162c848731
+    verify: false
+  equivalence_scope: best-practical; all tools emit captured UMI/barcode segments,
+    matchbox uses exact canonical barcode matching plus explicit component-length
+    guards while allowing edit-distance-three linker matching, and splitcode linker
+    matching is substitution-only
+  semantic_workload: filter, whitelist-match, and project UMI+BC3+BC2+BC1
+execution:
+  timeout_seconds: 14400
+  sanitized_environment_allowlist:
+  - PATH
+  - LD_LIBRARY_PATH
+  - LANG
+  - TMPDIR
+  cpu_policy: requested threads pinned to physical CPUs 1 through 1 + N - 1; SMT siblings
+    excluded
+runs:
+- id: splitseq_pe-t32-r1-matchbox-ham1-expanded-fuzzy-linkers-timing
+  block: splitseq_pe-ham1-expanded-timing-t32-r1
+  spec:
+    name: seqproc-publication-core
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    execution_cwd: '{run_dir}/tool-work'
+    create_execution_cwd: true
+    runtime_symlinks:
+    - path: '{run_dir}/tool-work/configs'
+      target: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs
+    - path: '{run_dir}/tool-work/mb_r1.fq'
+      target: /dev/null
+    - path: '{run_dir}/tool-work/mb_r2.fq'
+      target: /dev/null
+    command:
+    - /usr/bin/taskset
+    - --cpu-list
+    - 1-32
+    - /scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2/target/release/matchbox
+    - --error
+    - '0.2'
+    - --match-mode
+    - one-best
+    - --threads
+    - '32'
+    - --script-file
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/matchbox/sensitivity_splitseq_pe_ham1_expanded.mb
+    - /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq
+    - --paired-with
+    - /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq
+    executables:
+    - path: /scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2/target/release/matchbox
+      sha256: 992ebc5b0f447162bc5d999f51d490df3c38b7f0c1fb9b9f8e31aeda4fe6b2ec
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit
+      sha256: 06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca
+      verify: false
+    inputs:
+    - path: /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq
+      sha256: 33eb06ed9633973e8a254d82dfbf728ebc47791b2bf6cb6344572b64da8a6597
+      verify: false
+    - path: /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq
+      sha256: 6bebdc56002acb3097df464f73fd853da0f855521e25d1845a36a1162c848731
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/matchbox/sensitivity_splitseq_pe_ham1_expanded.mb
+      sha256: e0bea172c09316fe8dea5adb31830cff72e0fd96b7b72a20002792dc47dcae2b
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/diagnostics/splitseq_pe_bc8_ham1.csv
+      sha256: 9df54f2516a1fb13adfa88f5cb456976168505b82ae6324f2fb2b9bb0104a66b
+      verify: false
+    outputs: []
+    retain_outputs: false
+    repositories:
+    - name: analysis
+      path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+      commit: 81ae0593739eaea41e0d189506cfeff231fc394e
+    - name: matchbox
+      path: /scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2
+      commit: 76afc9941bd2bdc901a3cb5667f8785704c8c40d
+    metadata:
+      dataset: splitseq_pe
+      tool: matchbox
+      measurement_track: timing
+      sequence_output_policy: dev-null
+      execution_mode: external-hamming1-expanded-fuzzy-linkers
+      analysis_role: sensitivity
+      orientation: not-applicable
+      threads: 32
+      replicate: 1
+      input_records: 77621181
+      cpu_affinity: 1-32
+      equivalence_scope: sensitivity-only; exact matching against an externally generated
+        Hamming-distance-one-expanded barcode list, edit-distance-three linkers, fixed
+        component lengths, a terminal exact-barcode anchor, and post-placement membership
+        checks for the two upstream windows
+      semantic_workload: filter, whitelist-match, and project UMI+BC3+BC2+BC1
+      tier: publication-sensitivity-full-data-timing
+      condition_id: splitseq_pe-t32-r1-matchbox-ham1-expanded-fuzzy-linkers-timing
+      block_id: splitseq_pe-ham1-expanded-timing-t32-r1
+      external_resource_preprocessing: Hamming-distance-one barcode expansion
