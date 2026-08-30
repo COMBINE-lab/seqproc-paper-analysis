@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Derive a frozen Matchbox SPLiT-seq PE sensitivity manifest.
+"""Derive a frozen Matchbox SPLiT-seq expanded-list sensitivity manifest.
 
 The input is a standard publication correctness or timing manifest. This tool
-selects one 32-thread Matchbox SPLiT-seq PE condition and substitutes an
-explicit sensitivity configuration and its support files. Keeping this
-transformation separate prevents externally expanded barcode resources from
-being mistaken for the primary, canonical-list workload.
+selects one 32-thread Matchbox SPLiT-seq PE or LR-SPLiT-seq condition and
+substitutes an explicit sensitivity configuration and its support files.
+Keeping this transformation separate prevents externally expanded barcode
+resources from being mistaken for the primary, canonical-list workload.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
     candidates = [
         run
         for run in base.get("runs", [])
-        if run.get("spec", {}).get("metadata", {}).get("dataset") == "splitseq_pe"
+        if run.get("spec", {}).get("metadata", {}).get("dataset") == args.dataset
         and run.get("spec", {}).get("metadata", {}).get("tool") == "matchbox"
         and run.get("spec", {}).get("metadata", {}).get("measurement_track")
         == args.measurement_track
@@ -61,7 +61,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
     ]
     if len(candidates) != 1:
         raise ValueError(
-            "expected one 32-thread Matchbox SPLiT-seq PE "
+            f"expected one 32-thread Matchbox {args.dataset} "
             f"{args.measurement_track} run; found {len(candidates)}"
         )
 
@@ -81,12 +81,17 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
     spec["command"] = command
     spec["configs"] = [frozen(sensitivity_config), *(frozen(path) for path in support)]
 
+    strategy = (
+        "ham1-expanded-fuzzy-linkers-fixed-windows"
+        if args.dataset == "splitseq_pe"
+        else "ham1-expanded-exact-linkers-anchor-first"
+    )
     condition_id = (
-        f"splitseq_pe-t32-r{selected_replicate}-matchbox-"
-        f"ham1-expanded-fuzzy-linkers-{args.measurement_track}"
+        f"{args.dataset}-t32-r{selected_replicate}-matchbox-"
+        f"{strategy}-{args.measurement_track}"
     )
     block_id = (
-        f"splitseq_pe-ham1-expanded-{args.measurement_track}-"
+        f"{args.dataset}-ham1-expanded-{args.measurement_track}-"
         f"t32-r{selected_replicate}"
     )
     run["id"] = condition_id
@@ -96,12 +101,21 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
             "condition_id": condition_id,
             "block_id": block_id,
             "analysis_role": "sensitivity",
-            "execution_mode": "external-hamming1-expanded-fuzzy-linkers",
+            "execution_mode": f"external-hamming1-expanded-{strategy}",
             "equivalence_scope": (
-                "sensitivity-only; exact matching against an externally generated "
-                "Hamming-distance-one-expanded barcode list, edit-distance-three "
-                "linkers, fixed component lengths, a terminal exact-barcode anchor, "
-                "and post-placement membership checks for the two upstream windows"
+                (
+                    "sensitivity-only; exact matching against externally generated "
+                    "Hamming-distance-one-expanded barcode lists, edit-distance-three "
+                    "linkers, fixed component lengths, a terminal exact-barcode anchor, "
+                    "and post-placement membership checks for the two upstream windows"
+                )
+                if args.dataset == "splitseq_pe"
+                else (
+                    "sensitivity-only; exact matching against externally generated "
+                    "Hamming-distance-one-expanded barcode lists and exact linkers in "
+                    "both orientations, using an anchor-first plan with post-placement "
+                    "membership checks and complete fixed-length components"
+                )
             ),
             "tier": f"publication-sensitivity-full-data-{args.measurement_track}",
             "external_resource_preprocessing": "Hamming-distance-one barcode expansion",
@@ -139,24 +153,24 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
     datasets = [
         copy.deepcopy(dataset)
         for dataset in base.get("datasets", [])
-        if dataset.get("name") == "splitseq_pe"
+        if dataset.get("name") == args.dataset
     ]
     if len(datasets) != 1:
-        raise ValueError("base manifest must describe SPLiT-seq PE exactly once")
+        raise ValueError(f"base manifest must describe {args.dataset} exactly once")
 
     return {
         "schema_version": "1.0.0",
         "mode": "publication",
         "study": {
             "name": (
-                "matchbox-splitseq-pe-hamming1-expanded-sensitivity-"
+                f"matchbox-{args.dataset}-hamming1-expanded-sensitivity-"
                 f"{args.measurement_track}"
             ),
             "random_seed": args.seed,
             "purpose": (
-                f"single 32-thread {args.measurement_track} sensitivity run using externally "
-                "Hamming-distance-one-expanded barcodes, fuzzy linkers, a terminal "
-                "exact-barcode anchor, and fixed-window membership checks"
+                f"single 32-thread {args.measurement_track} sensitivity run for "
+                f"{args.dataset} using externally Hamming-distance-one-expanded "
+                f"barcodes and the declared {strategy} plan"
             ),
             "require_cross_tool_identity": False,
         },
@@ -171,6 +185,11 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-manifest", type=Path, required=True)
+    parser.add_argument(
+        "--dataset",
+        choices=("splitseq_pe", "lr_splitseq_dual"),
+        default="splitseq_pe",
+    )
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--support", type=Path, nargs="+", required=True)
     parser.add_argument(

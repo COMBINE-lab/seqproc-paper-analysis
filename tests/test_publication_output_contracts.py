@@ -65,6 +65,21 @@ def test_splitseq_pe_expansion_is_canonical_first_and_complete():
     )
 
 
+def test_lr_expanded_matchbox_uses_anchor_first_fixed_window_plan():
+    text = config(
+        "configs/matchbox/sensitivity_lr_splitseq_ham1_expanded_anchor_first.mb"
+    )
+
+    assert "aug11_lr_splitseq_bc1_ham1.csv" in text
+    assert "aug11_lr_splitseq_bc23_ham1.csv" in text
+    assert "bc3:|8| linker1~0.0" in text
+    assert "bc1:|6| rev_linker2~0.0" in text
+    assert "bcs23.contains({round_23 = bc3.seq})" in text
+    assert "bcs1.contains({barcode = -(bc1.seq)})" in text
+    assert "for bc1 in bcs1, bc2 in bcs23, bc3 in bcs23" not in text
+    assert "bc3_hit:bc3.round_23~0.0 linker1" not in text
+
+
 def test_lr_publication_configs_project_six_base_bc1_and_require_both_linkers():
     splitcode = config("configs/splitcode/publication_lr_splitseq.config")
 
