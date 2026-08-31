@@ -1,0 +1,31 @@
+# Anchor-first forward-only Matchbox counterpart to the LR core geometry.
+#
+# Search the long read for an exact linker before testing the captured terminal
+# barcode against its canonical list. Keeping BC2 in the pattern preserves the
+# original exact-match constraints but avoids scanning all 96 BC1 candidates
+# across the entire molecule. The boundary arm handles a cassette flush with
+# the read end. On the publication input this is byte-identical to the former
+# barcode-first transcription while substantially reducing candidate work.
+linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGACTGTGG
+bcs1 = csv('configs/matchbox/rt_6bp.csv')
+bcs1_seqs = csv('configs/matchbox/rt_6bp_barcodes_only.csv')
+bcs23 = csv('configs/matchbox/r2_r3.txt')
+
+if read matches {
+    [_ umi:|10| bc3:|8| linker1~0.0 bc2_hit:bc2.round_23~0.0 linker2~0.0 bc1_hit:bc1.barcode~0.0 _]
+        for bc1 in bcs1, bc2 in bcs23 => {
+            if bc3.seq.len() == 8 and bc2_hit.seq.len() == 8 and bc1_hit.seq.len() == 6 and
+               bcs23.contains({round_23 = bc3.seq}) {
+                (umi.concat(bc3)).concat(bc2_hit.concat(bc1_hit)).out!('mb_r1.fq')
+            }
+        }
+    [_ umi:|10| bc3:|8| linker1~0.0 bc2_hit:bc2.round_23~0.0 linker2~0.0 bc1:_]
+        for bc2 in bcs23 => {
+            if bc1.seq.len() == 6 and bc3.seq.len() == 8 and bc2_hit.seq.len() == 8 and
+               bcs23.contains({round_23 = bc3.seq}) and
+               bcs1_seqs.contains({barcode = bc1.seq}) {
+                (umi.concat(bc3)).concat(bc2_hit.concat(bc1)).out!('mb_r1.fq')
+            }
+        }
+}

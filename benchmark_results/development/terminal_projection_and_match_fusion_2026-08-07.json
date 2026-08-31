@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "date": "2026-08-07",
+  "purpose": "Pre-campaign A/B validation of exact-match precheck, fused match/retain nodes, and terminal same-lane read projection",
+  "revisions": {
+    "baseline_seqproc": "46d66d6b96d44077d95fec9c19305185d4aead37",
+    "baseline_antisequence": "45f0bdb8e0bdfd1933888f1f552f6286ec482913",
+    "candidate_seqproc": "edbf9efcfa69d588a42d3f1fb714742b675502eb",
+    "candidate_antisequence": "f3b0f1ea0b286b680d963382f2bf7316058d83e4"
+  },
+  "branches": {
+    "seqproc": "pe-single-thread-optimizations",
+    "antisequence": "pe-single-thread-optimizations"
+  },
+  "environment": {
+    "cpu": "AMD EPYC 9555 64-Core Processor",
+    "logical_cpus": 128,
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "profile": "release",
+    "threads": 1,
+    "cpu_affinity": "taskset --cpu-list 1",
+    "pipeline": "staged",
+    "output_for_slice_timings": "/dev/null"
+  },
+  "slice_benchmarks": {
+    "description": "One million input records, five sequential A/B replicates per workload. Times are wall-clock seconds; medians are taken across the five listed replicates.",
+    "splitseq_pe": {
+      "baseline_seconds": [2.46, 2.46, 2.45, 2.46, 2.46],
+      "candidate_seconds": [1.87, 1.85, 1.86, 1.85, 1.86],
+      "baseline_median_seconds": 2.46,
+      "candidate_median_seconds": 1.86,
+      "median_speedup_percent": 24.39
+    },
+    "tenx_v2": {
+      "baseline_seconds": [0.86, 0.87, 0.86, 0.86, 0.87],
+      "candidate_seconds": [0.43, 0.43, 0.43, 0.43, 0.43],
+      "baseline_median_seconds": 0.86,
+      "candidate_median_seconds": 0.43,
+      "median_speedup_percent": 50.0
+    },
+    "sci_rnaseq3": {
+      "baseline_seconds": [1.24, 1.24, 1.24, 1.25, 1.24],
+      "candidate_seconds": [0.83, 0.83, 0.83, 0.84, 1.26],
+      "baseline_median_seconds": 1.24,
+      "candidate_median_seconds": 0.83,
+      "median_speedup_percent": 33.06,
+      "note": "The fifth candidate wall time was an isolated scheduling/I/O outlier; its user CPU time was 0.80 seconds."
+    },
+    "lr_splitseq_forward": {
+      "baseline_seconds": [3.21, 3.20, 3.21, 3.21, 3.21],
+      "candidate_seconds": [2.37, 2.36, 2.35, 2.35, 2.36],
+      "baseline_median_seconds": 3.21,
+      "candidate_median_seconds": 2.36,
+      "median_speedup_percent": 26.48
+    }
+  },
+  "correctness": {
+    "splitseq_pe_slice_sha256": {
+      "R1.fastq": "72e0d74de5455fb080171d9cdb8d8c6682ff9de4e0d8bb6acddc1ab5ea2d9106",
+      "R2.fastq": "2da09f08efbd8c9642574ef9fb27e78152ec39363a47e3c5d993869c04e05c18"
+    },
+    "tenx_v2_slice_sha256": {
+      "R1.fastq": "14e489956aae9f80a99667b10330eed3c0769602b3f7182d70b71343e22bac8c",
+      "R2.fastq": "1f78070176cfea35be46530c907cf1a11111e5ca70e97b7d00128af667a5c9a0"
+    },
+    "sci_rnaseq3_slice_sha256": {
+      "R1.fastq": "f8da6e00aaae3c028a1e4bfcb7333330caa2cbaaf685c8243798e5216a36ce59",
+      "R2.fastq": "dd4ed99a414a098dd5654bc3344668717a0b3d57e7dae014066b61e1d5be93f2"
+    },
+    "lr_splitseq_forward_slice_sha256": {
+      "R1.fastq": "8b8040104fe0a150bacb8ee1ea65ea238289389cf6e09a447640204e09257590"
+    },
+    "result": "Baseline, local candidate, and commit-pinned candidate outputs were byte-identical for every listed slice."
+  },
+  "full_splitseq_pe": {
+    "input": "SRR6750041 paired FASTQ",
+    "candidate_wall_seconds": 146.91,
+    "candidate_user_seconds": 142.47,
+    "candidate_system_seconds": 4.25,
+    "candidate_peak_rss_kib": 12288,
+    "prior_seqproc_seconds": [195.9137, 196.5212, 197.3191],
+    "prior_seqproc_median_seconds": 196.5212,
+    "speedup_vs_prior_seqproc_percent": 25.25,
+    "prior_splitcode_seconds": [181.7863, 183.2383, 185.5012],
+    "prior_splitcode_median_seconds": 183.2383,
+    "speedup_vs_splitcode_percent": 19.82,
+    "output_sha256": {
+      "R1.fastq": "efba37f6fd503ea561e268df5b3448be10031ba0b6dad304cb27533c09bd31cf",
+      "R2.fastq": "a339756a90222c569e34e2a243f5ef422dc82f7c5528c495371bb6fdd571b176"
+    },
+    "correctness": "Both candidate hashes exactly match all three prior seqproc campaign replicates.",
+    "note": "This is a one-replicate implementation gate, not the final publication measurement. The final campaign must rerun the configured three randomized replicates from the candidate commits."
+  },
+  "tests": {
+    "antisequence": {"passed": 311, "failed": 0},
+    "seqproc": {"passed": 445, "failed": 0},
+    "seqproc_pinned_dependency_rerun": {"passed": 445, "failed": 0}
+  }
+}

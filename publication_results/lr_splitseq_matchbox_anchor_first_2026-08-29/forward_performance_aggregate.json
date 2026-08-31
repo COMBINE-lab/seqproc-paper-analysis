@@ -1,0 +1,87 @@
+{
+  "correctness": {
+    "all_deterministic": false,
+    "all_identical": false,
+    "datasets": []
+  },
+  "datasets": [
+    "lr_splitseq_forward"
+  ],
+  "excluded_conditions": 0,
+  "exclusions": [],
+  "manifest_sha256": "1e0ec1feded422b8a88cb7b446c7bb210550886b463e26c40b163ff076cdda00",
+  "require_cross_tool_identity": false,
+  "schedule_sha256": "cc1fdbf4fb340d7779ee7bdd0fb223d9f0fc56039fe2963b858c43e3db20353c",
+  "scheduled_conditions": 12,
+  "schema_version": "1.2.0",
+  "summaries": [
+    {
+      "dataset": "lr_splitseq_forward",
+      "execution_mode": "forward-only-supplementary",
+      "input_records_per_second_mean": 13695.71154851646,
+      "input_records_per_second_median": 13697.777174096498,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 36864,
+      "peak_rss_kib_mean": 36654.666666666664,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 1,
+      "tool": "matchbox",
+      "wall_seconds_mean": 420.8931891953334,
+      "wall_seconds_median": 420.828936457,
+      "wall_seconds_sd": 0.7027854297172623
+    },
+    {
+      "dataset": "lr_splitseq_forward",
+      "execution_mode": "forward-only-supplementary",
+      "input_records_per_second_mean": 52334.40298648255,
+      "input_records_per_second_median": 52309.69493525282,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 35660,
+      "peak_rss_kib_mean": 35350.666666666664,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 4,
+      "tool": "matchbox",
+      "wall_seconds_mean": 110.146398359,
+      "wall_seconds_median": 110.19794719,
+      "wall_seconds_sd": 0.28083596989232973
+    },
+    {
+      "dataset": "lr_splitseq_forward",
+      "execution_mode": "forward-only-supplementary",
+      "input_records_per_second_mean": 168950.31847973893,
+      "input_records_per_second_median": 168776.8132265896,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 39272,
+      "peak_rss_kib_mean": 38864.0,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 16,
+      "tool": "matchbox",
+      "wall_seconds_mean": 34.119476326666664,
+      "wall_seconds_median": 34.154104997,
+      "wall_seconds_sd": 0.15101317129547695
+    },
+    {
+      "dataset": "lr_splitseq_forward",
+      "execution_mode": "forward-only-supplementary",
+      "input_records_per_second_mean": 266038.38643680426,
+      "input_records_per_second_median": 265202.1845862864,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 36864,
+      "peak_rss_kib_mean": 35136.0,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 32,
+      "tool": "matchbox",
+      "wall_seconds_mean": 21.670542626333333,
+      "wall_seconds_median": 21.735948401,
+      "wall_seconds_sd": 0.30708770793357576
+    }
+  ],
+  "tools": [
+    "matchbox"
+  ],
+  "valid_conditions": 12
+}

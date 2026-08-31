@@ -1,0 +1,10 @@
+# Semantically aligned LR-SPLiT-seq benchmark: forward-orientation anchor-based
+# extraction without a whitelist predicate, matching splitcode's capability.
+linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGACTGTGG
+
+if read matches {
+    [umi:|10| bc3:|8| linker1~0.1 bc2:|8| linker2~0.14 bc1:|6| _] =>
+        # Linker removal requires concatenation; balance it to minimize copying.
+        (umi.concat(bc3)).concat(bc2.concat(bc1)).out!('mb_r1.fq')
+}

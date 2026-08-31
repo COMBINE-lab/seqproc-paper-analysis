@@ -1,0 +1,16 @@
+# Direct dependencies for the SPLiT-seq downstream analysis.  Resolve and pin
+# all transitive packages with:
+#   uv pip compile --python-version 3.12 --generate-hashes \
+#     biological_analysis/requirements.in -o biological_analysis/requirements.lock
+scanpy==1.12.2
+anndata
+leidenalg
+igraph
+scikit-learn
+scipy
+numpy<3
+matplotlib
+pandas
+nbformat
+ipykernel
+nbclient

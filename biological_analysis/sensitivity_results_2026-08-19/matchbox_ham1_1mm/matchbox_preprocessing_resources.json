@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "interpretation": "diagnostic materialized-output sensitivity run; not a primary /dev/null benchmark",
+  "command": "/usr/bin/taskset --cpu-list 1-32 /scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2/target/release/matchbox --error 0.2 --match-mode one-best --threads 32 --script-file /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/matchbox/sensitivity_splitseq_pe_ham1_expanded.mb /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq --paired-with /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq",
+  "elapsed_seconds": 5454.0,
+  "user_cpu_seconds": 166738.14,
+  "system_cpu_seconds": 40.17,
+  "percent_cpu": 3057,
+  "maximum_resident_set_kib": 9067304,
+  "filesystem_outputs_blocks": 21087032,
+  "exit_status": 0
+}

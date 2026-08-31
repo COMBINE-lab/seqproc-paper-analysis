@@ -1,0 +1,98 @@
+{
+  "entries": [
+    {
+      "block_id": "splitseq_pe-t32-r1",
+      "condition_id": "splitseq_pe-t32-r1-seqproc",
+      "ordinal": 1,
+      "run_id": "11c8caa5e6b7c62b2e7a298f040be79bc1028ab549097920903a10a7e710c981"
+    },
+    {
+      "block_id": "splitseq_pe-t32-r1",
+      "condition_id": "splitseq_pe-t32-r1-splitcode",
+      "ordinal": 2,
+      "run_id": "ca4c426f7a86b0ff0f9aeaad36285b2b569c77726e02678c0062cd4d1cc22487"
+    },
+    {
+      "block_id": "splitseq_pe-t32-r1",
+      "condition_id": "splitseq_pe-t32-r1-matchbox",
+      "ordinal": 3,
+      "run_id": "ccdb9270fffd6314f4239872db166ce7f1d6e56641c8acef0cc36be31992d5d8"
+    },
+    {
+      "block_id": "lr_splitseq_forward-t32-r1",
+      "condition_id": "lr_splitseq_forward-t32-r1-seqproc",
+      "ordinal": 4,
+      "run_id": "5ee467d7c385ab2d8146668e1c627800039421d832efd17a426395d726ae2361"
+    },
+    {
+      "block_id": "lr_splitseq_forward-t32-r1",
+      "condition_id": "lr_splitseq_forward-t32-r1-matchbox",
+      "ordinal": 5,
+      "run_id": "4388091e8ac2e93d05d0f5ed1ea3a44cc37e7ae50c7928d6c6d02775aa9d88e9"
+    },
+    {
+      "block_id": "lr_splitseq_forward-t32-r1",
+      "condition_id": "lr_splitseq_forward-t32-r1-splitcode",
+      "ordinal": 6,
+      "run_id": "7047961d12c92baf8452aee1288ca1a8bcaf0c7a679e75a158cdb441ff8097ae"
+    },
+    {
+      "block_id": "tenx_v2-t32-r1",
+      "condition_id": "tenx_v2-t32-r1-seqproc",
+      "ordinal": 7,
+      "run_id": "5505864cd53f8ff58dd35c4d10f46347cd55fbc124dd2eb1867660663cf66abb"
+    },
+    {
+      "block_id": "tenx_v2-t32-r1",
+      "condition_id": "tenx_v2-t32-r1-splitcode",
+      "ordinal": 8,
+      "run_id": "09c26f320cae70b9450728b85f0e2cdb68bd7d03502d6d939b3a9983969c431e"
+    },
+    {
+      "block_id": "tenx_v2-t32-r1",
+      "condition_id": "tenx_v2-t32-r1-matchbox",
+      "ordinal": 9,
+      "run_id": "0069652b9909bde7a546a1a438153f1ac56b2d372f15a31692f7b652b2e0ceb7"
+    },
+    {
+      "block_id": "scirnaseq3-t32-r1",
+      "condition_id": "scirnaseq3-t32-r1-seqproc",
+      "ordinal": 10,
+      "run_id": "1cbfa8479461c2175203b011450c044a6a01b06b17658cb0aa6b068b5f908b8f"
+    },
+    {
+      "block_id": "scirnaseq3-t32-r1",
+      "condition_id": "scirnaseq3-t32-r1-matchbox",
+      "ordinal": 11,
+      "run_id": "5a08b9054a85a4b3ec03c3d0bf9890bfaa5f01e9c13e9c33e836c956571c05d0"
+    },
+    {
+      "block_id": "scirnaseq3-t32-r1",
+      "condition_id": "scirnaseq3-t32-r1-splitcode",
+      "ordinal": 12,
+      "run_id": "65412ae9afd4a465b6f676207bf67c03b3fa13833acc6ebe0d7ea777b5ba6f5f"
+    },
+    {
+      "block_id": "lr_splitseq_dual-t32-r1",
+      "condition_id": "lr_splitseq_dual-t32-r1-splitcode",
+      "ordinal": 13,
+      "run_id": "7db636c67c07cd6ba5097d16fa7d8bd10d90b6551abc17e23aae877782c6c2b0"
+    },
+    {
+      "block_id": "lr_splitseq_dual-t32-r1",
+      "condition_id": "lr_splitseq_dual-t32-r1-seqproc",
+      "ordinal": 14,
+      "run_id": "b62ee9f06b532fc90ea7a0d1dbd1eb5f30c6109d7c920b52f3e008122063ebc9"
+    },
+    {
+      "block_id": "lr_splitseq_dual-t32-r1",
+      "condition_id": "lr_splitseq_dual-t32-r1-matchbox",
+      "ordinal": 15,
+      "run_id": "853c1f1d1752d19fd345e674b85cbec84320c248c43dc0e8d1276832e19e874a"
+    }
+  ],
+  "generator_version": "seqproc-frozen-schedule-1",
+  "manifest_sha256": "db693e27b027a8ae11833b773a089c657baebf8d49071c96cbada24daea9f0b7",
+  "random_seed": 741211,
+  "schema_version": "1.0.0"
+}

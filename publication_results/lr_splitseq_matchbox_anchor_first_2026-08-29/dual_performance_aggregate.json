@@ -1,0 +1,87 @@
+{
+  "correctness": {
+    "all_deterministic": false,
+    "all_identical": false,
+    "datasets": []
+  },
+  "datasets": [
+    "lr_splitseq_dual"
+  ],
+  "excluded_conditions": 0,
+  "exclusions": [],
+  "manifest_sha256": "e3fae5175a7df033ef22c27f9d9e8556149a3cdbcc991990593bca1b42b1fb19",
+  "require_cross_tool_identity": false,
+  "schedule_sha256": "d2d31671f5af9fc4dbfc9a46fdfc8b83f85410feec5d2006f91ad3095c1c2733",
+  "scheduled_conditions": 12,
+  "schema_version": "1.2.0",
+  "summaries": [
+    {
+      "dataset": "lr_splitseq_dual",
+      "execution_mode": "native-dual-orientation",
+      "input_records_per_second_mean": 7511.359045084348,
+      "input_records_per_second_median": 7751.649006829365,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 64176,
+      "peak_rss_kib_mean": 63873.333333333336,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 1,
+      "tool": "matchbox",
+      "wall_seconds_mean": 864.6218003753334,
+      "wall_seconds_median": 743.638030427,
+      "wall_seconds_sd": 381.2024737439272
+    },
+    {
+      "dataset": "lr_splitseq_dual",
+      "execution_mode": "native-dual-orientation",
+      "input_records_per_second_mean": 29443.262389215914,
+      "input_records_per_second_median": 30339.70555211983,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 64080,
+      "peak_rss_kib_mean": 63312.0,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 4,
+      "tool": "matchbox",
+      "wall_seconds_mean": 196.187197621,
+      "wall_seconds_median": 189.995944097,
+      "wall_seconds_sd": 11.115097179521744
+    },
+    {
+      "dataset": "lr_splitseq_dual",
+      "execution_mode": "native-dual-orientation",
+      "input_records_per_second_mean": 130736.06192626017,
+      "input_records_per_second_median": 130368.1266672853,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 67536,
+      "peak_rss_kib_mean": 65693.33333333333,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 16,
+      "tool": "matchbox",
+      "wall_seconds_mean": 44.18307522333333,
+      "wall_seconds_median": 44.216490237,
+      "wall_seconds_sd": 2.453491920720722
+    },
+    {
+      "dataset": "lr_splitseq_dual",
+      "execution_mode": "native-dual-orientation",
+      "input_records_per_second_mean": 226588.14667271145,
+      "input_records_per_second_median": 226555.96738309137,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 68556,
+      "peak_rss_kib_mean": 66034.66666666667,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 32,
+      "tool": "matchbox",
+      "wall_seconds_mean": 25.442475806666664,
+      "wall_seconds_median": 25.443695289,
+      "wall_seconds_sd": 0.302243289629923
+    }
+  ],
+  "tools": [
+    "matchbox"
+  ],
+  "valid_conditions": 12
+}

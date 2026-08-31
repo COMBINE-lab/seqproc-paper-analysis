@@ -1,0 +1,38 @@
+{
+  "accepted_orientation": {
+    "forward": 234382218
+  },
+  "anchor_edit_histogram": {},
+  "anchor_start_histogram": {},
+  "barcode_ambiguity_histogram": {},
+  "batch_size": 4096,
+  "chem": "tenx_v2",
+  "controller_peak_rss_kib": 31964,
+  "criteria": {
+    "minimum_r1_length": 26,
+    "paired_fastq_integrity_checked": true,
+    "reference_kind": "conservative_structural_reference_not_ground_truth"
+  },
+  "elapsed_seconds": 307.272235,
+  "fast_path_counts": {
+    "True": 234382218
+  },
+  "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR8315379_R1.fastq",
+  "forward_failure_counts": {},
+  "invalid": 0,
+  "linker1_edit_histogram": {},
+  "linker2_edit_histogram": {},
+  "mate_fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR8315379_R2.fastq",
+  "maximum_worker_peak_rss_kib": 19480,
+  "outcome_counts": {
+    "accepted": 234382218
+  },
+  "pct_of_scanned": 100.0,
+  "reads_per_second": 762783.59,
+  "schema_version": "3.0.0",
+  "system_cpu_seconds": 15.518685,
+  "threads": 32,
+  "total": 234382218,
+  "user_cpu_seconds": 473.490727,
+  "valid": 234382218
+}

@@ -13,8 +13,17 @@ TOOL_COLORS = {
 }
 _FALLBACK = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9"]
 
+# Pairwise comparisons are composite categories, so they deliberately do not
+# reuse the colors assigned to individual tools.  The first three colors are
+# optimized for the three-tool figures in the paper and remain distinguishable
+# in grayscale; the remaining colors support analyses with more tool pairs.
+PAIR_COLORS = ["#6F4C9B", "#4D6A6D", "#B88900", "#A05195", "#665191", "#2F4B7C"]
+
 def tool_color(name, i=0):
     return TOOL_COLORS.get(name, _FALLBACK[i % len(_FALLBACK)])
+
+def pair_color(i=0):
+    return PAIR_COLORS[i % len(PAIR_COLORS)]
 
 def set_paper_style():
     mpl.rcParams.update({

@@ -1,0 +1,87 @@
+{
+  "correctness": {
+    "all_deterministic": false,
+    "all_identical": false,
+    "datasets": []
+  },
+  "datasets": [
+    "splitseq_pe"
+  ],
+  "excluded_conditions": 0,
+  "exclusions": [],
+  "manifest_sha256": "18875873a6c39a87fba78b46cb758fd99640e3da2cd3941facfe282a9e85fdec",
+  "require_cross_tool_identity": false,
+  "schedule_sha256": "1941e19c92798028fbc9924e3d3f40368ee5486393d398047b5f9eb41cac7061",
+  "scheduled_conditions": 12,
+  "schema_version": "1.2.0",
+  "summaries": [
+    {
+      "dataset": "splitseq_pe",
+      "execution_mode": "best-practical-uncompressed",
+      "input_records_per_second_mean": 16108.174269111192,
+      "input_records_per_second_median": 16227.458724133516,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 11324880,
+      "peak_rss_kib_mean": 11324800.0,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 1,
+      "tool": "matchbox",
+      "wall_seconds_mean": 4819.407964409667,
+      "wall_seconds_median": 4783.32327443,
+      "wall_seconds_sd": 69.52277405890746
+    },
+    {
+      "dataset": "splitseq_pe",
+      "execution_mode": "best-practical-uncompressed",
+      "input_records_per_second_mean": 60970.79964415066,
+      "input_records_per_second_median": 60935.821483520165,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 11328856,
+      "peak_rss_kib_mean": 11327220.0,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 4,
+      "tool": "matchbox",
+      "wall_seconds_mean": 1273.111807522,
+      "wall_seconds_median": 1273.818570264,
+      "wall_seconds_sd": 6.768601168955309
+    },
+    {
+      "dataset": "splitseq_pe",
+      "execution_mode": "best-practical-uncompressed",
+      "input_records_per_second_mean": 165018.4914278898,
+      "input_records_per_second_median": 164838.03228047324,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 11346796,
+      "peak_rss_kib_mean": 11346153.333333334,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 16,
+      "tool": "matchbox",
+      "wall_seconds_mean": 470.38612206933334,
+      "wall_seconds_median": 470.893639812,
+      "wall_seconds_sd": 2.2889585199706195
+    },
+    {
+      "dataset": "splitseq_pe",
+      "execution_mode": "best-practical-uncompressed",
+      "input_records_per_second_mean": 216729.56868987274,
+      "input_records_per_second_median": 217571.02741297305,
+      "measurement_track": "timing",
+      "peak_rss_kib_max": 11351580,
+      "peak_rss_kib_mean": 11347941.333333334,
+      "replicates": 3,
+      "sequence_output_policy": "dev-null",
+      "threads": 32,
+      "tool": "matchbox",
+      "wall_seconds_mean": 358.17281474,
+      "wall_seconds_median": 356.76248774,
+      "wall_seconds_sd": 3.6877862908269754
+    }
+  ],
+  "tools": [
+    "matchbox"
+  ],
+  "valid_conditions": 12
+}

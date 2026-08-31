@@ -1,0 +1,4 @@
+dataset,tool,input_records,emitted_records,emitted_fraction
+lr_splitseq_forward,seqproc,5764421,1438217,0.2494989522798560
+lr_splitseq_forward,matchbox,5764421,1296885,0.2249809651307564
+lr_splitseq_forward,splitcode,5764421,988782,0.1715318849889694

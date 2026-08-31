@@ -1,0 +1,400 @@
+{
+  "correctness": {
+    "all_identical": true,
+    "datasets": [
+      {
+        "conditions": 18,
+        "dataset": "lr_splitseq",
+        "emitted_record_counts": [
+          100000
+        ],
+        "identical_across_modes_threads_replicates": true,
+        "normalized_digest_count": 1,
+        "normalized_output_sha256": [
+          "a86f33ff9fe3d648fbcb2a57b319109ef974434d146f89bf969e3a8d3ad24172"
+        ]
+      },
+      {
+        "conditions": 18,
+        "dataset": "scirnaseq3",
+        "emitted_record_counts": [
+          100000
+        ],
+        "identical_across_modes_threads_replicates": true,
+        "normalized_digest_count": 1,
+        "normalized_output_sha256": [
+          "42bf6db77315d61b2dc9dc212bebdff2df1d1f07097bc1896a45307014b7eea4;13b53d39cc4d174d098611909df2774ec6fc9d4f33d84021061c3e18d0348cc0"
+        ]
+      },
+      {
+        "conditions": 18,
+        "dataset": "splitseq_pe",
+        "emitted_record_counts": [
+          100000
+        ],
+        "identical_across_modes_threads_replicates": true,
+        "normalized_digest_count": 1,
+        "normalized_output_sha256": [
+          "891ca7df939f98d996d4d01bc216aa5050324174f5052339037f07f230bf86cc;7749aaadbfffb920a80bbdcb472327a347d041e31bc87fe953a1ac76b2842dec"
+        ]
+      },
+      {
+        "conditions": 18,
+        "dataset": "tenx_v2",
+        "emitted_record_counts": [
+          100000
+        ],
+        "identical_across_modes_threads_replicates": true,
+        "normalized_digest_count": 1,
+        "normalized_output_sha256": [
+          "16cfd95856d19b9937924f3f4c85871e119387c6134b71276842d62da9069eba;17d985bcac27879135fff838268e6c87b0b046ed90e2aea7c0f878d47c8885a4"
+        ]
+      }
+    ]
+  },
+  "excluded_conditions": 0,
+  "exclusions": [],
+  "manifest_sha256": "517aa2f9fa1ec93f388e0ea52dbd846e60f8e87e850bedfd8c4269b5ec49f239",
+  "schedule_sha256": "572ab9601c56d5fc0e4c5f60b8bafc93a6597ba91ca31d63fca0227d0b50a359",
+  "scheduled_conditions": 72,
+  "schema_version": "1.0.0",
+  "summaries": [
+    {
+      "dataset": "lr_splitseq",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 113448.72930787977,
+      "input_records_per_second_median": 115553.91787407415,
+      "peak_rss_kib_max": 12288,
+      "peak_rss_kib_mean": 12288.0,
+      "replicates": 3,
+      "threads": 1,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.8820750733333332,
+      "wall_seconds_median": 0.86539688,
+      "wall_seconds_sd": 0.02890241499223426
+    },
+    {
+      "dataset": "lr_splitseq",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 607791.1587364236,
+      "input_records_per_second_median": 607794.075282918,
+      "peak_rss_kib_max": 54272,
+      "peak_rss_kib_mean": 54272.0,
+      "replicates": 3,
+      "threads": 8,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.16453019933333332,
+      "wall_seconds_median": 0.164529409,
+      "wall_seconds_sd": 1.4247949408017807e-05
+    },
+    {
+      "dataset": "lr_splitseq",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 873588.6578903329,
+      "input_records_per_second_median": 873448.1425015971,
+      "peak_rss_kib_max": 206848,
+      "peak_rss_kib_mean": 204800.0,
+      "replicates": 3,
+      "threads": 32,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.11447036266666666,
+      "wall_seconds_median": 0.114488766,
+      "wall_seconds_sd": 4.540321799535247e-05
+    },
+    {
+      "dataset": "lr_splitseq",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 115557.56222633808,
+      "input_records_per_second_median": 115558.4315327121,
+      "peak_rss_kib_max": 9216,
+      "peak_rss_kib_mean": 9216.0,
+      "replicates": 3,
+      "threads": 1,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.8653695880000001,
+      "wall_seconds_median": 0.865363078,
+      "wall_seconds_sd": 1.258094130027781e-05
+    },
+    {
+      "dataset": "lr_splitseq",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 607658.3468263817,
+      "input_records_per_second_median": 607689.0211231002,
+      "peak_rss_kib_max": 30720,
+      "peak_rss_kib_mean": 30720.0,
+      "replicates": 3,
+      "threads": 8,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.16456616666666668,
+      "wall_seconds_median": 0.164557852,
+      "wall_seconds_sd": 4.406827472608139e-05
+    },
+    {
+      "dataset": "lr_splitseq",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 873416.2163834561,
+      "input_records_per_second_median": 873360.4393554974,
+      "peak_rss_kib_max": 104448,
+      "peak_rss_kib_mean": 103765.33333333333,
+      "replicates": 3,
+      "threads": 32,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.11449295333333333,
+      "wall_seconds_median": 0.114500263,
+      "wall_seconds_sd": 2.0333988106945495e-05
+    },
+    {
+      "dataset": "scirnaseq3",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 607838.999337133,
+      "input_records_per_second_median": 607866.193381238,
+      "peak_rss_kib_max": 11264,
+      "peak_rss_kib_mean": 11264.0,
+      "replicates": 3,
+      "threads": 1,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.16451725066666667,
+      "wall_seconds_median": 0.164509889,
+      "wall_seconds_sd": 2.0339506196896428e-05
+    },
+    {
+      "dataset": "scirnaseq3",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 1552398.101352159,
+      "input_records_per_second_median": 1552408.7127014014,
+      "peak_rss_kib_max": 38912,
+      "peak_rss_kib_mean": 38912.0,
+      "replicates": 3,
+      "threads": 8,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.06441646633333332,
+      "wall_seconds_median": 0.064416026,
+      "wall_seconds_sd": 1.4042693236424703e-06
+    },
+    {
+      "dataset": "scirnaseq3",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 873971.7729965938,
+      "input_records_per_second_median": 874102.6920667157,
+      "peak_rss_kib_max": 146432,
+      "peak_rss_kib_mean": 146090.66666666666,
+      "replicates": 3,
+      "threads": 32,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.11442018866666666,
+      "wall_seconds_median": 0.114403034,
+      "wall_seconds_sd": 5.456058048016977e-05
+    },
+    {
+      "dataset": "scirnaseq3",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 466043.0661761274,
+      "input_records_per_second_median": 466048.54523832095,
+      "peak_rss_kib_max": 9216,
+      "peak_rss_kib_mean": 9216.0,
+      "replicates": 3,
+      "threads": 1,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.21457244566666667,
+      "wall_seconds_median": 0.214569922,
+      "wall_seconds_sd": 1.8497073453198513e-05
+    },
+    {
+      "dataset": "scirnaseq3",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 1552981.24889833,
+      "input_records_per_second_median": 1552980.7135325186,
+      "peak_rss_kib_max": 23552,
+      "peak_rss_kib_mean": 23210.666666666668,
+      "replicates": 3,
+      "threads": 8,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.06439228266666668,
+      "wall_seconds_median": 0.0643923,
+      "wall_seconds_sd": 2.1677005197518284e-05
+    },
+    {
+      "dataset": "scirnaseq3",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 1552044.630962982,
+      "input_records_per_second_median": 1551983.107719221,
+      "peak_rss_kib_max": 77824,
+      "peak_rss_kib_mean": 77141.33333333333,
+      "replicates": 3,
+      "threads": 32,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.06443113766666667,
+      "wall_seconds_median": 0.064433691,
+      "wall_seconds_sd": 8.935916144043124e-06
+    },
+    {
+      "dataset": "splitseq_pe",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 98458.4117632066,
+      "input_records_per_second_median": 98459.661123606,
+      "peak_rss_kib_max": 13312,
+      "peak_rss_kib_mean": 13312.0,
+      "replicates": 3,
+      "threads": 1,
+      "tool": "seqproc",
+      "wall_seconds_mean": 1.0156572533333332,
+      "wall_seconds_median": 1.015644365,
+      "wall_seconds_sd": 3.0210049790361657e-05
+    },
+    {
+      "dataset": "splitseq_pe",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 607847.8860005974,
+      "input_records_per_second_median": 607820.8848131284,
+      "peak_rss_kib_max": 49152,
+      "peak_rss_kib_mean": 48469.333333333336,
+      "replicates": 3,
+      "threads": 8,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.16451484533333335,
+      "wall_seconds_median": 0.164522152,
+      "wall_seconds_sd": 1.9654470161606674e-05
+    },
+    {
+      "dataset": "splitseq_pe",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 873187.7027806486,
+      "input_records_per_second_median": 873246.8107585614,
+      "peak_rss_kib_max": 182272,
+      "peak_rss_kib_mean": 181930.66666666666,
+      "replicates": 3,
+      "threads": 32,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.11452292733333334,
+      "wall_seconds_median": 0.114515162,
+      "wall_seconds_sd": 4.8252925562432007e-05
+    },
+    {
+      "dataset": "splitseq_pe",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 98466.56152984036,
+      "input_records_per_second_median": 98465.77705876404,
+      "peak_rss_kib_max": 10240,
+      "peak_rss_kib_mean": 10240.0,
+      "replicates": 3,
+      "threads": 1,
+      "tool": "seqproc",
+      "wall_seconds_mean": 1.0155731903333334,
+      "wall_seconds_median": 1.015581281,
+      "wall_seconds_sd": 2.293928539277891e-05
+    },
+    {
+      "dataset": "splitseq_pe",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 607673.9523766482,
+      "input_records_per_second_median": 607669.8631721922,
+      "peak_rss_kib_max": 24576,
+      "peak_rss_kib_mean": 24576.0,
+      "replicates": 3,
+      "threads": 8,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.16456193266666666,
+      "wall_seconds_median": 0.16456304,
+      "wall_seconds_sd": 3.7323034889130835e-06
+    },
+    {
+      "dataset": "splitseq_pe",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 1326293.5060624604,
+      "input_records_per_second_median": 1552502.6591265546,
+      "peak_rss_kib_max": 94208,
+      "peak_rss_kib_mean": 90794.66666666667,
+      "replicates": 3,
+      "threads": 32,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.08110070400000001,
+      "wall_seconds_median": 0.064412128,
+      "wall_seconds_sd": 0.028923529574663893
+    },
+    {
+      "dataset": "tenx_v2",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 873727.6194211509,
+      "input_records_per_second_median": 873719.2357231852,
+      "peak_rss_kib_max": 11264,
+      "peak_rss_kib_mean": 11264.0,
+      "replicates": 3,
+      "threads": 1,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.114452165,
+      "wall_seconds_median": 0.114453243,
+      "wall_seconds_sd": 5.8911397700273754e-05
+    },
+    {
+      "dataset": "tenx_v2",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 1551924.3751743764,
+      "input_records_per_second_median": 1551612.889962019,
+      "peak_rss_kib_max": 38912,
+      "peak_rss_kib_mean": 38570.666666666664,
+      "replicates": 3,
+      "threads": 8,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.06443613833333334,
+      "wall_seconds_median": 0.064449065,
+      "wall_seconds_sd": 2.9229745711067224e-05
+    },
+    {
+      "dataset": "tenx_v2",
+      "execution_mode": "default",
+      "input_records_per_second_mean": 874001.1855741851,
+      "input_records_per_second_median": 874094.3257388901,
+      "peak_rss_kib_max": 146432,
+      "peak_rss_kib_mean": 145066.66666666666,
+      "replicates": 3,
+      "threads": 32,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.11441632466666667,
+      "wall_seconds_median": 0.114404129,
+      "wall_seconds_sd": 2.5869722733986217e-05
+    },
+    {
+      "dataset": "tenx_v2",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 607773.8409642195,
+      "input_records_per_second_median": 607803.5102536908,
+      "peak_rss_kib_max": 9216,
+      "peak_rss_kib_mean": 9216.0,
+      "replicates": 3,
+      "threads": 1,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.164534894,
+      "wall_seconds_median": 0.164526855,
+      "wall_seconds_sd": 4.2744277312867415e-05
+    },
+    {
+      "dataset": "tenx_v2",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 1552541.552480635,
+      "input_records_per_second_median": 1552749.6058966224,
+      "peak_rss_kib_max": 23552,
+      "peak_rss_kib_mean": 23552.0,
+      "replicates": 3,
+      "threads": 8,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.06441052633333333,
+      "wall_seconds_median": 0.064401884,
+      "wall_seconds_sd": 3.3979042428137346e-05
+    },
+    {
+      "dataset": "tenx_v2",
+      "execution_mode": "staged",
+      "input_records_per_second_mean": 1553719.223509145,
+      "input_records_per_second_median": 1553765.3864919147,
+      "peak_rss_kib_max": 76800,
+      "peak_rss_kib_mean": 76458.66666666667,
+      "replicates": 3,
+      "threads": 32,
+      "tool": "seqproc",
+      "wall_seconds_mean": 0.06436169600000001,
+      "wall_seconds_median": 0.064359781,
+      "wall_seconds_sd": 1.640852580215982e-05
+    }
+  ],
+  "valid_conditions": 72
+}

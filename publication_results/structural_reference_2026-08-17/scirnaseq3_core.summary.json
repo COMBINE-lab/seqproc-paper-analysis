@@ -1,0 +1,54 @@
+{
+  "accepted_orientation": {
+    "forward": 19864110
+  },
+  "anchor_edit_histogram": {
+    "0": 13840651,
+    "1": 6023459
+  },
+  "anchor_start_histogram": {
+    "10": 7938378,
+    "9": 11925732
+  },
+  "barcode_ambiguity_histogram": {},
+  "batch_size": 4096,
+  "chem": "scirnaseq3",
+  "controller_peak_rss_kib": 36420,
+  "criteria": {
+    "allowed_anchor_offsets": [
+      9,
+      10
+    ],
+    "ambiguous_best_anchor_offset": "rejected_and_reported",
+    "anchor": "CAGAGC",
+    "max_anchor_edit": 1,
+    "minimum_trailing_umi_bc2_length": 18,
+    "paired_fastq_integrity_checked": true,
+    "reference_kind": "conservative_structural_reference_not_ground_truth"
+  },
+  "elapsed_seconds": 29.187043,
+  "fast_path_counts": {
+    "False": 6023459,
+    "True": 13840651
+  },
+  "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_1.fastq",
+  "forward_failure_counts": {},
+  "invalid": 2224711,
+  "linker1_edit_histogram": {},
+  "linker2_edit_histogram": {},
+  "mate_fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_2.fastq",
+  "maximum_worker_peak_rss_kib": 19432,
+  "outcome_counts": {
+    "accepted": 19864110,
+    "ambiguous_anchor_offset": 25960,
+    "no_anchor_at_allowed_offset": 2198751
+  },
+  "pct_of_scanned": 89.9283,
+  "reads_per_second": 756802.29,
+  "schema_version": "3.0.0",
+  "system_cpu_seconds": 2.307614,
+  "threads": 32,
+  "total": 22088821,
+  "user_cpu_seconds": 99.864163,
+  "valid": 19864110
+}

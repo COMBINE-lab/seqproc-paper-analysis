@@ -111,7 +111,7 @@ def test_matchbox_paired_consistency():
     expected = {
         'splitseq_pe': True,
         'lr_splitseq': False,
-        '10x_short': False,
+        '10x_short': True,
         'sciseq': True,
     }
     for ds_key, expect_paired in expected.items():

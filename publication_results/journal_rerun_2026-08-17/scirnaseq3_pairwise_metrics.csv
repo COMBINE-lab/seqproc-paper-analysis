@@ -1,0 +1,4 @@
+dataset,left,right,intersection_records,union_records,left_only_records,right_only_records,jaccard
+scirnaseq3,seqproc,matchbox,19559040,19879895,320855,0,0.9838603272300985
+scirnaseq3,seqproc,splitcode,19695955,19879895,183940,0,0.9907474360402809
+scirnaseq3,matchbox,splitcode,19489430,19765565,69610,206525,0.9860294911883369

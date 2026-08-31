@@ -1,6 +1,8 @@
 # definitions
 #[edit(1)] anchor = f[CAGAGC]
-brc1 = norm(b[9-10])
+# Preserve the protocol's natural 9- or 10-nt BC1 rather than padding it.
+# This makes every tool project the same biological fields at 27/28 nt.
+brc1 = b[9-10]
 brc2 = b[10]
 umi = u[8]
 

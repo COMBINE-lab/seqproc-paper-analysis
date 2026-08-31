@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "dataset": "lr_splitseq_dual",
+  "input_accession": "SRR13948564",
+  "barcode_first_emitted_records": 8277,
+  "anchor_first_one_best_emitted_records": 8273,
+  "anchor_first_all_emitted_records": 8280,
+  "anchor_first_all_distinct_ids": 8278,
+  "anchor_first_all_duplicate_ids": [
+    "SRR13948564.1054885",
+    "SRR13948564.4595804"
+  ],
+  "barcode_first_only_ids": [
+    "SRR13948564.2363046",
+    "SRR13948564.4024603",
+    "SRR13948564.4504400",
+    "SRR13948564.5098947"
+  ],
+  "adjudication": "Each barcode-first-only molecule contains one exact whitelist-valid cassette and at least one additional exact-linker cassette with an invalid terminal barcode. The anchor-first pattern is ambiguous under one-best before its body whitelist guard is evaluated.",
+  "decision": "Retain one-best. The four-read exclusion is conservative and documented; all mode is rejected because it emits duplicate FASTQ records and changes the accepted-ID set."
+}

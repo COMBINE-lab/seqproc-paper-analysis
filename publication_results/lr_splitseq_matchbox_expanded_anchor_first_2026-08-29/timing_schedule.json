@@ -1,0 +1,14 @@
+{
+  "entries": [
+    {
+      "block_id": "lr_splitseq_dual-ham1-expanded-timing-t32-r1",
+      "condition_id": "lr_splitseq_dual-t32-r1-matchbox-ham1-expanded-exact-linkers-anchor-first-timing",
+      "ordinal": 1,
+      "run_id": "6cbd70aa7da185547b2989ef2f132f3cef912d7ef1bed56ed5d05842bbb8978e"
+    }
+  ],
+  "generator_version": "seqproc-frozen-schedule-1",
+  "manifest_sha256": "b9a93b60a8789ff55dd6f950470241ac1b5493515c9f2ba8ded6086242888621",
+  "random_seed": 8282028,
+  "schema_version": "1.0.0"
+}

@@ -1,0 +1,4 @@
+dataset,tool,input_records,reference_records,emitted_records,intersection_records,emitted_fraction,precision,recall,f1
+tenx_v2,seqproc,234382218,234382218,234382218,234382218,1.0,1.0,1.0,1.0
+tenx_v2,matchbox,234382218,234382218,234382218,234382218,1.0,1.0,1.0,1.0
+tenx_v2,splitcode,234382218,234382218,234382218,234382218,1.0,1.0,1.0,1.0

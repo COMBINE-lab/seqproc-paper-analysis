@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "tool": "seqproc",
+  "records": 56991381,
+  "first_id": "SRR6750041.1",
+  "last_id": "SRR6750041.77620992",
+  "r1": {
+    "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/5dc804d7ba47a92b9bd776199fad06929bef018109078c8392995ea9fce9892d/attempt-0001/R1.fastq",
+    "bytes": 9558561112,
+    "sha256": "70ac7f77895ebf197999d9298878a9069d56cf53a2f90ee5a9437286a4d8ba04",
+    "lengths": [
+      66
+    ]
+  },
+  "r2": {
+    "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/runs/5dc804d7ba47a92b9bd776199fad06929bef018109078c8392995ea9fce9892d/attempt-0001/R2.fastq",
+    "bytes": 5911112728,
+    "sha256": "fb7b9bc19cfb7d268537b9d14dbf5ffd816a4f522565a8214ec01fd28e431241",
+    "lengths": [
+      34
+    ]
+  }
+}

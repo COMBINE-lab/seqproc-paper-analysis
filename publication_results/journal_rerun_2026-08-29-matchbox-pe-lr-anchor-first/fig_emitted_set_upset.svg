@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1220" height="840" viewBox="0 0 1220 840" role="img">
+<title>Exclusive emitted-read intersections across preprocessing tools</title>
+<desc>Faceted UpSet plot. Bars show each mutually exclusive tool intersection as a percentage of the reads emitted by any tool. The matrix below identifies tool membership.</desc>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<g font-family="Arial, Helvetica, sans-serif" shape-rendering="geometricPrecision">
+<text x="20.0" y="30.0" font-size="20" font-weight="600" text-anchor="start" fill="#202124">Exclusive intersections (% of any-tool union)</text>
+<text x="20.0" y="66.0" font-size="17" font-weight="700" text-anchor="start" fill="#202124">SPLiT-seq PE</text>
+<text x="20.0" y="91.0" font-size="13" font-weight="400" text-anchor="start" fill="#5F6368">union = 57,579,759</text>
+<line x1="215" y1="150.0" x2="1195" y2="150.0" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="215" y1="109.0" x2="1195" y2="109.0" stroke="#E3E6E8" stroke-width="0.8"/>
+<text x="205.0" y="114.0" font-size="12" font-weight="400" text-anchor="end" fill="#5F6368">50</text>
+<line x1="215" y1="68.0" x2="1195" y2="68.0" stroke="#E3E6E8" stroke-width="0.8"/>
+<text x="205.0" y="73.0" font-size="12" font-weight="400" text-anchor="end" fill="#5F6368">100</text>
+<rect x="243.0" y="83.4" width="84.0" height="66.6" fill="#0072B2"/>
+<text x="285.0" y="74.4" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">81.27%</text>
+<rect x="383.0" y="140.8" width="84.0" height="9.2" fill="#0072B2"/>
+<text x="425.0" y="131.8" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">11.18%</text>
+<rect x="523.0" y="145.6" width="84.0" height="4.4" fill="#0072B2"/>
+<text x="565.0" y="136.6" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">5.40%</text>
+<rect x="663.0" y="150.0" width="84.0" height="0.8" fill="#0072B2"/>
+<text x="705.0" y="141.0" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">0.06%</text>
+<rect x="803.0" y="149.1" width="84.0" height="0.9" fill="#0072B2"/>
+<text x="845.0" y="140.1" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">1.12%</text>
+<rect x="943.0" y="149.7" width="84.0" height="0.8" fill="#0072B2"/>
+<text x="985.0" y="140.7" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">0.40%</text>
+<rect x="1083.0" y="149.5" width="84.0" height="0.8" fill="#0072B2"/>
+<text x="1125.0" y="140.5" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">0.57%</text>
+<text x="20.0" y="206.0" font-size="17" font-weight="700" text-anchor="start" fill="#202124">LR-SPLiT-seq (dual)</text>
+<text x="20.0" y="231.0" font-size="13" font-weight="400" text-anchor="start" fill="#5F6368">union = 549,221</text>
+<line x1="215" y1="290.0" x2="1195" y2="290.0" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="215" y1="249.0" x2="1195" y2="249.0" stroke="#E3E6E8" stroke-width="0.8"/>
+<text x="205.0" y="254.0" font-size="12" font-weight="400" text-anchor="end" fill="#5F6368">50</text>
+<line x1="215" y1="208.0" x2="1195" y2="208.0" stroke="#E3E6E8" stroke-width="0.8"/>
+<text x="205.0" y="213.0" font-size="12" font-weight="400" text-anchor="end" fill="#5F6368">100</text>
+<rect x="243.0" y="288.8" width="84.0" height="1.2" fill="#D55E00"/>
+<text x="285.0" y="279.8" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">1.46%</text>
+<rect x="383.0" y="227.7" width="84.0" height="62.3" fill="#D55E00"/>
+<text x="425.0" y="218.7" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">76.01%</text>
+<rect x="523.0" y="290.0" width="84.0" height="0.8" fill="#D55E00"/>
+<text x="565.0" y="281.0" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">0.05%</text>
+<rect x="803.0" y="272.1" width="84.0" height="17.9" fill="#D55E00"/>
+<text x="845.0" y="263.1" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">21.85%</text>
+<rect x="943.0" y="289.5" width="84.0" height="0.8" fill="#D55E00"/>
+<text x="985.0" y="280.5" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">0.64%</text>
+<rect x="1083.0" y="290.0" width="84.0" height="0.8" fill="#D55E00"/>
+<text x="1125.0" y="281.0" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">&lt;0.01%</text>
+<text x="20.0" y="346.0" font-size="17" font-weight="700" text-anchor="start" fill="#202124">10x Chromium v2</text>
+<text x="20.0" y="371.0" font-size="13" font-weight="400" text-anchor="start" fill="#5F6368">union = 234,382,218</text>
+<line x1="215" y1="430.0" x2="1195" y2="430.0" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="215" y1="389.0" x2="1195" y2="389.0" stroke="#E3E6E8" stroke-width="0.8"/>
+<text x="205.0" y="394.0" font-size="12" font-weight="400" text-anchor="end" fill="#5F6368">50</text>
+<line x1="215" y1="348.0" x2="1195" y2="348.0" stroke="#E3E6E8" stroke-width="0.8"/>
+<text x="205.0" y="353.0" font-size="12" font-weight="400" text-anchor="end" fill="#5F6368">100</text>
+<rect x="243.0" y="348.0" width="84.0" height="82.0" fill="#009E73"/>
+<text x="285.0" y="339.0" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">100.00%</text>
+<text x="20.0" y="486.0" font-size="17" font-weight="700" text-anchor="start" fill="#202124">sci-RNA-seq3</text>
+<text x="20.0" y="511.0" font-size="13" font-weight="400" text-anchor="start" fill="#5F6368">union = 19,879,895</text>
+<line x1="215" y1="570.0" x2="1195" y2="570.0" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="215" y1="529.0" x2="1195" y2="529.0" stroke="#E3E6E8" stroke-width="0.8"/>
+<text x="205.0" y="534.0" font-size="12" font-weight="400" text-anchor="end" fill="#5F6368">50</text>
+<line x1="215" y1="488.0" x2="1195" y2="488.0" stroke="#E3E6E8" stroke-width="0.8"/>
+<text x="205.0" y="493.0" font-size="12" font-weight="400" text-anchor="end" fill="#5F6368">100</text>
+<rect x="243.0" y="489.6" width="84.0" height="80.4" fill="#CC79A7"/>
+<text x="285.0" y="480.6" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">98.04%</text>
+<rect x="383.0" y="569.1" width="84.0" height="0.9" fill="#CC79A7"/>
+<text x="425.0" y="560.1" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">1.04%</text>
+<rect x="523.0" y="569.7" width="84.0" height="0.8" fill="#CC79A7"/>
+<text x="565.0" y="560.7" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">0.35%</text>
+<rect x="803.0" y="569.5" width="84.0" height="0.8" fill="#CC79A7"/>
+<text x="845.0" y="560.5" font-size="14" font-weight="700" text-anchor="middle" fill="#202124">0.58%</text>
+<line x1="215" y1="620" x2="1195" y2="620" stroke="#9AA0A6" stroke-width="1"/>
+<text x="20.0" y="651.0" font-size="17" font-weight="700" text-anchor="start" fill="#202124">Tool membership</text>
+<text x="193.0" y="687.0" font-size="14" font-weight="400" text-anchor="end" fill="#202124">seqproc</text>
+<line x1="215" y1="682.0" x2="1195" y2="682.0" stroke="#EEF0F2" stroke-width="1"/>
+<text x="193.0" y="725.0" font-size="14" font-weight="400" text-anchor="end" fill="#202124">splitcode</text>
+<line x1="215" y1="720.0" x2="1195" y2="720.0" stroke="#EEF0F2" stroke-width="1"/>
+<text x="193.0" y="763.0" font-size="14" font-weight="400" text-anchor="end" fill="#202124">matchbox</text>
+<line x1="215" y1="758.0" x2="1195" y2="758.0" stroke="#EEF0F2" stroke-width="1"/>
+<line x1="285.0" y1="682.0" x2="285.0" y2="758.0" stroke="#202124" stroke-width="3"/>
+<circle cx="285.0" cy="682.0" r="8" fill="#202124"/>
+<circle cx="285.0" cy="720.0" r="8" fill="#202124"/>
+<circle cx="285.0" cy="758.0" r="8" fill="#202124"/>
+<text x="285.0" y="813.0" font-size="12" font-weight="400" text-anchor="middle" fill="#3C4043">All three</text>
+<line x1="425.0" y1="682.0" x2="425.0" y2="720.0" stroke="#202124" stroke-width="3"/>
+<circle cx="425.0" cy="682.0" r="8" fill="#202124"/>
+<circle cx="425.0" cy="720.0" r="8" fill="#202124"/>
+<circle cx="425.0" cy="758.0" r="8" fill="#DADCE0"/>
+<text x="425.0" y="813.0" font-size="12" font-weight="400" text-anchor="middle" fill="#3C4043">seqproc+splitcode</text>
+<line x1="565.0" y1="682.0" x2="565.0" y2="758.0" stroke="#202124" stroke-width="3"/>
+<circle cx="565.0" cy="682.0" r="8" fill="#202124"/>
+<circle cx="565.0" cy="720.0" r="8" fill="#DADCE0"/>
+<circle cx="565.0" cy="758.0" r="8" fill="#202124"/>
+<text x="565.0" y="813.0" font-size="12" font-weight="400" text-anchor="middle" fill="#3C4043">seqproc+matchbox</text>
+<line x1="705.0" y1="720.0" x2="705.0" y2="758.0" stroke="#202124" stroke-width="3"/>
+<circle cx="705.0" cy="682.0" r="8" fill="#DADCE0"/>
+<circle cx="705.0" cy="720.0" r="8" fill="#202124"/>
+<circle cx="705.0" cy="758.0" r="8" fill="#202124"/>
+<text x="705.0" y="813.0" font-size="12" font-weight="400" text-anchor="middle" fill="#3C4043">splitcode+matchbox</text>
+<circle cx="845.0" cy="682.0" r="8" fill="#202124"/>
+<circle cx="845.0" cy="720.0" r="8" fill="#DADCE0"/>
+<circle cx="845.0" cy="758.0" r="8" fill="#DADCE0"/>
+<text x="845.0" y="813.0" font-size="12" font-weight="400" text-anchor="middle" fill="#3C4043">seqproc only</text>
+<circle cx="985.0" cy="682.0" r="8" fill="#DADCE0"/>
+<circle cx="985.0" cy="720.0" r="8" fill="#202124"/>
+<circle cx="985.0" cy="758.0" r="8" fill="#DADCE0"/>
+<text x="985.0" y="813.0" font-size="12" font-weight="400" text-anchor="middle" fill="#3C4043">splitcode only</text>
+<circle cx="1125.0" cy="682.0" r="8" fill="#DADCE0"/>
+<circle cx="1125.0" cy="720.0" r="8" fill="#DADCE0"/>
+<circle cx="1125.0" cy="758.0" r="8" fill="#202124"/>
+<text x="1125.0" y="813.0" font-size="12" font-weight="400" text-anchor="middle" fill="#3C4043">matchbox only</text>
+</g>
+</svg>

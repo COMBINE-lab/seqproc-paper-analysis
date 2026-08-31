@@ -1,0 +1,16 @@
+# Diagnostic sensitivity configuration: exact matching against the externally
+# Hamming-one-expanded barcode list, edit-distance-three linkers, and explicit
+# biological-component length guards.
+l1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+l2 = ATCCACGTGCTTGAGAGGCCAGAGCATTCG
+bcs23 = csv('configs/diagnostics/splitseq_pe_bc8_ham1.csv')
+
+if read.r2 matches {
+    [umi:|10| bc3_hit:bc3.barcode~0.0 l1~0.10 bc2_hit:bc2.barcode~0.0 l2~0.10 bc1_hit:bc1.barcode~0.0 _]
+        for bc1 in bcs23, bc2 in bcs23, bc3 in bcs23 => {
+            if umi.seq.len() == 10 and bc3_hit.seq.len() == 8 and bc2_hit.seq.len() == 8 and bc1_hit.seq.len() == 8 {
+                read.r1.out!('mb_r1.fq')
+                (umi.concat(bc3_hit)).concat(bc2_hit.concat(bc1_hit)).out!('mb_r2.fq')
+            }
+        }
+}

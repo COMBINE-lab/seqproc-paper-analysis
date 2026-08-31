@@ -148,11 +148,6 @@ def run_seqproc(dataset: dict, geom_path: Path, outdir: Path,
                f"--file1 {dataset['r1']} --file2 {dataset['r2']} "
                f"--out1 {out1} --out2 {out2} --threads {threads}")
 
-    # Add map files if present
-    if 'seqproc_maps' in dataset:
-        for m in dataset['seqproc_maps']:
-            cmd += f" -a {m}"
-
     runtime, mem, rc, stderr = run_cmd(cmd, PROJECT_ROOT)
     if rc != 0:
         print(f"    [ERROR] seqproc {label} failed (rc={rc})")
@@ -191,7 +186,7 @@ def run_matchbox(dataset: dict, outdir: Path,
     else:
         args = str(dataset['r1'])
 
-    cmd = (f"{MATCHBOX_BIN} -e 0.2 -t {threads} "
+    cmd = (f"{MATCHBOX_BIN} -e 0.2 -t {threads} -m one-best "
            f"-s {dataset['matchbox_config']} {args} > {out_tsv}")
 
     # Run from outdir so .out!() FASTQ files land on scratch, not NFS
@@ -264,14 +259,22 @@ def run_splitcode(dataset: dict, outdir: Path,
         out_fq = outdir / f"splitcode_{tag}.fq"
         mp = outdir / f"splitcode_{tag}_mapping.txt"
         mflag = f"-m {mp}" if has_tags else ""
+        if dataset.get("splitcode_x_only", False):
+            extract = outdir / dataset["splitcode_extract_name"]
+            if extract.exists():
+                extract.unlink()
+            output_flags = "--no-outb --x-only"
+        else:
+            extract = out_fq
+            output_flags = f"-o {out_fq}"
         cmd = (f"{SPLITCODE_BIN} -c {dataset['splitcode_config']} "
-               f"{assign_flag} -N 1 -t {threads} {mflag} -o {out_fq} {input_fq}")
-        rt, mem, rc, stderr = run_cmd(cmd, PROJECT_ROOT)
+               f"{assign_flag} -N 1 -t {threads} {mflag} {output_flags} {input_fq}")
+        rt, mem, rc, stderr = run_cmd(cmd, outdir)
         if rc != 0:
             print(f"    [ERROR] splitcode ({tag}) failed (rc={rc})")
             print(f"    stderr: {stderr[-500:]}")
             return set(), rt, mem
-        return extract_fastq_ids(str(out_fq)), rt, mem
+        return extract_fastq_ids(str(extract)), rt, mem
 
     # LR-SPLiT-seq: dual-pass (forward + reverse-complement), union IDs.
     if dataset['mode'] == 'single' and 'LR' in dataset.get('name', ''):
@@ -289,15 +292,23 @@ def run_splitcode(dataset: dict, outdir: Path,
     mapping = outdir / "splitcode_mapping.txt"
     mapping_flag = f"-m {mapping}" if has_tags else ""
     out1 = outdir / "splitcode_R1.fq"; out2 = outdir / "splitcode_R2.fq"
+    if dataset.get("splitcode_x_only", False):
+        extracted = outdir / dataset["splitcode_extract_name"]
+        if extracted.exists():
+            extracted.unlink()
+        output_flags = "--no-outb --x-only"
+    else:
+        extracted = out2
+        output_flags = f"-o {out1},{out2}"
     cmd = (f"{SPLITCODE_BIN} -c {dataset['splitcode_config']} "
            f"{assign_flag} -N 2 -t {threads} {mapping_flag} "
-           f"-o {out1},{out2} {dataset['r1']} {dataset['r2']}")
-    runtime, mem, rc, stderr = run_cmd(cmd, PROJECT_ROOT)
+           f"{output_flags} {dataset['r1']} {dataset['r2']}")
+    runtime, mem, rc, stderr = run_cmd(cmd, outdir)
     if rc != 0:
         print(f"    [ERROR] splitcode failed (rc={rc})")
         print(f"    stderr: {stderr[-500:]}")
         return set(), runtime, mem
-    return extract_fastq_ids(str(outdir / "splitcode_R2.fq")), runtime, mem
+    return extract_fastq_ids(str(extracted)), runtime, mem
 
 
 # ============================================================================

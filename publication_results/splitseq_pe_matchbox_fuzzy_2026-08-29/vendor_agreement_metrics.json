@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "input_records": 77621181,
+  "reference": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/journal_rerun_2026-08-17/splitseq_pe_splitpipe_vendor_full.vendor.raw",
+    "records": 59697558,
+    "interpretation": "conservative structural reference, not biological ground truth"
+  },
+  "tools": {
+    "canonical-fuzzy": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/campaigns/journal-matchbox-splitseq-pe-fuzzy-2026-08-28/accuracy/bitmaps/splitseq_pe.matchbox.canonical_fuzzy.accepted.1.bitmap"
+      ],
+      "emitted_records": 50266141,
+      "intersection_records": 49549557,
+      "emitted_fraction": 0.6475827905787725,
+      "precision": 0.9857442010517576,
+      "recall": 0.830009780299556,
+      "f1": 0.9011984400415632
+    },
+    "ham1-expanded-fuzzy": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/campaigns/journal-matchbox-splitseq-pe-fuzzy-2026-08-28/accuracy/bitmaps/splitseq_pe.matchbox.ham1_expanded_fuzzy.accepted.1.bitmap"
+      ],
+      "emitted_records": 57252325,
+      "intersection_records": 55626071,
+      "emitted_fraction": 0.7375863683393326,
+      "precision": 0.9715949701606005,
+      "recall": 0.9317980980059519,
+      "f1": 0.9512804899514093
+    }
+  },
+  "pairwise": {
+    "canonical-fuzzy__ham1-expanded-fuzzy": {
+      "intersection_records": 50266141,
+      "union_records": 57252325,
+      "jaccard": 0.8779755407313152,
+      "canonical-fuzzy_only": 0,
+      "ham1-expanded-fuzzy_only": 6986184
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "barcode_rank_inflection": {
+    "seqproc": {
+      "n_barcodes": 15616,
+      "top_umi": 19670.0,
+      "infl_rank": 258,
+      "umi_at_infl": 101.0
+    },
+    "splitcode": {
+      "n_barcodes": 14838,
+      "top_umi": 18608.0,
+      "infl_rank": 255,
+      "umi_at_infl": 109.0
+    },
+    "matchbox": {
+      "n_barcodes": 15742,
+      "top_umi": 19808.0,
+      "infl_rank": 259,
+      "umi_at_infl": 101.0
+    }
+  },
+  "per_barcode_umi_pearson_logspace": {
+    "seqproc|splitcode": 0.9809,
+    "seqproc|matchbox": 0.9845,
+    "splitcode|matchbox": 0.9751
+  },
+  "per_barcode_umi_spearman": {
+    "seqproc|splitcode": 0.9206,
+    "seqproc|matchbox": 0.945,
+    "splitcode|matchbox": 0.9043
+  },
+  "per_gene_total_pearson_logspace": {
+    "seqproc|splitcode": 0.9953,
+    "seqproc|matchbox": 0.999,
+    "splitcode|matchbox": 0.9949
+  },
+  "per_gene_total_spearman": {
+    "seqproc|splitcode": 0.9949,
+    "seqproc|matchbox": 0.9989,
+    "splitcode|matchbox": 0.9945
+  }
+}

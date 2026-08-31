@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "variant": "hamming1-expanded-fuzzy",
+  "cb_match_whitelist_type": "1MM",
+  "created_utc": "2026-08-29T04:12:55.326675+00:00"
+}

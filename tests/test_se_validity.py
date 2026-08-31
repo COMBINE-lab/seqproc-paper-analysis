@@ -321,17 +321,10 @@ def test_bc1_length_mismatch():
 
         result = analyzer.analyze_fastqs(fq)
 
-        # This will currently FAIL because we extract 8bp but whitelist has 6bp
-        # _hamming(8bp, 6bp) returns 99
-        if "read_6bp_bc1" in result:
-            print("[PASS] test_bc1_length_mismatch -- analyzer handles 6bp BC1 correctly")
-        else:
-            print("[FAIL] test_bc1_length_mismatch -- BC1 length mismatch!")
-            print("       Analyzer extracts 8bp for BC1 but whitelist has 6bp entries.")
-            print("       _hamming(8bp, 6bp) returns 99, so no read can ever be valid.")
-            print("       THIS IS THE ROOT CAUSE of 0 valid reads.")
-            return False
-    return True
+        assert "read_6bp_bc1" in result, (
+            "analyzer must adapt BC1 extraction to the 6 bp whitelist entry length"
+        )
+        print("[PASS] test_bc1_length_mismatch -- analyzer handles 6bp BC1 correctly")
 
 
 if __name__ == "__main__":
@@ -341,12 +334,7 @@ if __name__ == "__main__":
 
     # First run the BC1 length mismatch test -- this is the critical one
     print("\n--- BC1 Length Mismatch Test (root cause diagnostic) ---")
-    bc1_ok = test_bc1_length_mismatch()
-
-    if not bc1_ok:
-        print("\n[CRITICAL] BC1 length mismatch must be fixed before other tests can pass.")
-        print("Fix: extract 6bp for BC1 instead of 8bp, or adapt _check_wl.")
-        sys.exit(1)
+    test_bc1_length_mismatch()
 
     print("\n--- Core Functionality Tests ---")
     test_forward_read_linker_at_start()

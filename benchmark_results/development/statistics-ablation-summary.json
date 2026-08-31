@@ -1,0 +1,114 @@
+{
+  "conditions": [
+    {
+      "attempt": 1,
+      "mean_seconds": 0.1001080012,
+      "median_seconds": 0.100002717,
+      "mode": "hamming",
+      "n": 5,
+      "reads": 1000000,
+      "reads_per_second_from_mean": 9989211.531675251,
+      "run_dir": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/benchmark_results/development/88fab27303a118ffd40c86e2afd7e248d0f428fb81ea23ccb04878270ab1dc4c/attempt-0001",
+      "run_id": "88fab27303a118ffd40c86e2afd7e248d0f428fb81ea23ccb04878270ab1dc4c",
+      "sample_standard_deviation_seconds": 0.0009666961887584931,
+      "seconds": [
+        0.10152647,
+        0.098837363,
+        0.099863747,
+        0.100002717,
+        0.100309709
+      ],
+      "statistics": false,
+      "threads": 4
+    },
+    {
+      "attempt": 1,
+      "mean_seconds": 0.11889036280000001,
+      "median_seconds": 0.110068359,
+      "mode": "hamming",
+      "n": 5,
+      "reads": 1000000,
+      "reads_per_second_from_mean": 8411110.67750901,
+      "run_dir": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/benchmark_results/development/e02a7fa982bb8cc56cedcd2430196bb11d394be807d0c195300253dafca6e289/attempt-0001",
+      "run_id": "e02a7fa982bb8cc56cedcd2430196bb11d394be807d0c195300253dafca6e289",
+      "sample_standard_deviation_seconds": 0.012140086677477398,
+      "seconds": [
+        0.130736861,
+        0.133551909,
+        0.110064583,
+        0.110030102,
+        0.110068359
+      ],
+      "statistics": true,
+      "threads": 4
+    },
+    {
+      "attempt": 1,
+      "mean_seconds": 0.11319705659999998,
+      "median_seconds": 0.113346834,
+      "mode": "seeded",
+      "n": 5,
+      "reads": 1000000,
+      "reads_per_second_from_mean": 8834151.965043234,
+      "run_dir": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/benchmark_results/development/282e1f482f7b614c17c6e869602d27451742969c0c7dbae86024100c00e842fa/attempt-0001",
+      "run_id": "282e1f482f7b614c17c6e869602d27451742969c0c7dbae86024100c00e842fa",
+      "sample_standard_deviation_seconds": 0.000694232073038478,
+      "seconds": [
+        0.113346834,
+        0.1123343,
+        0.112626489,
+        0.113762159,
+        0.113915501
+      ],
+      "statistics": false,
+      "threads": 4
+    },
+    {
+      "attempt": 1,
+      "mean_seconds": 0.1232609942,
+      "median_seconds": 0.123170241,
+      "mode": "seeded",
+      "n": 5,
+      "reads": 1000000,
+      "reads_per_second_from_mean": 8112866.57624574,
+      "run_dir": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/benchmark_results/development/f8f7175d11c877a049541f7a4d72e9a1dff7392b51ef6a77a4c055d6f95512f9/attempt-0001",
+      "run_id": "f8f7175d11c877a049541f7a4d72e9a1dff7392b51ef6a77a4c055d6f95512f9",
+      "sample_standard_deviation_seconds": 0.0006430745412961101,
+      "seconds": [
+        0.123641481,
+        0.122403137,
+        0.122995569,
+        0.123170241,
+        0.124094543
+      ],
+      "statistics": true,
+      "threads": 4
+    }
+  ],
+  "effects": [
+    {
+      "mean_time_reduction_pct": 15.798052220259525,
+      "median_time_reduction_pct": 9.144900579466256,
+      "mode": "hamming",
+      "reads": 1000000,
+      "statistics_off_run_id": "88fab27303a118ffd40c86e2afd7e248d0f428fb81ea23ccb04878270ab1dc4c",
+      "statistics_on_run_id": "e02a7fa982bb8cc56cedcd2430196bb11d394be807d0c195300253dafca6e289",
+      "threads": 4,
+      "throughput_gain_from_mean_pct": 18.762098308681452,
+      "throughput_gain_from_median_pct": 10.065368523937202
+    },
+    {
+      "mean_time_reduction_pct": 8.16473829804629,
+      "median_time_reduction_pct": 7.975471120495742,
+      "mode": "seeded",
+      "reads": 1000000,
+      "statistics_off_run_id": "282e1f482f7b614c17c6e869602d27451742969c0c7dbae86024100c00e842fa",
+      "statistics_on_run_id": "f8f7175d11c877a049541f7a4d72e9a1dff7392b51ef6a77a4c055d6f95512f9",
+      "threads": 4,
+      "throughput_gain_from_mean_pct": 8.890635412511273,
+      "throughput_gain_from_median_pct": 8.666679653354947
+    }
+  ],
+  "schema_version": "1.0.0",
+  "status": "development-exploratory"
+}

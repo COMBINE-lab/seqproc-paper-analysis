@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "tool": "matchbox",
+  "records": 39758892,
+  "first_id": "SRR6750041.201",
+  "last_id": "SRR6750041.77621181",
+  "r1": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/matchbox-ham1-sensitivity-2026-08-19/mb_r1.fq",
+    "bytes": 6668882378,
+    "sha256": "ae02ddf2172c164389eebc9c54e57a2bf2c2ecc55f5eb8f62e885dcc68077cd4",
+    "lengths": [
+      66
+    ]
+  },
+  "r2": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/matchbox-ham1-sensitivity-2026-08-19/mb_r2.fq",
+    "bytes": 4124313290,
+    "sha256": "c94d1948588beeaf899d257fd2508266a7a1ea84df6f167ea0b74f2e441604d7",
+    "lengths": [
+      34
+    ]
+  }
+}

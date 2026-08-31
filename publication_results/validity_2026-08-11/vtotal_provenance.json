@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0.0",
+  "analysis_repository": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis",
+    "commit_after_contract_fix": "41c928a2501deaf6ee8ddff15c36e3e20e2de59b"
+  },
+  "python_environment": {
+    "runner": "uv run --with edlib==1.3.9.post1",
+    "edlib": "1.3.9.post1"
+  },
+  "data_provenance": {
+    "path": "/scratch1/seqproc-benchmark-data/full/full_data_provenance.json",
+    "sha256": "992edfcd5919c4c8c5cecaa3ed29abfde5ee409c9fe247581dd5277976275a40"
+  },
+  "references": [
+    {
+      "dataset": "splitseq_pe",
+      "input": {
+        "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq",
+        "sha256": "6bebdc56002acb3097df464f73fd853da0f855521e25d1845a36a1162c848731",
+        "records": 77621181
+      },
+      "script": {
+        "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/edit_tolerant_validity.py",
+        "sha256": "59b14fc1810aa18303f8158046b51adadebb45caa80b5ff4a54295796ef726b1"
+      },
+      "command": "env UV_CACHE_DIR=/tmp/uv-cache taskset --cpu-list 40 uv run --with edlib==1.3.9.post1 python3 scripts/edit_tolerant_validity.py /scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq --chem pe --max-linker-edit 6 --out /scratch1/seqproc-ecosystem/publication-validity-2026-08-11-aligned-optimized/vtotal/splitseq_pe.ids.txt",
+      "output": {
+        "path": "/scratch1/seqproc-ecosystem/publication-validity-2026-08-11-aligned-optimized/vtotal/splitseq_pe.ids.txt",
+        "sha256": "3380d37e3587e571b44ae14821299f27fe239659f2047bbc965214d174620aa3",
+        "records": 60675548
+      }
+    },
+    {
+      "dataset": "lr_splitseq_dual",
+      "input": {
+        "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+        "sha256": "d01a11f85ee7bd4fac4ea7061cce89df11f2fc343ad59468aa73565f5144e834",
+        "records": 5764421
+      },
+      "script": {
+        "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/edit_tolerant_validity.py",
+        "sha256": "59b14fc1810aa18303f8158046b51adadebb45caa80b5ff4a54295796ef726b1"
+      },
+      "command": "env UV_CACHE_DIR=/tmp/uv-cache taskset --cpu-list 41 uv run --with edlib==1.3.9.post1 python3 scripts/edit_tolerant_validity.py /scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq --chem lr --max-linker-edit 6 --out /scratch1/seqproc-ecosystem/publication-validity-2026-08-11-aligned-optimized/vtotal/lr_splitseq.ids.txt",
+      "output": {
+        "path": "/scratch1/seqproc-ecosystem/publication-validity-2026-08-11-aligned-optimized/vtotal/lr_splitseq.ids.txt",
+        "sha256": "5ea8132d161154d120d2d0b972430b7e6ec2a2d89cb349d46db4f7247ccd00b7",
+        "records": 601603
+      }
+    },
+    {
+      "dataset": "tenx_v2",
+      "input": {
+        "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR8315379_R1.fastq",
+        "sha256": "897948da54c77b583a5be0244408d1fd990d9452b7dcb06ae9ca9d516f3dd0e5",
+        "records": 234382218,
+        "minimum_sequence_length": 26,
+        "maximum_sequence_length": 26
+      },
+      "definition": "Every input R1 passes the protocol's at-least-26-nt structural criterion, so V_total is the complete input ID domain.",
+      "records": 234382218
+    },
+    {
+      "dataset": "scirnaseq3",
+      "inputs": [
+        {
+          "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_1.fastq",
+          "sha256": "8a14d4862b507bab57d036088b9b82e097e3e7cd2c19cc96876b7b7e1550690a"
+        },
+        {
+          "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_2.fastq",
+          "sha256": "e8bd2acf92cc75fd8686fc5e985b77c41594d35958d16fd0b836d09f7c4021ac"
+        }
+      ],
+      "input_records": 22088821,
+      "script": {
+        "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/validate_10x_sci_recall_against_vtotal.py",
+        "sha256": "1d6b05a7f8a6218947891b116298448cde4fdb2a62c22047cd08b2da8b19f062"
+      },
+      "command": "env UV_CACHE_DIR=/tmp/uv-cache taskset --cpu-list 42 uv run --with edlib==1.3.9.post1 python3 scripts/validate_10x_sci_recall_against_vtotal.py --chemistry sci --reads full --r1 /scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_1.fastq --r2 /scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_2.fastq --outdir /scratch1/seqproc-ecosystem/publication-validity-2026-08-11-aligned-optimized/vtotal/scirnaseq3",
+      "output": {
+        "path": "/scratch1/seqproc-ecosystem/publication-validity-2026-08-11-aligned-optimized/vtotal/scirnaseq3/v_total_ids.txt",
+        "sha256": "eae2bcd5b800daba4ac433a67e50a33917675fe4b55424f2f1151dc46f6e95b1",
+        "records": 19767975
+      },
+      "note": "The script's optional lookup of older concordance ID caches reported them missing; reference-set construction completed successfully and fresh tool overlaps were computed by summarize_validity.py."
+    }
+  ]
+}

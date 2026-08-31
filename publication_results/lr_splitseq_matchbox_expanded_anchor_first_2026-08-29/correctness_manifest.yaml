@@ -1,0 +1,159 @@
+schema_version: 1.0.0
+mode: publication
+study:
+  name: matchbox-lr_splitseq_dual-hamming1-expanded-sensitivity-correctness
+  random_seed: 8282028
+  purpose: single 32-thread correctness sensitivity run for lr_splitseq_dual using
+    externally Hamming-distance-one-expanded barcodes and the declared ham1-expanded-exact-linkers-anchor-first
+    plan
+  require_cross_tool_identity: false
+artifacts:
+- path: /scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq
+  sha256: d01a11f85ee7bd4fac4ea7061cce89df11f2fc343ad59468aa73565f5144e834
+- path: /scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2/target/release/matchbox
+  sha256: 992ebc5b0f447162bc5d999f51d490df3c38b7f0c1fb9b9f8e31aeda4fe6b2ec
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/diagnostics/aug11_lr_splitseq_bc1_ham1.csv
+  sha256: e71ac2836f993118ed14f4f475377541c9a84208df9ae2e61b02635cb69ea6eb
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/diagnostics/aug11_lr_splitseq_bc23_ham1.csv
+  sha256: 4719f3b209d23417a71a0d1fe65beb816f59ef1fbdf008b3972b3fc147982982
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/matchbox/sensitivity_lr_splitseq_ham1_expanded_anchor_first.mb
+  sha256: afacbbaa8eddd9fdefde25b8f4fcdb4811df772ccb43badfc453c870a2395df6
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/lr_splitseq_matchbox_anchor_first_2026-08-29/dual_correctness_manifest.yaml
+  sha256: bb2f8bbfcc435d4289097b5bc6b40ac57c79f10394da6a959d46a8c78d2d590f
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/make_matchbox_splitseq_pe_sensitivity_manifest.py
+  sha256: f8e7e1e04cbdb65f0f37a1eccde2abb20b21cd7f2d280561fb4a77b533129cda
+- path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit
+  sha256: 06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca
+- path: /usr/bin/taskset
+  sha256: a72254178813c4ff63c3dc4540c558e0264452a0cdeae8c00f7e74c106d062fa
+source_manifest:
+  path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/lr_splitseq_matchbox_anchor_first_2026-08-29/dual_correctness_manifest.yaml
+  sha256: bb2f8bbfcc435d4289097b5bc6b40ac57c79f10394da6a959d46a8c78d2d590f
+  verify: false
+datasets:
+- name: lr_splitseq_dual
+  analysis_role: primary
+  records: 5764421
+  r1:
+    path: /scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq
+    sha256: d01a11f85ee7bd4fac4ea7061cce89df11f2fc343ad59468aa73565f5144e834
+    verify: false
+  r2: null
+  equivalence_scope: capability-complete best-practical dual orientation with complete
+    adjacent components and canonical barcode lists; seqproc and matchbox process
+    both orientations natively; splitcode is measured as two sequential passes over
+    forward and precomputed reverse-complement inputs without duplicate reconciliation.
+    Matchbox uses exact barcode/linker matching and an anchor-first plan because its
+    fuzzy captures can move biological field boundaries; its one-best policy can reject
+    repeated exact-anchor cassettes. Splitcode linkers are substitution-only
+  semantic_workload: filter both orientations and project UMI+BC3+BC2+BC1; splitcode
+    materializes the projection as three component FASTQs
+  derived_inputs:
+    r1_reverse_complement:
+      path: /scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full_RC.fastq
+      sha256: ab625d3cb7eb57a8cdd4e4381478726e1a3bf8d86635c13f28167e72d6eabcca
+      verify: false
+    provenance:
+      path: /scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full_RC.provenance.json
+      sha256: 9e847bda31f07bc4e6ea9fefcec95198b9f1f8998b721d44f43fa65e66bf6a19
+      verify: false
+    staged_outside_measurement: true
+execution:
+  timeout_seconds: 21600
+  sanitized_environment_allowlist:
+  - PATH
+  - LD_LIBRARY_PATH
+  - LANG
+  - TMPDIR
+  cpu_policy: requested threads pinned to physical CPUs 1 through 1 + N - 1; SMT siblings
+    excluded
+runs:
+- id: lr_splitseq_dual-t32-r1-matchbox-ham1-expanded-exact-linkers-anchor-first-correctness
+  block: lr_splitseq_dual-ham1-expanded-correctness-t32-r1
+  spec:
+    name: seqproc-publication-core
+    cwd: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+    execution_cwd: '{run_dir}/tool-work'
+    create_execution_cwd: true
+    runtime_symlinks:
+    - path: '{run_dir}/tool-work/configs'
+      target: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs
+    command:
+    - /usr/bin/taskset
+    - --cpu-list
+    - 1-32
+    - /scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2/target/release/matchbox
+    - --error
+    - '0.2'
+    - --match-mode
+    - one-best
+    - --threads
+    - '32'
+    - --script-file
+    - /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/matchbox/sensitivity_lr_splitseq_ham1_expanded_anchor_first.mb
+    - /scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq
+    executables:
+    - path: /scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2/target/release/matchbox
+      sha256: 992ebc5b0f447162bc5d999f51d490df3c38b7f0c1fb9b9f8e31aeda4fe6b2ec
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit
+      sha256: 06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca
+      verify: false
+    inputs:
+    - path: /scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq
+      sha256: d01a11f85ee7bd4fac4ea7061cce89df11f2fc343ad59468aa73565f5144e834
+      verify: false
+    configs:
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/matchbox/sensitivity_lr_splitseq_ham1_expanded_anchor_first.mb
+      sha256: afacbbaa8eddd9fdefde25b8f4fcdb4811df772ccb43badfc453c870a2395df6
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/diagnostics/aug11_lr_splitseq_bc1_ham1.csv
+      sha256: e71ac2836f993118ed14f4f475377541c9a84208df9ae2e61b02635cb69ea6eb
+      verify: false
+    - path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/diagnostics/aug11_lr_splitseq_bc23_ham1.csv
+      sha256: 4719f3b209d23417a71a0d1fe65beb816f59ef1fbdf008b3972b3fc147982982
+      verify: false
+    outputs:
+    - path: '{run_dir}/tool-work/mb_r1.fq'
+      format: fastq
+      normalize: fastq_numeric_accession_set
+      numeric_id_max: 5764421
+      numeric_audit_executable: /scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit
+      mate: 1
+      min_bytes: 1
+      logical_product: primary output 1
+      min_sequence_length: 32
+      max_sequence_length: 32
+      nominal_sequence_lengths:
+      - 32
+    retain_outputs: true
+    repositories:
+    - name: analysis
+      path: /scratch1/seqproc-ecosystem/seqproc-paper-analysis
+      commit: acbe69730b7fee50129e6382ca70c53b0930901e
+    - name: matchbox
+      path: /scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2
+      commit: 76afc9941bd2bdc901a3cb5667f8785704c8c40d
+    metadata:
+      dataset: lr_splitseq_dual
+      tool: matchbox
+      measurement_track: correctness
+      sequence_output_policy: materialized-and-validated
+      execution_mode: external-hamming1-expanded-ham1-expanded-exact-linkers-anchor-first
+      analysis_role: sensitivity
+      orientation: dual
+      duplicate_reconciliation_measured: false
+      threads: 32
+      replicate: 1
+      input_records: 5764421
+      cpu_affinity: 1-32
+      equivalence_scope: sensitivity-only; exact matching against externally generated
+        Hamming-distance-one-expanded barcode lists and exact linkers in both orientations,
+        using an anchor-first plan with post-placement membership checks and complete
+        fixed-length components
+      semantic_workload: filter both orientations and project UMI+BC3+BC2+BC1; splitcode
+        materializes the projection as three component FASTQs
+      tier: publication-sensitivity-full-data-correctness
+      condition_id: lr_splitseq_dual-t32-r1-matchbox-ham1-expanded-exact-linkers-anchor-first-correctness
+      block_id: lr_splitseq_dual-ham1-expanded-correctness-t32-r1
+      external_resource_preprocessing: Hamming-distance-one barcode expansion

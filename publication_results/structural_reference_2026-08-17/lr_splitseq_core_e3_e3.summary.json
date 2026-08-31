@@ -1,0 +1,83 @@
+{
+  "accepted_orientation": {
+    "both": 1793,
+    "forward": 285826,
+    "reverse": 273080
+  },
+  "anchor_edit_histogram": {},
+  "anchor_start_histogram": {},
+  "barcode_ambiguity_histogram": {
+    "0": 431675,
+    "1": 129024
+  },
+  "batch_size": 4096,
+  "chem": "lr",
+  "controller_peak_rss_kib": 49024,
+  "criteria": {
+    "ambiguous_barcode_membership": "accepted_and_reported",
+    "barcode_hamming_distance": 1,
+    "bc1_length": 6,
+    "bc23_length": 8,
+    "linker2_expected_immediately_after_bc2": true,
+    "max_linker1_candidates": null,
+    "max_linker1_edit": 3,
+    "max_linker2_edit": 3,
+    "orientation": "both",
+    "paired_fastq_integrity_checked": false,
+    "reference_kind": "conservative_structural_reference_not_ground_truth",
+    "umi_length": 10
+  },
+  "elapsed_seconds": 12.59182,
+  "fast_path_counts": {
+    "False": 541364,
+    "True": 19335
+  },
+  "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+  "forward_failure_counts": {
+    "incomplete_bc1": 788,
+    "incomplete_bc2": 34731,
+    "incomplete_umi_bc3_prefix": 219059,
+    "invalid_bc1": 819518,
+    "invalid_bc2": 100345,
+    "invalid_bc3": 90472,
+    "no_linker1": 4157963,
+    "no_linker2_at_expected_offset": 53926
+  },
+  "invalid": 5203722,
+  "linker1_edit_histogram": {
+    "0": 478028,
+    "1": 63972,
+    "2": 13938,
+    "3": 4761
+  },
+  "linker2_edit_histogram": {
+    "0": 485363,
+    "1": 49580,
+    "2": 14126,
+    "3": 11630
+  },
+  "mate_fastq": null,
+  "maximum_worker_peak_rss_kib": 53620,
+  "outcome_counts": {
+    "accepted": 424104,
+    "accepted_ambiguous_barcode": 128703,
+    "accepted_ambiguous_cassette": 6099,
+    "accepted_both_orientations": 1793,
+    "incomplete_bc1": 764,
+    "incomplete_bc2": 39927,
+    "incomplete_umi_bc3_prefix": 207175,
+    "invalid_bc1": 791361,
+    "invalid_bc2": 110548,
+    "invalid_bc3": 93686,
+    "no_linker1": 3900269,
+    "no_linker2_at_expected_offset": 59992
+  },
+  "pct_of_scanned": 9.7269,
+  "reads_per_second": 457790.94,
+  "schema_version": "3.0.0",
+  "system_cpu_seconds": 3.255187,
+  "threads": 32,
+  "total": 5764421,
+  "user_cpu_seconds": 142.054537,
+  "valid": 560699
+}

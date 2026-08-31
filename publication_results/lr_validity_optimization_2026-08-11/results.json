@@ -1,0 +1,142 @@
+{
+  "schema_version": "1.0.0",
+  "status": "exploratory_single_run",
+  "date": "2026-08-11",
+  "input_records": 5764421,
+  "threads": 32,
+  "cpu_affinity": "1-32",
+  "seqproc_commit": "edbf9ef",
+  "reference": {
+    "old_count": 601603,
+    "new_count": 588233,
+    "overlap": 564063,
+    "old_only": 37540,
+    "new_only": 24170,
+    "wall_seconds": 108.91,
+    "maximum_rss_kib": 97112
+  },
+  "seqproc_runs": [
+    {
+      "label": "previous_dual_rescored",
+      "wall_seconds": 3.74,
+      "maximum_rss_kib": 132096,
+      "emitted": 2865883,
+      "intersection": 575278,
+      "precision": 0.20073324696088432,
+      "recall": 0.9779764141080151,
+      "f1": 0.33309709343866856
+    },
+    {
+      "label": "complete_leading_components",
+      "wall_seconds": 3.73,
+      "maximum_rss_kib": 131072,
+      "emitted": 2507488,
+      "intersection": 575154,
+      "precision": 0.22937457726617236,
+      "recall": 0.9777656132858918,
+      "f1": 0.3715799970346165
+    },
+    {
+      "label": "complete_searched_l2_e6_e4",
+      "wall_seconds": 3.71,
+      "maximum_rss_kib": 126976,
+      "emitted": 2297584,
+      "intersection": 560941,
+      "precision": 0.24414384849476667,
+      "recall": 0.9536034190533343,
+      "f1": 0.3887571526538238
+    },
+    {
+      "label": "complete_searched_l2_e3_e3",
+      "wall_seconds": 4.14,
+      "maximum_rss_kib": 131072,
+      "emitted": 2258682,
+      "intersection": 551009,
+      "precision": 0.24395156113166883,
+      "recall": 0.9367189532039175,
+      "f1": 0.387091992560368
+    },
+    {
+      "label": "complete_searched_l2_e4_e3",
+      "wall_seconds": 3.93,
+      "maximum_rss_kib": 128000,
+      "emitted": 2269777,
+      "intersection": 552551,
+      "precision": 0.2434384523237305,
+      "recall": 0.9393403634274173,
+      "f1": 0.38666834615694134
+    },
+    {
+      "label": "complete_searched_l2_e5_e4",
+      "wall_seconds": 3.81,
+      "maximum_rss_kib": 131072,
+      "emitted": 2293874,
+      "intersection": 560648,
+      "precision": 0.2444109833408461,
+      "recall": 0.9531053171107368,
+      "f1": 0.3890542578745341
+    },
+    {
+      "label": "complete_searched_l2_whitelist_e5_e4",
+      "wall_seconds": 3.93,
+      "maximum_rss_kib": 112640,
+      "emitted": 546324,
+      "intersection": 540074,
+      "precision": 0.9885599021825876,
+      "recall": 0.9181293807045847,
+      "f1": 0.9520438373744112
+    },
+    {
+      "label": "complete_adjacent_l2_e5_e4",
+      "wall_seconds": 3.73,
+      "maximum_rss_kib": 129024,
+      "emitted": 2474202,
+      "intersection": 571944,
+      "precision": 0.23116301740924952,
+      "recall": 0.9723085920035088,
+      "f1": 0.37352237680146677
+    },
+    {
+      "label": "complete_adjacent_l2_whitelist_e5_e4",
+      "wall_seconds": 4.03,
+      "maximum_rss_kib": 112640,
+      "emitted": 553840,
+      "intersection": 553840,
+      "precision": 1.0,
+      "recall": 0.9415316719735207,
+      "f1": 0.9698854626630697
+    }
+  ],
+  "competitors_rescored": {
+    "matchbox": {
+      "emitted": 2499011,
+      "intersection": 546587,
+      "precision": 0.21872132615662757,
+      "recall": 0.9292015238859431,
+      "f1": 0.3540938131226427
+    },
+    "splitcode_dual_pass_union": {
+      "emitted": 1922022,
+      "intersection": 471729,
+      "precision": 0.24543371511876555,
+      "recall": 0.8019424275754675,
+      "f1": 0.3758414981744882
+    }
+  },
+  "adjudication": {
+    "wall_seconds": 8.8,
+    "maximum_rss_kib": 58984,
+    "permissive_e5_e4": {
+      "competitor_unique": 40821,
+      "reference_valid": 7026,
+      "reference_invalid": 33795
+    },
+    "adjacent_whitelist_e5_e4": {
+      "competitor_unique": 6869,
+      "reference_valid": 6869,
+      "reference_invalid": 0,
+      "forward": 2458,
+      "reverse": 4411
+    }
+  }
+}

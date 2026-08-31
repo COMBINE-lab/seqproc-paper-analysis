@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "run": "/scratch1/seqproc-ecosystem/campaigns/journal-matchbox-splitseq-pe-fuzzy-2026-08-28/downstream/expanded-1mm",
+  "parameters": {
+    "threads": 32,
+    "min_umi": 200,
+    "random_seed": 0,
+    "solo_type": "CB_UMI_Complex",
+    "cb_positions": [
+      "0_10_0_17",
+      "0_18_0_25",
+      "0_26_0_33"
+    ],
+    "umi_position": "0_0_0_9",
+    "cb_match_whitelist_type": "1MM",
+    "features": "Gene",
+    "cell_filter": "None",
+    "out_sam_type": "None"
+  },
+  "reference": "Mus musculus GRCm38, Ensembl release 102",
+  "software": {
+    "STAR": "2.7.11b"
+  },
+  "tools": {
+    "seqproc": {
+      "input_pairs": 56991381,
+      "called_cells_min_umi": 225,
+      "barcode_rank": {
+        "n_barcodes": 14876,
+        "top_umi": 19541.0,
+        "infl_rank": 257,
+        "umi_at_infl": 101.0
+      },
+      "STARsolo": {
+        "Number of Reads": 56991381,
+        "Reads With Valid Barcodes": 0.991886,
+        "Sequencing Saturation": 0.935506,
+        "Q30 Bases in CB+UMI": 0.942311,
+        "Q30 Bases in RNA read": 0.933789,
+        "Reads Mapped to Genome: Unique+Multiple": 0.82562,
+        "Reads Mapped to Genome: Unique": 0.795634,
+        "Reads Mapped to Gene: Unique+Multiple Gene": "NoMulti",
+        "Reads Mapped to Gene: Unique Gene": 0.130243
+      },
+      "STARsolo_resources": {
+        "seconds": 47.57,
+        "peak_ram_mb": 29309.3
+      }
+    },
+    "splitcode": {
+      "input_pairs": 53495595,
+      "called_cells_min_umi": 220,
+      "barcode_rank": {
+        "n_barcodes": 14838,
+        "top_umi": 18608.0,
+        "infl_rank": 255,
+        "umi_at_infl": 109.0
+      },
+      "STARsolo": {
+        "Number of Reads": 53495595,
+        "Reads With Valid Barcodes": 0.999723,
+        "Sequencing Saturation": 0.935637,
+        "Q30 Bases in CB+UMI": 0.988236,
+        "Q30 Bases in RNA read": 0.933527,
+        "Reads Mapped to Genome: Unique+Multiple": 0.825492,
+        "Reads Mapped to Genome: Unique": 0.79545,
+        "Reads Mapped to Gene: Unique+Multiple Gene": "NoMulti",
+        "Reads Mapped to Gene: Unique Gene": 0.131531
+      },
+      "STARsolo_resources": {
+        "seconds": 43.45,
+        "peak_ram_mb": 29292.8
+      }
+    },
+    "matchbox": {
+      "input_pairs": 57252325,
+      "called_cells_min_umi": 225,
+      "barcode_rank": {
+        "n_barcodes": 14957,
+        "top_umi": 19674.0,
+        "infl_rank": 257,
+        "umi_at_infl": 101.0
+      },
+      "STARsolo": {
+        "Number of Reads": 57252325,
+        "Reads With Valid Barcodes": 0.991789,
+        "Sequencing Saturation": 0.935392,
+        "Q30 Bases in CB+UMI": 0.942524,
+        "Q30 Bases in RNA read": 0.933854,
+        "Reads Mapped to Genome: Unique+Multiple": 0.825601,
+        "Reads Mapped to Genome: Unique": 0.795617,
+        "Reads Mapped to Gene: Unique+Multiple Gene": "NoMulti",
+        "Reads Mapped to Gene: Unique Gene": 0.130202
+      },
+      "STARsolo_resources": {
+        "seconds": 44.32,
+        "peak_ram_mb": 29309.7
+      }
+    }
+  },
+  "pairs": {
+    "seqproc|splitcode": {
+      "intersection": 53232995,
+      "union": 57253981,
+      "jaccard": 0.929769320320276,
+      "per_gene_pearson_log1p": 0.9949,
+      "per_gene_spearman": 0.9945,
+      "per_barcode_pearson_log1p": 0.9722,
+      "per_barcode_spearman": 0.8934,
+      "celltype_agreement": 0.9136363636363637,
+      "celltype_jaccard_mean": 0.6862474817278116,
+      "cluster_ari": 0.5911100327304825
+    },
+    "seqproc|matchbox": {
+      "intersection": 56617052,
+      "union": 57626654,
+      "jaccard": 0.982480294621999,
+      "per_gene_pearson_log1p": 0.999,
+      "per_gene_spearman": 0.999,
+      "per_barcode_pearson_log1p": 0.9915,
+      "per_barcode_spearman": 0.9697,
+      "celltype_agreement": 0.9363636363636364,
+      "celltype_jaccard_mean": 0.7240225076532557,
+      "cluster_ari": 0.6849932476569282
+    },
+    "splitcode|matchbox": {
+      "intersection": 53113212,
+      "union": 57634708,
+      "jaccard": 0.9215490776842316,
+      "per_gene_pearson_log1p": 0.9945,
+      "per_gene_spearman": 0.9941,
+      "per_barcode_pearson_log1p": 0.9681,
+      "per_barcode_spearman": 0.882,
+      "celltype_agreement": 0.9272727272727272,
+      "celltype_jaccard_mean": 0.7319393025275378,
+      "cluster_ari": 0.6084564646516196
+    }
+  },
+  "shared_cells": 220,
+  "all_tool_celltype_agreement": 0.8909090909090909,
+  "celltype_jaccard_mean": 0.714069763969535,
+  "celltype_jaccard_pairwise_mean": {
+    "seqproc|splitcode": 0.6862474817278116,
+    "seqproc|matchbox": 0.7240225076532557,
+    "splitcode|matchbox": 0.7319393025275378
+  },
+  "celltype_jaccard_pairwise_per_type": {
+    "seqproc|splitcode": {
+      "Neuron": 0.9577464788732394,
+      "Astrocyte": 0.9032258064516129,
+      "Oligodendro": 0.85,
+      "OPC": 0.42857142857142855,
+      "Microglia": 0.35294117647058826,
+      "Endothelial": 0.625
+    },
+    "seqproc|matchbox": {
+      "Neuron": 0.9716312056737588,
+      "Astrocyte": 0.967741935483871,
+      "Oligodendro": 1.0,
+      "OPC": 0.47619047619047616,
+      "Microglia": 0.42857142857142855,
+      "Endothelial": 0.5
+    },
+    "splitcode|matchbox": {
+      "Neuron": 0.972027972027972,
+      "Astrocyte": 0.9333333333333333,
+      "Oligodendro": 0.85,
+      "OPC": 0.45,
+      "Microglia": 0.35294117647058826,
+      "Endothelial": 0.8333333333333334
+    }
+  },
+  "cluster_ari_mean": 0.6281865816796768,
+  "joint_coclustering_agreement": 1.0,
+  "tool_mixing_entropy": 0.9999999999999998,
+  "celltype_jaccard_per_type": {
+    "Neuron": 0.9671352188583234,
+    "Astrocyte": 0.9347670250896059,
+    "Oligodendro": 0.9,
+    "OPC": 0.45158730158730154,
+    "Microglia": 0.37815126050420167,
+    "Endothelial": 0.6527777777777778
+  }
+}

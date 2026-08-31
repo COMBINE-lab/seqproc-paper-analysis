@@ -1,0 +1,550 @@
+{
+  "accession": "SRR6750041",
+  "accuracy_campaign": {
+    "campaign": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2",
+    "manifest": {
+      "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/specs/publication-core-correctness-t32.yaml",
+      "sha256": "fd38ea2e6c8f3028aa2bca93b5fbbbbba78b95f9b1fdf8d2c017dacf57512214"
+    },
+    "summary_path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/journal_rerun_2026-08-17/splitseq_pe_accuracy_metrics.json",
+    "summary_sha256": "ff2e460a693b6c0c4e3b4a8cff0ab437a7bac5f624f96cc8005d9585c5d46021"
+  },
+  "archived_calibration": {
+    "archived": {
+      "accession_prefix": "SRR6750041",
+      "maximum_numeric_id": 10000000,
+      "minimum_numeric_id": 71,
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/results_final/splitpipe_valid_ids_10M.txt.gz",
+      "records": 7539920,
+      "sha256": "6ed8e36f5e99505cc2be262d09c18f353a5aa621bbb26e8d7d7d9db3cd37ade4"
+    },
+    "comparison": {
+      "archived_only_records": 0,
+      "emitted_fraction": 0.753992,
+      "emitted_records": 7539920,
+      "f1": 1.0,
+      "fresh_only_records": 0,
+      "identical": true,
+      "intersection_records": 7539920,
+      "jaccard": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "union_records": 7539920
+    },
+    "records_considered": 10000000
+  },
+  "comparison": "agreement with a fresh split-pipe vendor accepted-read set",
+  "created_at_utc": "2026-08-19T15:44:22.562942+00:00",
+  "dataset": "splitseq_pe",
+  "input_records": 77621181,
+  "inputs": {
+    "r1": {
+      "bytes": 2765238536,
+      "campaign_uncompressed": {
+        "bytes": 13018136202,
+        "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq",
+        "sha256": "33eb06ed9633973e8a254d82dfbf728ebc47791b2bf6cb6344572b64da8a6597"
+      },
+      "decompressed_payload": {
+        "byte_identical_to_campaign_input": true,
+        "bytes": 13018136202,
+        "sha256": "33eb06ed9633973e8a254d82dfbf728ebc47791b2bf6cb6344572b64da8a6597"
+      },
+      "path": "/scratch1/seqproc-benchmark-data/full/compressed/SRR6750041_1.fastq.gz",
+      "sha256": "9a297eff8193123b1ba097330a136a3a665a9987ee7ea90cb811b8493caad94a"
+    },
+    "r2": {
+      "bytes": 3088224291,
+      "campaign_uncompressed": {
+        "bytes": 17364922338,
+        "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq",
+        "sha256": "6bebdc56002acb3097df464f73fd853da0f855521e25d1845a36a1162c848731"
+      },
+      "decompressed_payload": {
+        "byte_identical_to_campaign_input": true,
+        "bytes": 17364922338,
+        "sha256": "6bebdc56002acb3097df464f73fd853da0f855521e25d1845a36a1162c848731"
+      },
+      "path": "/scratch1/seqproc-benchmark-data/full/compressed/SRR6750041_2.fastq.gz",
+      "sha256": "96b45cf242685c4ed574c115768a0ee5844a81b386fe2f0083f21a9eafe82b64"
+    }
+  },
+  "interpretation": "The split-pipe set is an independent vendor comparator, not biological ground truth. Reads outside either set remain biologically unadjudicated.",
+  "program": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/scripts/splitpipe_full_concordance.py",
+    "python": "3.9.25",
+    "sha256": "69bf5b28571bd652a6904c334e5a8b3e515ba5c75590e2d7c2da49fb7504b833"
+  },
+  "schema_version": "1.0.0",
+  "splitpipe": {
+    "accepted_fraction": 0.7690885043349186,
+    "accepted_records": 59697558,
+    "accession_prefix": "SRR6750041",
+    "bitmap": {
+      "bytes": 9702648,
+      "format": "dense one-based little-bit-order bitmap",
+      "numeric_id_max": 77621181,
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/journal_rerun_2026-08-17/splitseq_pe_splitpipe_vendor_full.vendor.raw",
+      "sha256": "27e7c9f27ee2f7e3a186db9b9c9d94b503d5529de0ac6787e7cabbf8b5787423"
+    },
+    "bytes": 14563309377,
+    "fastq_validated": true,
+    "maximum_numeric_id": 77621181,
+    "minimum_numeric_id": 71,
+    "path": "/scratch1/seqproc-ecosystem/split-pipe-calibration/output-full-v1-custom-v1x3-layout94/process/barcode_head.fastq",
+    "sha256": "581d9d6b3361e950dc34554b9b6360350ecd3f6a5461599698fbfee72e32b5d4"
+  },
+  "splitpipe_environment": {
+    "config": {
+      "bytes": 708,
+      "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/split-pipe/splitseq_pe_v1.par",
+      "sha256": "f7181332118eddb16c73383122350d17bbb5baf54a4b47370a66dc308050f145"
+    },
+    "container_image_digest": "sha256:bb55241a68c6d4fecf776b921c3fbee2540134ed0e8445574889dd0f32987dd8",
+    "container_image_id": "a5eb92b407db654d072d020dde7616c4cf832face99015504ed080cb3ac474a8",
+    "log": {
+      "bytes": 36436,
+      "path": "/scratch1/seqproc-ecosystem/split-pipe-calibration/output-full-v1-custom-v1x3-layout94/split-pipe_v1_4_0.log",
+      "sha256": "f856c18d8ea3812ce69b23640fa1952108dd356dabed6649178dd75fe0c7e9d6"
+    },
+    "run_definition": {
+      "bytes": 5584,
+      "contents": {
+        "barcode": {
+          "bc_round_set": [
+            [
+              "1",
+              "v1",
+              " 96 barcodes,  96 wells; rows A-H, cols 1-12"
+            ],
+            [
+              "2",
+              "v1",
+              " 96 barcodes,  96 wells; rows A-H, cols 1-12"
+            ],
+            [
+              "3",
+              "v1",
+              " 96 barcodes,  96 wells; rows A-H, cols 1-12"
+            ]
+          ],
+          "plate_dims": [
+            [
+              8,
+              12
+            ],
+            [
+              8,
+              12
+            ],
+            [
+              8,
+              12
+            ]
+          ],
+          "sample_bc_rounds": 1
+        },
+        "chemistry": {
+          "name": "v1"
+        },
+        "combine": {},
+        "fastq": {
+          "fq1_data": "2.6G, (2765238536), 08/05/2026",
+          "fq1_name": "/input/SRR6750041_1.fastq.gz",
+          "fq2_data": "2.9G, (3088224291), 08/05/2026",
+          "fq2_name": "/input/SRR6750041_2.fastq.gz"
+        },
+        "fb_crispr": {},
+        "genome": {
+          "genome_dir": "/work/reference",
+          "genome_list": [
+            "dummy"
+          ],
+          "genome_names": "dummy",
+          "genome_num": 1,
+          "genome_sizes": [
+            "1"
+          ],
+          "genome_total_size": 1
+        },
+        "header": {
+          "date": "2026-08-19",
+          "description": "run process info",
+          "ver_number": "1.4.0",
+          "version": "split-pipe v1.4.0"
+        },
+        "immune": {},
+        "kit": {
+          "kit_bc_scoring": {
+            "given_kit": "",
+            "kit_bc_scores": null,
+            "processing": "Custom kit; No scoring; Skipping"
+          },
+          "kit_name": "custom",
+          "kit_source": "given"
+        },
+        "parent": {},
+        "run": {
+          "mode": "pre",
+          "output_dir": "/work/output-full-v1-custom-v1x3-layout94",
+          "run_name": "output-full-v1-custom-v1x3-layout94",
+          "use_case": "normal"
+        },
+        "sample": {
+          "number_samples": 1,
+          "samples": [
+            {
+              "analysis": {},
+              "combined": false,
+              "meta": false,
+              "name": "all-sample",
+              "num_bc_rounds": 1,
+              "num_wells": [
+                96
+              ],
+              "plate_dims": [
+                [
+                  8,
+                  12
+                ]
+              ],
+              "stat_step": "start",
+              "status": "good",
+              "well_list": [
+                [
+                  "A1",
+                  "A2",
+                  "A3",
+                  "A4",
+                  "A5",
+                  "A6",
+                  "A7",
+                  "A8",
+                  "A9",
+                  "A10",
+                  "A11",
+                  "A12",
+                  "B1",
+                  "B2",
+                  "B3",
+                  "B4",
+                  "B5",
+                  "B6",
+                  "B7",
+                  "B8",
+                  "B9",
+                  "B10",
+                  "B11",
+                  "B12",
+                  "C1",
+                  "C2",
+                  "C3",
+                  "C4",
+                  "C5",
+                  "C6",
+                  "C7",
+                  "C8",
+                  "C9",
+                  "C10",
+                  "C11",
+                  "C12",
+                  "D1",
+                  "D2",
+                  "D3",
+                  "D4",
+                  "D5",
+                  "D6",
+                  "D7",
+                  "D8",
+                  "D9",
+                  "D10",
+                  "D11",
+                  "D12",
+                  "E1",
+                  "E2",
+                  "E3",
+                  "E4",
+                  "E5",
+                  "E6",
+                  "E7",
+                  "E8",
+                  "E9",
+                  "E10",
+                  "E11",
+                  "E12",
+                  "F1",
+                  "F2",
+                  "F3",
+                  "F4",
+                  "F5",
+                  "F6",
+                  "F7",
+                  "F8",
+                  "F9",
+                  "F10",
+                  "F11",
+                  "F12",
+                  "G1",
+                  "G2",
+                  "G3",
+                  "G4",
+                  "G5",
+                  "G6",
+                  "G7",
+                  "G8",
+                  "G9",
+                  "G10",
+                  "G11",
+                  "G12",
+                  "H1",
+                  "H2",
+                  "H3",
+                  "H4",
+                  "H5",
+                  "H6",
+                  "H7",
+                  "H8",
+                  "H9",
+                  "H10",
+                  "H11",
+                  "H12"
+                ]
+              ],
+              "wspec": "A1:H12"
+            }
+          ]
+        },
+        "target": {}
+      },
+      "path": "/scratch1/seqproc-ecosystem/split-pipe-calibration/output-full-v1-custom-v1x3-layout94/process/run_proc_def.json",
+      "sha256": "f8e65ebc8f85a23b52b72df981e2265b1b3bb8761a9b83f68113caf07ae6823f"
+    }
+  },
+  "tools": {
+    "matchbox": {
+      "bitmap": {
+        "accession_prefix": "SRR6750041",
+        "mate": 1,
+        "numeric_id_max": 77621181,
+        "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/splitseq_pe.matchbox.accepted.1.bitmap",
+        "sha256": "8dc6fadeb3f61ca50cbb1e3d17a7b1ae941fd6890aea51462049f628149b0a7f"
+      },
+      "condition_id": "splitseq_pe-t32-r1-matchbox",
+      "configs": [
+        {
+          "bytes": 819,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/matchbox/publication_splitseq_pe.mb",
+          "sha256": "fe9acce5c657bd5181b08d22643f0e91b308c36f1e97e1b619528af2f0eea659"
+        },
+        {
+          "bytes": 873,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/matchbox/r2_r3.txt",
+          "sha256": "a5ec801b0313a01b966301a29541d5e1b9446874f5ffd12aaa833cd040c915b7"
+        }
+      ],
+      "executables": [
+        {
+          "bytes": 23784,
+          "digest_source": "verified",
+          "path": "/usr/bin/taskset",
+          "sha256": "a72254178813c4ff63c3dc4540c558e0264452a0cdeae8c00f7e74c106d062fa"
+        },
+        {
+          "bytes": 109772224,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2/target/release/matchbox",
+          "sha256": "992ebc5b0f447162bc5d999f51d490df3c38b7f0c1fb9b9f8e31aeda4fe6b2ec"
+        },
+        {
+          "bytes": 4400696,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit",
+          "sha256": "06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca"
+        }
+      ],
+      "metrics": {
+        "emitted_fraction": 0.45297386031784287,
+        "emitted_records": 35160366,
+        "f1": 0.7411404027775266,
+        "intersection_records": 35151520,
+        "jaccard": 0.5887395261654009,
+        "precision": 0.9997484098999424,
+        "recall": 0.5888267657447562,
+        "union_records": 59706404
+      },
+      "repositories": [
+        {
+          "commit": "48ebfc66f87955e3e7c687c6c9bab1cabdd382fc",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "analysis",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "76afc9941bd2bdc901a3cb5667f8785704c8c40d",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "matchbox",
+          "path": "/scratch1/seqproc-ecosystem/competitors/matchbox-v0.3.2",
+          "status": [],
+          "untracked": []
+        }
+      ]
+    },
+    "seqproc": {
+      "bitmap": {
+        "accession_prefix": "SRR6750041",
+        "mate": 1,
+        "numeric_id_max": 77621181,
+        "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/splitseq_pe.seqproc.accepted.1.bitmap",
+        "sha256": "2c3484fb3b3ebfcf916cffbffbb0f4d78b0cf0a6527706c6ef07ae77385905b2"
+      },
+      "condition_id": "splitseq_pe-t32-r1-seqproc",
+      "configs": [
+        {
+          "bytes": 789,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/publication_splitseq_pe.geom",
+          "sha256": "a7da942f2a8f8d1b62e7e948dde10dd648e3400102b891f0867b48c01ea66b1f"
+        },
+        {
+          "bytes": 864,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/seqproc/splitseq_bc8_whitelist.txt",
+          "sha256": "346ecc6bf50e72c91e0ec115ca22918abbfa8d3dae7be0dab9e602a1564de199"
+        }
+      ],
+      "executables": [
+        {
+          "bytes": 23784,
+          "digest_source": "verified",
+          "path": "/usr/bin/taskset",
+          "sha256": "a72254178813c4ff63c3dc4540c558e0264452a0cdeae8c00f7e74c106d062fa"
+        },
+        {
+          "bytes": 9397296,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc/target/release/seqproc",
+          "sha256": "bd671c841e1cf97e25ea9113cd5f4fcd8c08496b3c63ec78786031ec17cbaa7f"
+        },
+        {
+          "bytes": 4400696,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit",
+          "sha256": "06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca"
+        }
+      ],
+      "metrics": {
+        "emitted_fraction": 0.7342246055235877,
+        "emitted_records": 56991381,
+        "f1": 0.9506395974686169,
+        "intersection_records": 55464563,
+        "jaccard": 0.9059228794753253,
+        "precision": 0.9732096683180919,
+        "recall": 0.929092660708165,
+        "union_records": 61224376
+      },
+      "repositories": [
+        {
+          "commit": "48ebfc66f87955e3e7c687c6c9bab1cabdd382fc",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "analysis",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "cbc156bea6f5d713ea73bbba1e6c55b7a85a58d8",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "seqproc",
+          "path": "/scratch1/seqproc-ecosystem/seqproc",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "f3b0f1ea0b286b680d963382f2bf7316058d83e4",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "antisequence",
+          "path": "/scratch1/seqproc-ecosystem/antisequence",
+          "status": [],
+          "untracked": []
+        }
+      ]
+    },
+    "splitcode": {
+      "bitmap": {
+        "accession_prefix": "SRR6750041",
+        "mate": 1,
+        "numeric_id_max": 77621181,
+        "path": "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/splitseq_pe.splitcode.accepted.1.bitmap",
+        "sha256": "b29535abfb0ef900c056fa0549172d132618b31b8b367a764c46a9f5abb64b23"
+      },
+      "condition_id": "splitseq_pe-t32-r1-splitcode",
+      "configs": [
+        {
+          "bytes": 13689,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/configs/splitcode/publication_splitseq_pe.config",
+          "sha256": "b56eae967300bd0a279f84bdfecfb38404271c708afe7884ec5159354507a039"
+        }
+      ],
+      "executables": [
+        {
+          "bytes": 23784,
+          "digest_source": "verified",
+          "path": "/usr/bin/taskset",
+          "sha256": "a72254178813c4ff63c3dc4540c558e0264452a0cdeae8c00f7e74c106d062fa"
+        },
+        {
+          "bytes": 2248280,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/competitors/splitcode-v0.31.6/build/src/splitcode",
+          "sha256": "ff0df2e3bc7e8b2893ede0552b776ee543764493dbf8d9316fb6aa0ca4aa0c23"
+        },
+        {
+          "bytes": 4400696,
+          "digest_source": "declared",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/tools/bin/fastq-numeric-audit",
+          "sha256": "06c66679f2efeb7973e7531779b1d9c48a8e42a5e0ea894d63ec78c5ed61c9ca"
+        }
+      ],
+      "metrics": {
+        "emitted_fraction": 0.6891881096217797,
+        "emitted_records": 53495595,
+        "f1": 0.9347621229351214,
+        "intersection_records": 52904336,
+        "jaccard": 0.8775149129232375,
+        "precision": 0.9889475198845812,
+        "recall": 0.8862060320792351,
+        "union_records": 60288817
+      },
+      "repositories": [
+        {
+          "commit": "48ebfc66f87955e3e7c687c6c9bab1cabdd382fc",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "analysis",
+          "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis",
+          "status": [],
+          "untracked": []
+        },
+        {
+          "commit": "530d1fef9f5a17bd85a5ade436da7f52c0485c39",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false,
+          "name": "splitcode",
+          "path": "/scratch1/seqproc-ecosystem/competitors/splitcode-v0.31.6",
+          "status": [],
+          "untracked": []
+        }
+      ]
+    }
+  }
+}

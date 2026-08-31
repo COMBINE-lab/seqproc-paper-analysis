@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0.0",
+  "label": "putative new LR-SPLiT-seq configuration (Aug 11)",
+  "date": "2026-08-11",
+  "status": "putative; not frozen for publication",
+  "raw_campaign_root": "/scratch1/seqproc-ecosystem/lr-splitseq-putative-aug11-accuracy",
+  "dataset": {
+    "accession": "SRR13948564",
+    "input_records": 5764421,
+    "forward_fastq_sha256": "d01a11f85ee7bd4fac4ea7061cce89df11f2fc343ad59468aa73565f5144e834",
+    "reverse_complement_fastq_sha256": "ab625d3cb7eb57a8cdd4e4381478726e1a3bf8d86635c13f28167e72d6eabcca"
+  },
+  "reference": {
+    "records": 588233,
+    "sha256": "01a81b7411729a713a7acea2970390e5b12e9a58af20fde4fc74010c09dce2a4",
+    "interpretation": "repaired conservative structural reference, not biological ground truth"
+  },
+  "execution": {
+    "threads": 32,
+    "cpu_affinity": "1-32",
+    "cpu": "AMD EPYC 9555 64-Core Processor",
+    "replicates": 1,
+    "output_policy": "materialized accuracy outputs",
+    "timing_interpretation": "diagnostic single-run timings, not final performance estimates"
+  },
+  "tools": {
+    "seqproc": {
+      "version": "0.1.0",
+      "commit": "edbf9efcfa69d588a42d3f1fb714742b675502eb",
+      "binary_sha256": "4bb6b322d2e85539fbd26bb678b8684e29af70fa3e5d2421988f142e80ba8b92",
+      "config": "configs/seqproc/publication_lr_splitseq_dual_complete_adjacent_whitelist_e5_e4.geom",
+      "config_sha256": "cb76aea3794699272f8e280c3e72984ef514c5f75ddf82074d12ccf6f2efef47",
+      "wall_seconds": 3.90,
+      "peak_rss_kib": 110592,
+      "peak_rss_mib": 108.0,
+      "emitted_records": 553840,
+      "intersection_records": 553840,
+      "precision": 1.0,
+      "recall": 0.9415316719735207,
+      "f1": 0.9698854626630697,
+      "orientation": "native dual orientation",
+      "notes": "Hamming-one BC3/BC2/BC1; 5/4-edit linkers"
+    },
+    "matchbox": {
+      "version": "0.3.2",
+      "commit": "76afc9941bd2bdc901a3cb5667f8785704c8c40d",
+      "binary_sha256": "992ebc5b0f447162bc5d999f51d490df3c38b7f0c1fb9b9f8e31aeda4fe6b2ec",
+      "config": "configs/matchbox/putative_aug11_lr_splitseq_dual.mb",
+      "config_sha256": "6e405c46e5202e440aab1ab344b9cc262991ca826d6fff155fc7d7d0ca62a178",
+      "wall_seconds": 203.27,
+      "peak_rss_kib": 55916,
+      "peak_rss_mib": 54.60546875,
+      "emitted_records": 8277,
+      "intersection_records": 8277,
+      "precision": 1.0,
+      "recall": 0.01407095487672402,
+      "f1": 0.02775142076411125,
+      "orientation": "native dual orientation",
+      "notes": "Exact canonical barcodes and exact linkers; approximate terms cannot preserve cassette boundaries without whitelist expansion"
+    },
+    "splitcode": {
+      "version": "0.31.6",
+      "commit": "530d1fef9f5a17bd85a5ade436da7f52c0485c39",
+      "binary_sha256": "ff0df2e3bc7e8b2893ede0552b776ee543764493dbf8d9316fb6aa0ca4aa0c23",
+      "config": "configs/splitcode/putative_aug11_lr_splitseq_forward.txt",
+      "config_sha256": "049a5bcfe8e37b32b710942e72a191e54aa5b70a26e2ad62cc4db0bbab147a96",
+      "wall_seconds": 17.66,
+      "summed_pass_wall_seconds": 17.64051512198057,
+      "forward_pass_wall_seconds": 8.736317032016814,
+      "reverse_pass_wall_seconds": 8.904198089963757,
+      "peak_rss_kib": 542380,
+      "peak_rss_mib": 529.66796875,
+      "forward_emitted_records": 218167,
+      "reverse_emitted_records": 211490,
+      "dual_union_records": 428941,
+      "cross_orientation_duplicate_ids": 716,
+      "intersection_records": 427360,
+      "precision": 0.9963141784068206,
+      "recall": 0.7265148334078503,
+      "f1": 0.8402888787955649,
+      "orientation": "two sequential passes; precomputed reverse-complement input",
+      "notes": "Exact BC3 chain initiator; Hamming-one BC2/BC1; exact 0-0 adjacency; three-edit linkers; duplicate reconciliation not timed"
+    }
+  },
+  "output_validation": {
+    "seqproc_projection_length": 32,
+    "matchbox_projection_length": 32,
+    "splitcode_component_lengths": {
+      "prefix": 18,
+      "bc2": 8,
+      "bc1": 6
+    },
+    "all_numeric_ids_unique_within_each_output": true,
+    "splitcode_component_id_sets_identical_within_each_pass": true
+  }
+}

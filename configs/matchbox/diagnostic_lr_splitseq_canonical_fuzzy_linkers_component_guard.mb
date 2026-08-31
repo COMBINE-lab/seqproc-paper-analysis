@@ -1,0 +1,24 @@
+# Diagnostic LR-SPLiT-seq dual-orientation configuration: exact canonical
+# barcodes, edit-distance-three linkers, and biological-component length
+# guards.  Linker endpoints remain unconstrained by an expected span.
+linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGACTGTGG
+rev_linker1 = -linker1
+rev_linker2 = -linker2
+bcs1 = csv('configs/matchbox/rt_6bp.csv')
+bcs23 = csv('configs/matchbox/r2_r3.txt')
+
+if read matches {
+    [_ umi:|10| bc3_hit:bc3.round_23~0.0 linker1~0.10 bc2_hit:bc2.round_23~0.0 linker2~0.14 bc1_hit:bc1.barcode~0.0 _]
+        for bc1 in bcs1, bc2 in bcs23, bc3 in bcs23 => {
+            if umi.seq.len() == 10 and bc3_hit.seq.len() == 8 and bc2_hit.seq.len() == 8 and bc1_hit.seq.len() == 6 {
+                (umi.concat(bc3_hit)).concat(bc2_hit.concat(bc1_hit)).out!('mb_r1.fq')
+            }
+        }
+    [_ bc1_hit:-bc1.barcode~0.0 rev_linker2~0.14 bc2_hit:-bc2.round_23~0.0 rev_linker1~0.10 bc3_hit:-bc3.round_23~0.0 umi:|10| _]
+        for bc1 in bcs1, bc2 in bcs23, bc3 in bcs23 => {
+            if umi.seq.len() == 10 and bc3_hit.seq.len() == 8 and bc2_hit.seq.len() == 8 and bc1_hit.seq.len() == 6 {
+                (-((bc1_hit.concat(bc2_hit)).concat(bc3_hit.concat(umi)))).out!('mb_r1.fq')
+            }
+        }
+}

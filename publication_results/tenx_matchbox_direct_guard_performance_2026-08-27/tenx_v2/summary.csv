@@ -1,0 +1,5 @@
+measurement_track,sequence_output_policy,dataset,tool,execution_mode,threads,replicates,wall_seconds_mean,wall_seconds_median,wall_seconds_sd,input_records_per_second_mean,input_records_per_second_median,peak_rss_kib_mean,peak_rss_kib_max
+timing,dev-null,tenx_v2,matchbox,best-practical-uncompressed,1,3,1075.1988850646667,1075.023689088,3.454688550457702,217991.14008100497,218025.16575131376,38116.0,38128
+timing,dev-null,tenx_v2,matchbox,best-practical-uncompressed,4,3,476.54738006266666,476.650917257,3.0521710969655196,491847.4843731232,491727.1938734697,38372.0,39368
+timing,dev-null,tenx_v2,matchbox,best-practical-uncompressed,16,3,473.005079102,473.072869341,2.1585818720718954,495524.22010185366,495446.33224581054,40540.0,41504
+timing,dev-null,tenx_v2,matchbox,best-practical-uncompressed,32,3,522.98528214,522.787524835,5.6581192212633615,448197.1236073382,448331.69665625575,39917.333333333336,42964

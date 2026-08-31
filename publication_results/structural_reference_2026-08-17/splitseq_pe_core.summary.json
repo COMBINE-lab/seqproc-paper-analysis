@@ -1,0 +1,69 @@
+{
+  "accepted_orientation": {
+    "forward": 57437503
+  },
+  "anchor_edit_histogram": {},
+  "anchor_start_histogram": {},
+  "barcode_ambiguity_histogram": {
+    "0": 57437503
+  },
+  "batch_size": 4096,
+  "chem": "pe",
+  "controller_peak_rss_kib": 44900,
+  "criteria": {
+    "ambiguous_barcode_membership": "accepted_and_reported",
+    "barcode_hamming_distance": 1,
+    "bc1_length": 8,
+    "bc23_length": 8,
+    "linker2_expected_immediately_after_bc2": true,
+    "max_linker1_candidates": null,
+    "max_linker1_edit": 3,
+    "max_linker2_edit": 3,
+    "orientation": "forward",
+    "paired_fastq_integrity_checked": true,
+    "reference_kind": "conservative_structural_reference_not_ground_truth",
+    "umi_length": 10
+  },
+  "elapsed_seconds": 106.774443,
+  "fast_path_counts": {
+    "False": 17678611,
+    "True": 39758892
+  },
+  "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq",
+  "forward_failure_counts": {},
+  "invalid": 20183678,
+  "linker1_edit_histogram": {
+    "0": 47336245,
+    "1": 8632045,
+    "2": 1198562,
+    "3": 270651
+  },
+  "linker2_edit_histogram": {
+    "0": 47894639,
+    "1": 8363831,
+    "2": 948649,
+    "3": 230384
+  },
+  "mate_fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq",
+  "maximum_worker_peak_rss_kib": 27300,
+  "outcome_counts": {
+    "accepted": 57436175,
+    "accepted_ambiguous_cassette": 1328,
+    "incomplete_bc1": 1248210,
+    "incomplete_bc2": 3579,
+    "incomplete_umi_bc3_prefix": 2316088,
+    "invalid_bc1": 2445219,
+    "invalid_bc2": 2229133,
+    "invalid_bc3": 438573,
+    "no_linker1": 6670053,
+    "no_linker2_at_expected_offset": 4832823
+  },
+  "pct_of_scanned": 73.9972,
+  "reads_per_second": 726964.05,
+  "schema_version": "3.0.0",
+  "system_cpu_seconds": 9.730482,
+  "threads": 32,
+  "total": 77621181,
+  "user_cpu_seconds": 419.061653,
+  "valid": 57437503
+}

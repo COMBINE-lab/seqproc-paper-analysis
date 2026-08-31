@@ -1,0 +1,53 @@
+{
+  "all_identical": true,
+  "datasets": [
+    {
+      "conditions": 18,
+      "dataset": "lr_splitseq",
+      "emitted_record_counts": [
+        100000
+      ],
+      "identical_across_modes_threads_replicates": true,
+      "normalized_digest_count": 1,
+      "normalized_output_sha256": [
+        "a86f33ff9fe3d648fbcb2a57b319109ef974434d146f89bf969e3a8d3ad24172"
+      ]
+    },
+    {
+      "conditions": 18,
+      "dataset": "scirnaseq3",
+      "emitted_record_counts": [
+        100000
+      ],
+      "identical_across_modes_threads_replicates": true,
+      "normalized_digest_count": 1,
+      "normalized_output_sha256": [
+        "42bf6db77315d61b2dc9dc212bebdff2df1d1f07097bc1896a45307014b7eea4;13b53d39cc4d174d098611909df2774ec6fc9d4f33d84021061c3e18d0348cc0"
+      ]
+    },
+    {
+      "conditions": 18,
+      "dataset": "splitseq_pe",
+      "emitted_record_counts": [
+        100000
+      ],
+      "identical_across_modes_threads_replicates": true,
+      "normalized_digest_count": 1,
+      "normalized_output_sha256": [
+        "891ca7df939f98d996d4d01bc216aa5050324174f5052339037f07f230bf86cc;7749aaadbfffb920a80bbdcb472327a347d041e31bc87fe953a1ac76b2842dec"
+      ]
+    },
+    {
+      "conditions": 18,
+      "dataset": "tenx_v2",
+      "emitted_record_counts": [
+        100000
+      ],
+      "identical_across_modes_threads_replicates": true,
+      "normalized_digest_count": 1,
+      "normalized_output_sha256": [
+        "16cfd95856d19b9937924f3f4c85871e119387c6134b71276842d62da9069eba;17d985bcac27879135fff838268e6c87b0b046ed90e2aea7c0f878d47c8885a4"
+      ]
+    }
+  ]
+}

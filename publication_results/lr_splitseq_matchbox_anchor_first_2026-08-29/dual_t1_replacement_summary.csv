@@ -1,0 +1,2 @@
+measurement_track,sequence_output_policy,dataset,tool,execution_mode,threads,replicates,wall_seconds_mean,wall_seconds_median,wall_seconds_sd,input_records_per_second_mean,input_records_per_second_median,peak_rss_kib_mean,peak_rss_kib_max
+timing,dev-null,lr_splitseq_dual,matchbox,native-dual-orientation,1,3,559.61743577,558.343285021,2.267992395074332,10300.758348068928,10324.15210256033,63817.333333333336,64044

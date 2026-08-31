@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "tool": "splitcode",
+  "records": 53495595,
+  "first_id": "SRR6750041.1",
+  "last_id": "SRR6750041.77621181",
+  "r1": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/splitcode-final-downstream/sc_cdna.fastq",
+    "bytes": 8391299321,
+    "sha256": "48d3424a6413bec4b80fb8955cfaea8ce8225aa4c714e674fd9c05b75a7c7034",
+    "lengths": [
+      66
+    ]
+  },
+  "r2": {
+    "path": "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/biological_analysis/work/splitcode-final-downstream/umi_bc3_bc2_bc1.fastq",
+    "bytes": 4967581241,
+    "sha256": "aa75f07d3d59701a0f57d364033eddcb64d90752837ef3f9969a0ee95a89b3e4",
+    "lengths": [
+      34
+    ]
+  }
+}

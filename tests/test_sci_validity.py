@@ -2,12 +2,12 @@
 """Tests for SciSeqValidityAnalyzer (edit-tolerant sci-RNA-seq3 structural check).
 
 sci-RNA-seq3 R1 layout: [brc1: 9-10 bp][CAGAGC][umi: 8 bp][brc2: 10 bp].
-A read is valid iff the CAGAGC anchor's best EDIT-distance-<=1 match sits at offset
-9 or 10 (the two allowed brc1 lengths) AND the read is long enough to contain the
-umi(8) and brc2(10) that follow. Edit tolerance (not Hamming) means a 1bp indel
-inside the anchor is accepted, matching how the tools match the anchor. These tests
-verify the offsets, the edit-1 anchor tolerance (subs AND indels), the length
-boundary, and read-id parsing.
+A read is valid iff a unique best EDIT-distance-<=1 anchor alignment begins at
+offset 9 or 10 (the two allowed brc1 lengths) and leaves room for umi(8)+brc2(10).
+An apparent exact anchor one base outside those offsets is observationally
+indistinguishable from an allowed boundary indel and is therefore retained.
+These tests verify that documented behavior, substitutions/indels, the length
+boundary, ambiguity handling, and read-id parsing.
 """
 import os
 import sys
@@ -55,12 +55,17 @@ def test_brc1_10bp_valid():
     assert run_analyzer([("r", sci(brc1=10))]) == {"r"}         # anchor at index 10
 
 
-def test_brc1_8bp_rejected():
-    assert run_analyzer([("r", sci(brc1=8))]) == set()          # anchor at 8 -> wrong length
+def test_apparent_brc1_8_is_observationally_equivalent_to_anchor_deletion():
+    # With edit-one anchors, an exact anchor at 8 is indistinguishable from a
+    # legal offset-9 anchor whose first base was deleted. The structural set
+    # therefore retains it; the reason-coded standalone report exposes edits.
+    assert run_analyzer([("r", sci(brc1=8))]) == {"r"}
 
 
-def test_brc1_11bp_rejected():
-    assert run_analyzer([("r", sci(brc1=11))]) == set()         # anchor at 11 -> wrong length
+def test_apparent_brc1_11_is_observationally_equivalent_to_anchor_insertion():
+    # Likewise, the extra base before an offset-11 exact anchor can be the one
+    # insertion in a legal offset-10 anchor.
+    assert run_analyzer([("r", sci(brc1=11))]) == {"r"}
 
 
 # --- Hamming tolerance on the anchor ---
@@ -121,7 +126,7 @@ def test_mixed_file_returns_only_valid():
         ("noanchor", "ACGT" * 20), ("trunc", "A" * 9 + ANCHOR + "TT"),
         ("ham1", sci(9, anchor="CAGATC")),
     ]
-    assert run_analyzer(recs) == {"v9", "v10", "ham1"}
+    assert run_analyzer(recs) == {"v9", "v10", "ham1", "bad8", "bad11"}
 
 
 if __name__ == "__main__":

@@ -1,11 +1,15 @@
 # Python
 __pycache__/
+tools/bin/
 *.py[cod]
 .venv/
 venv/
 
 # Results (large output files)
 results/*/
+# Content-addressed development benchmark attempts; commit curated summaries.
+benchmark_results/development/*/
+publication_results/structural_reference_*/*.valid_ids.txt
 
 # Data files
 *.fastq
@@ -15,6 +19,17 @@ results/*/
 *.sra
 *.bam
 data/
+biological_analysis/reference/downloads/
+biological_analysis/reference/GRCm38_ensembl102/
+biological_analysis/reference/star_GRCm38_ensembl102/
+biological_analysis/tools/downloads/
+biological_analysis/tools/STAR-2.7.11b/
+biological_analysis/work/
+biological_analysis/.venv_downstream/
+# Superseded plot-name artifacts from an earlier sensitivity render. The
+# canonical committed files are downstream_sensitivity_comparison.{pdf,png}.
+biological_analysis/sensitivity_results_2026-08-19/*.pdf.pdf
+biological_analysis/sensitivity_results_2026-08-19/*.pdf.png
 
 # IDE
 .vscode/

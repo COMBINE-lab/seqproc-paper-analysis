@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
-# One-time setup of the Phase 2A python env (scanpy + clustering + notebook tooling).
-# Self-contained venv so it reproduces identically on the cluster regardless of system packages.
+# Create the locked downstream Python environment.
 #   bash biological_analysis/setup_env.sh
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 VENV=$HERE/.venv_downstream
-# --copies: module-provided pythons on HPC build broken symlinks into a venv, so copy the
-# interpreter in. Drive pip via "python -m pip" (robust even if the bin/pip shebang is off).
-rm -rf "$VENV"
-python3 -m venv --copies "$VENV"
-"$VENV/bin/python" -m pip install --quiet --upgrade pip wheel
-"$VENV/bin/python" -m pip install --quiet \
-  "scanpy==1.12.2" "anndata>=0.10" leidenalg igraph "scikit-learn>=1.3" \
-  "scipy>=1.11" "numpy>=1.26,<3" "matplotlib>=3.6" "pandas>=2.0" \
-  nbformat ipykernel nbclient
+UV=${UV_BIN:-uv}
+PYTHON=${DOWNSTREAM_PYTHON:-/opt/local/stow/Python3-3.12.3/bin/python3}
+CACHE=${DOWNSTREAM_UV_CACHE:-$HERE/work/uv-cache}
+[ -x "$PYTHON" ] || { echo "Python 3.12 not found at $PYTHON" >&2; exit 2; }
+command -v "$UV" >/dev/null || { echo "uv executable not found: $UV" >&2; exit 2; }
+[ -f "$HERE/requirements.lock" ] || {
+  echo "missing $HERE/requirements.lock; generate it from requirements.in with uv pip compile" >&2
+  exit 2
+}
+mkdir -p "$CACHE"
+UV_CACHE_DIR="$CACHE" "$UV" venv --clear --python "$PYTHON" "$VENV"
+UV_CACHE_DIR="$CACHE" "$UV" pip sync --python "$VENV/bin/python" --require-hashes "$HERE/requirements.lock"
 "$VENV/bin/python" -c "import scanpy, leidenalg, umap, sklearn, scipy, matplotlib; print('downstream env OK')"
 echo "venv: $VENV"

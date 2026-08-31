@@ -1,0 +1,50 @@
+# LR-SPLiT-seq dual-orientation sensitivity with externally Hamming-1-expanded
+# barcode lists and exact linkers.
+#
+# This is the expanded-list analogue of publication_lr_splitseq_dual_core.mb.
+# It searches an exact linker before testing the captured terminal barcode,
+# avoiding the former barcode-first Cartesian scan while preserving the same
+# expanded-list and exact-linker acceptance constraints.
+#
+# Matchbox chooses among pattern matches before evaluating body guards.  The
+# four boundary-aware arms and one-best policy therefore mirror the primary
+# anchor-first configuration and must be validated on the complete input.
+
+linker1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+linker2 = ATCCACGTGCTTGAGACTGTGG
+rev_linker1 = -linker1
+rev_linker2 = -linker2
+bcs1 = csv('configs/diagnostics/aug11_lr_splitseq_bc1_ham1.csv')
+bcs23 = csv('configs/diagnostics/aug11_lr_splitseq_bc23_ham1.csv')
+
+if read matches {
+    [_ umi:|10| bc3:|8| linker1~0.0 bc2_hit:bc2.round_23~0.0 linker2~0.0 bc1_hit:bc1.barcode~0.0 _]
+        for bc1 in bcs1, bc2 in bcs23 => {
+            if bc3.seq.len() == 8 and bc2_hit.seq.len() == 8 and bc1_hit.seq.len() == 6 and
+               bcs23.contains({round_23 = bc3.seq}) {
+                (umi.concat(bc3)).concat(bc2_hit.concat(bc1_hit)).out!('mb_r1.fq')
+            }
+        }
+    [_ bc1:|6| rev_linker2~0.0 bc2_hit:-bc2.round_23~0.0 rev_linker1~0.0 bc3_hit:-bc3.round_23~0.0 umi:|10| _]
+        for bc2 in bcs23, bc3 in bcs23 => {
+            if bc1.seq.len() == 6 and bc2_hit.seq.len() == 8 and bc3_hit.seq.len() == 8 and
+               bcs1.contains({barcode = -(bc1.seq)}) {
+                (-((bc1.concat(bc2_hit)).concat(bc3_hit.concat(umi)))).out!('mb_r1.fq')
+            }
+        }
+    [_ umi:|10| bc3:|8| linker1~0.0 bc2_hit:bc2.round_23~0.0 linker2~0.0 bc1:_]
+        for bc2 in bcs23 => {
+            if bc1.seq.len() == 6 and bc3.seq.len() == 8 and bc2_hit.seq.len() == 8 and
+               bcs23.contains({round_23 = bc3.seq}) and
+               bcs1.contains({barcode = bc1.seq}) {
+                (umi.concat(bc3)).concat(bc2_hit.concat(bc1)).out!('mb_r1.fq')
+            }
+        }
+    [bc1:_ rev_linker2~0.0 bc2_hit:-bc2.round_23~0.0 rev_linker1~0.0 bc3_hit:-bc3.round_23~0.0 umi:|10| _]
+        for bc2 in bcs23, bc3 in bcs23 => {
+            if bc1.seq.len() == 6 and bc2_hit.seq.len() == 8 and bc3_hit.seq.len() == 8 and
+               bcs1.contains({barcode = -(bc1.seq)}) {
+                (-((bc1.concat(bc2_hit)).concat(bc3_hit.concat(umi)))).out!('mb_r1.fq')
+            }
+        }
+}

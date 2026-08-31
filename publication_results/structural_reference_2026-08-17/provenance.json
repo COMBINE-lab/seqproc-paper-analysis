@@ -1,0 +1,663 @@
+{
+  "artifacts": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/edit_tolerant_validity.py",
+        "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+        "--chem",
+        "lr",
+        "--threads",
+        "32",
+        "--max-linker1-edit",
+        "3",
+        "--max-linker2-edit",
+        "3",
+        "--out",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/lr_splitseq_core_e3_e3.valid_ids.txt",
+        "--summary-json",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/lr_splitseq_core_e3_e3.summary.json"
+      ],
+      "inputs": [
+        {
+          "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+          "records": 5764421,
+          "sha256": "d01a11f85ee7bd4fac4ea7061cce89df11f2fc343ad59468aa73565f5144e834"
+        }
+      ],
+      "name": "lr_splitseq_core_e3_e3",
+      "summary": {
+        "accepted_orientation": {
+          "both": 1793,
+          "forward": 285826,
+          "reverse": 273080
+        },
+        "anchor_edit_histogram": {},
+        "anchor_start_histogram": {},
+        "barcode_ambiguity_histogram": {
+          "0": 431675,
+          "1": 129024
+        },
+        "batch_size": 4096,
+        "chem": "lr",
+        "controller_peak_rss_kib": 49024,
+        "criteria": {
+          "ambiguous_barcode_membership": "accepted_and_reported",
+          "barcode_hamming_distance": 1,
+          "bc1_length": 6,
+          "bc23_length": 8,
+          "linker2_expected_immediately_after_bc2": true,
+          "max_linker1_candidates": null,
+          "max_linker1_edit": 3,
+          "max_linker2_edit": 3,
+          "orientation": "both",
+          "paired_fastq_integrity_checked": false,
+          "reference_kind": "conservative_structural_reference_not_ground_truth",
+          "umi_length": 10
+        },
+        "elapsed_seconds": 12.59182,
+        "fast_path_counts": {
+          "False": 541364,
+          "True": 19335
+        },
+        "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+        "forward_failure_counts": {
+          "incomplete_bc1": 788,
+          "incomplete_bc2": 34731,
+          "incomplete_umi_bc3_prefix": 219059,
+          "invalid_bc1": 819518,
+          "invalid_bc2": 100345,
+          "invalid_bc3": 90472,
+          "no_linker1": 4157963,
+          "no_linker2_at_expected_offset": 53926
+        },
+        "invalid": 5203722,
+        "linker1_edit_histogram": {
+          "0": 478028,
+          "1": 63972,
+          "2": 13938,
+          "3": 4761
+        },
+        "linker2_edit_histogram": {
+          "0": 485363,
+          "1": 49580,
+          "2": 14126,
+          "3": 11630
+        },
+        "mate_fastq": null,
+        "maximum_worker_peak_rss_kib": 53620,
+        "outcome_counts": {
+          "accepted": 424104,
+          "accepted_ambiguous_barcode": 128703,
+          "accepted_ambiguous_cassette": 6099,
+          "accepted_both_orientations": 1793,
+          "incomplete_bc1": 764,
+          "incomplete_bc2": 39927,
+          "incomplete_umi_bc3_prefix": 207175,
+          "invalid_bc1": 791361,
+          "invalid_bc2": 110548,
+          "invalid_bc3": 93686,
+          "no_linker1": 3900269,
+          "no_linker2_at_expected_offset": 59992
+        },
+        "pct_of_scanned": 9.7269,
+        "reads_per_second": 457790.94,
+        "schema_version": "3.0.0",
+        "system_cpu_seconds": 3.255187,
+        "threads": 32,
+        "total": 5764421,
+        "user_cpu_seconds": 142.054537,
+        "valid": 560699
+      },
+      "summary_path": "publication_results/structural_reference_2026-08-17/lr_splitseq_core_e3_e3.summary.json",
+      "valid_ids": {
+        "bytes": 11104397,
+        "ordering": "input_order",
+        "path": "publication_results/structural_reference_2026-08-17/lr_splitseq_core_e3_e3.valid_ids.txt",
+        "records": 560699,
+        "sha256": "a1461c972b4f7994b1c17f4291b1d7ca3a1bd85a19ba34c3fc857dec4dc12b4c"
+      }
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/edit_tolerant_validity.py",
+        "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+        "--chem",
+        "lr",
+        "--threads",
+        "32",
+        "--max-linker1-edit",
+        "5",
+        "--max-linker2-edit",
+        "4",
+        "--out",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/lr_splitseq_sensitivity_e5_e4.valid_ids.txt",
+        "--summary-json",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/lr_splitseq_sensitivity_e5_e4.summary.json"
+      ],
+      "inputs": [
+        {
+          "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+          "records": 5764421,
+          "sha256": "d01a11f85ee7bd4fac4ea7061cce89df11f2fc343ad59468aa73565f5144e834"
+        }
+      ],
+      "name": "lr_splitseq_sensitivity_e5_e4",
+      "summary": {
+        "accepted_orientation": {
+          "both": 1960,
+          "forward": 292338,
+          "reverse": 279220
+        },
+        "anchor_edit_histogram": {},
+        "anchor_start_histogram": {},
+        "barcode_ambiguity_histogram": {
+          "0": 443199,
+          "1": 130319
+        },
+        "batch_size": 4096,
+        "chem": "lr",
+        "controller_peak_rss_kib": 47312,
+        "criteria": {
+          "ambiguous_barcode_membership": "accepted_and_reported",
+          "barcode_hamming_distance": 1,
+          "bc1_length": 6,
+          "bc23_length": 8,
+          "linker2_expected_immediately_after_bc2": true,
+          "max_linker1_candidates": null,
+          "max_linker1_edit": 5,
+          "max_linker2_edit": 4,
+          "orientation": "both",
+          "paired_fastq_integrity_checked": false,
+          "reference_kind": "conservative_structural_reference_not_ground_truth",
+          "umi_length": 10
+        },
+        "elapsed_seconds": 13.066807,
+        "fast_path_counts": {
+          "False": 554183,
+          "True": 19335
+        },
+        "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+        "forward_failure_counts": {
+          "incomplete_bc1": 907,
+          "incomplete_bc2": 35941,
+          "incomplete_umi_bc3_prefix": 229553,
+          "invalid_bc1": 828239,
+          "invalid_bc2": 106097,
+          "invalid_bc3": 99694,
+          "no_linker1": 4126386,
+          "no_linker2_at_expected_offset": 43306
+        },
+        "invalid": 5190903,
+        "linker1_edit_histogram": {
+          "0": 485464,
+          "1": 65520,
+          "2": 14505,
+          "3": 5096,
+          "4": 2029,
+          "5": 904
+        },
+        "linker2_edit_histogram": {
+          "0": 486398,
+          "1": 50284,
+          "2": 14644,
+          "3": 12008,
+          "4": 10184
+        },
+        "mate_fastq": null,
+        "maximum_worker_peak_rss_kib": 51160,
+        "outcome_counts": {
+          "accepted": 431814,
+          "accepted_ambiguous_barcode": 129895,
+          "accepted_ambiguous_cassette": 9849,
+          "accepted_both_orientations": 1960,
+          "incomplete_bc1": 862,
+          "incomplete_bc2": 41295,
+          "incomplete_umi_bc3_prefix": 215936,
+          "invalid_bc1": 799978,
+          "invalid_bc2": 116864,
+          "invalid_bc3": 103062,
+          "no_linker1": 3863275,
+          "no_linker2_at_expected_offset": 49631
+        },
+        "pct_of_scanned": 9.9493,
+        "reads_per_second": 441149.93,
+        "schema_version": "3.0.0",
+        "system_cpu_seconds": 3.373394,
+        "threads": 32,
+        "total": 5764421,
+        "user_cpu_seconds": 146.350915,
+        "valid": 573518
+      },
+      "summary_path": "publication_results/structural_reference_2026-08-17/lr_splitseq_sensitivity_e5_e4.summary.json",
+      "valid_ids": {
+        "bytes": 11358207,
+        "ordering": "input_order",
+        "path": "publication_results/structural_reference_2026-08-17/lr_splitseq_sensitivity_e5_e4.valid_ids.txt",
+        "records": 573518,
+        "sha256": "a7f610a4fbe9433cdffe61bcc37f640a3d0d029ceeef154e162ab2dd68201ba3"
+      }
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/edit_tolerant_validity.py",
+        "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+        "--chem",
+        "lr",
+        "--threads",
+        "32",
+        "--max-linker1-edit",
+        "6",
+        "--max-linker2-edit",
+        "6",
+        "--out",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/lr_splitseq_sensitivity_e6_e6.valid_ids.txt",
+        "--summary-json",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/lr_splitseq_sensitivity_e6_e6.summary.json"
+      ],
+      "inputs": [
+        {
+          "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+          "records": 5764421,
+          "sha256": "d01a11f85ee7bd4fac4ea7061cce89df11f2fc343ad59468aa73565f5144e834"
+        }
+      ],
+      "name": "lr_splitseq_sensitivity_e6_e6",
+      "summary": {
+        "accepted_orientation": {
+          "both": 2233,
+          "forward": 300814,
+          "reverse": 287532
+        },
+        "anchor_edit_histogram": {},
+        "anchor_start_histogram": {},
+        "barcode_ambiguity_histogram": {
+          "0": 459390,
+          "1": 131189
+        },
+        "batch_size": 4096,
+        "chem": "lr",
+        "controller_peak_rss_kib": 47332,
+        "criteria": {
+          "ambiguous_barcode_membership": "accepted_and_reported",
+          "barcode_hamming_distance": 1,
+          "bc1_length": 6,
+          "bc23_length": 8,
+          "linker2_expected_immediately_after_bc2": true,
+          "max_linker1_candidates": null,
+          "max_linker1_edit": 6,
+          "max_linker2_edit": 6,
+          "orientation": "both",
+          "paired_fastq_integrity_checked": false,
+          "reference_kind": "conservative_structural_reference_not_ground_truth",
+          "umi_length": 10
+        },
+        "elapsed_seconds": 12.549302,
+        "fast_path_counts": {
+          "False": 571244,
+          "True": 19335
+        },
+        "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+        "forward_failure_counts": {
+          "incomplete_bc1": 1217,
+          "incomplete_bc2": 36095,
+          "incomplete_umi_bc3_prefix": 232104,
+          "invalid_bc1": 832984,
+          "invalid_bc2": 108161,
+          "invalid_bc3": 102597,
+          "no_linker1": 4118019,
+          "no_linker2_at_expected_offset": 30197
+        },
+        "invalid": 5173842,
+        "linker1_edit_histogram": {
+          "0": 498530,
+          "1": 67685,
+          "2": 15168,
+          "3": 5467,
+          "4": 2233,
+          "5": 1019,
+          "6": 477
+        },
+        "linker2_edit_histogram": {
+          "0": 486523,
+          "1": 50369,
+          "2": 14725,
+          "3": 12066,
+          "4": 10229,
+          "5": 10124,
+          "6": 6543
+        },
+        "mate_fastq": null,
+        "maximum_worker_peak_rss_kib": 51160,
+        "outcome_counts": {
+          "accepted": 439256,
+          "accepted_ambiguous_barcode": 130615,
+          "accepted_ambiguous_cassette": 18475,
+          "accepted_both_orientations": 2233,
+          "incomplete_bc1": 1176,
+          "incomplete_bc2": 41418,
+          "incomplete_umi_bc3_prefix": 218174,
+          "invalid_bc1": 804645,
+          "invalid_bc2": 118717,
+          "invalid_bc3": 105864,
+          "no_linker1": 3847327,
+          "no_linker2_at_expected_offset": 36521
+        },
+        "pct_of_scanned": 10.2452,
+        "reads_per_second": 459341.94,
+        "schema_version": "3.0.0",
+        "system_cpu_seconds": 6.754473,
+        "threads": 32,
+        "total": 5764421,
+        "user_cpu_seconds": 290.499766,
+        "valid": 590579
+      },
+      "summary_path": "publication_results/structural_reference_2026-08-17/lr_splitseq_sensitivity_e6_e6.summary.json",
+      "valid_ids": {
+        "bytes": 11696056,
+        "ordering": "input_order",
+        "path": "publication_results/structural_reference_2026-08-17/lr_splitseq_sensitivity_e6_e6.valid_ids.txt",
+        "records": 590579,
+        "sha256": "0ff60cc793fa8c1db869b5a4254b4ae04305a734cfb8cd18f2948885ba4c80a0"
+      }
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/edit_tolerant_validity.py",
+        "/scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_1.fastq",
+        "--r2",
+        "/scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_2.fastq",
+        "--chem",
+        "scirnaseq3",
+        "--threads",
+        "32",
+        "--out",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/scirnaseq3_core.valid_ids.txt",
+        "--summary-json",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/scirnaseq3_core.summary.json"
+      ],
+      "inputs": [
+        {
+          "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_1.fastq",
+          "records": 22088821,
+          "sha256": "8a14d4862b507bab57d036088b9b82e097e3e7cd2c19cc96876b7b7e1550690a"
+        },
+        {
+          "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_2.fastq",
+          "records": 22088821,
+          "sha256": "e8bd2acf92cc75fd8686fc5e985b77c41594d35958d16fd0b836d09f7c4021ac"
+        }
+      ],
+      "name": "scirnaseq3_core",
+      "summary": {
+        "accepted_orientation": {
+          "forward": 19864110
+        },
+        "anchor_edit_histogram": {
+          "0": 13840651,
+          "1": 6023459
+        },
+        "anchor_start_histogram": {
+          "10": 7938378,
+          "9": 11925732
+        },
+        "barcode_ambiguity_histogram": {},
+        "batch_size": 4096,
+        "chem": "scirnaseq3",
+        "controller_peak_rss_kib": 36420,
+        "criteria": {
+          "allowed_anchor_offsets": [
+            9,
+            10
+          ],
+          "ambiguous_best_anchor_offset": "rejected_and_reported",
+          "anchor": "CAGAGC",
+          "max_anchor_edit": 1,
+          "minimum_trailing_umi_bc2_length": 18,
+          "paired_fastq_integrity_checked": true,
+          "reference_kind": "conservative_structural_reference_not_ground_truth"
+        },
+        "elapsed_seconds": 29.187043,
+        "fast_path_counts": {
+          "False": 6023459,
+          "True": 13840651
+        },
+        "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_1.fastq",
+        "forward_failure_counts": {},
+        "invalid": 2224711,
+        "linker1_edit_histogram": {},
+        "linker2_edit_histogram": {},
+        "mate_fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR7827254_2.fastq",
+        "maximum_worker_peak_rss_kib": 19432,
+        "outcome_counts": {
+          "accepted": 19864110,
+          "ambiguous_anchor_offset": 25960,
+          "no_anchor_at_allowed_offset": 2198751
+        },
+        "pct_of_scanned": 89.9283,
+        "reads_per_second": 756802.29,
+        "schema_version": "3.0.0",
+        "system_cpu_seconds": 2.307614,
+        "threads": 32,
+        "total": 22088821,
+        "user_cpu_seconds": 99.864163,
+        "valid": 19864110
+      },
+      "summary_path": "publication_results/structural_reference_2026-08-17/scirnaseq3_core.summary.json",
+      "valid_ids": {
+        "bytes": 387302240,
+        "ordering": "input_order",
+        "path": "publication_results/structural_reference_2026-08-17/scirnaseq3_core.valid_ids.txt",
+        "records": 19864110,
+        "sha256": "d685a28119972ffb6d456873391d8cb52ad10e24676890d6dadcbb2dae526b74"
+      }
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/edit_tolerant_validity.py",
+        "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq",
+        "--r2",
+        "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq",
+        "--chem",
+        "pe",
+        "--threads",
+        "32",
+        "--out",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/splitseq_pe_core.valid_ids.txt",
+        "--summary-json",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/splitseq_pe_core.summary.json"
+      ],
+      "inputs": [
+        {
+          "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq",
+          "records": 77621181,
+          "sha256": "6bebdc56002acb3097df464f73fd853da0f855521e25d1845a36a1162c848731"
+        },
+        {
+          "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq",
+          "records": 77621181,
+          "sha256": "33eb06ed9633973e8a254d82dfbf728ebc47791b2bf6cb6344572b64da8a6597"
+        }
+      ],
+      "name": "splitseq_pe_core",
+      "summary": {
+        "accepted_orientation": {
+          "forward": 57437503
+        },
+        "anchor_edit_histogram": {},
+        "anchor_start_histogram": {},
+        "barcode_ambiguity_histogram": {
+          "0": 57437503
+        },
+        "batch_size": 4096,
+        "chem": "pe",
+        "controller_peak_rss_kib": 44900,
+        "criteria": {
+          "ambiguous_barcode_membership": "accepted_and_reported",
+          "barcode_hamming_distance": 1,
+          "bc1_length": 8,
+          "bc23_length": 8,
+          "linker2_expected_immediately_after_bc2": true,
+          "max_linker1_candidates": null,
+          "max_linker1_edit": 3,
+          "max_linker2_edit": 3,
+          "orientation": "forward",
+          "paired_fastq_integrity_checked": true,
+          "reference_kind": "conservative_structural_reference_not_ground_truth",
+          "umi_length": 10
+        },
+        "elapsed_seconds": 106.774443,
+        "fast_path_counts": {
+          "False": 17678611,
+          "True": 39758892
+        },
+        "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R2.fastq",
+        "forward_failure_counts": {},
+        "invalid": 20183678,
+        "linker1_edit_histogram": {
+          "0": 47336245,
+          "1": 8632045,
+          "2": 1198562,
+          "3": 270651
+        },
+        "linker2_edit_histogram": {
+          "0": 47894639,
+          "1": 8363831,
+          "2": 948649,
+          "3": 230384
+        },
+        "mate_fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR6750041_R1.fastq",
+        "maximum_worker_peak_rss_kib": 27300,
+        "outcome_counts": {
+          "accepted": 57436175,
+          "accepted_ambiguous_cassette": 1328,
+          "incomplete_bc1": 1248210,
+          "incomplete_bc2": 3579,
+          "incomplete_umi_bc3_prefix": 2316088,
+          "invalid_bc1": 2445219,
+          "invalid_bc2": 2229133,
+          "invalid_bc3": 438573,
+          "no_linker1": 6670053,
+          "no_linker2_at_expected_offset": 4832823
+        },
+        "pct_of_scanned": 73.9972,
+        "reads_per_second": 726964.05,
+        "schema_version": "3.0.0",
+        "system_cpu_seconds": 9.730482,
+        "threads": 32,
+        "total": 77621181,
+        "user_cpu_seconds": 419.061653,
+        "valid": 57437503
+      },
+      "summary_path": "publication_results/structural_reference_2026-08-17/splitseq_pe_core.summary.json",
+      "valid_ids": {
+        "bytes": 1140689400,
+        "ordering": "input_order",
+        "path": "publication_results/structural_reference_2026-08-17/splitseq_pe_core.valid_ids.txt",
+        "records": 57437503,
+        "sha256": "679521dea8dba3f55abd566832d306692bed99aa9470f24f5166e37db48e1374"
+      }
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/edit_tolerant_validity.py",
+        "/scratch1/seqproc-benchmark-data/full/fastq/SRR8315379_R1.fastq",
+        "--r2",
+        "/scratch1/seqproc-benchmark-data/full/fastq/SRR8315379_R2.fastq",
+        "--chem",
+        "tenx_v2",
+        "--threads",
+        "32",
+        "--out",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/tenx_v2_core.valid_ids.txt",
+        "--summary-json",
+        "/scratch1/seqproc-ecosystem/seqproc-paper-analysis/publication_results/structural_reference_2026-08-17/tenx_v2_core.summary.json"
+      ],
+      "inputs": [
+        {
+          "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR8315379_R1.fastq",
+          "records": 234382218,
+          "sha256": "897948da54c77b583a5be0244408d1fd990d9452b7dcb06ae9ca9d516f3dd0e5"
+        },
+        {
+          "path": "/scratch1/seqproc-benchmark-data/full/fastq/SRR8315379_R2.fastq",
+          "records": 234382218,
+          "sha256": "550012b0cadcb6cc10a68f3db8f56294fe08c773cd81c15c0275f7cd519c40df"
+        }
+      ],
+      "name": "tenx_v2_core",
+      "summary": {
+        "accepted_orientation": {
+          "forward": 234382218
+        },
+        "anchor_edit_histogram": {},
+        "anchor_start_histogram": {},
+        "barcode_ambiguity_histogram": {},
+        "batch_size": 4096,
+        "chem": "tenx_v2",
+        "controller_peak_rss_kib": 31964,
+        "criteria": {
+          "minimum_r1_length": 26,
+          "paired_fastq_integrity_checked": true,
+          "reference_kind": "conservative_structural_reference_not_ground_truth"
+        },
+        "elapsed_seconds": 307.272235,
+        "fast_path_counts": {
+          "True": 234382218
+        },
+        "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR8315379_R1.fastq",
+        "forward_failure_counts": {},
+        "invalid": 0,
+        "linker1_edit_histogram": {},
+        "linker2_edit_histogram": {},
+        "mate_fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR8315379_R2.fastq",
+        "maximum_worker_peak_rss_kib": 19480,
+        "outcome_counts": {
+          "accepted": 234382218
+        },
+        "pct_of_scanned": 100.0,
+        "reads_per_second": 762783.59,
+        "schema_version": "3.0.0",
+        "system_cpu_seconds": 15.518685,
+        "threads": 32,
+        "total": 234382218,
+        "user_cpu_seconds": 473.490727,
+        "valid": 234382218
+      },
+      "summary_path": "publication_results/structural_reference_2026-08-17/tenx_v2_core.summary.json",
+      "valid_ids": {
+        "bytes": 4810915476,
+        "ordering": "input_order",
+        "path": "publication_results/structural_reference_2026-08-17/tenx_v2_core.valid_ids.txt",
+        "records": 234382218,
+        "sha256": "d73a4ee34f58b9bb399fad6fcdc26d2ed3941276d11d2868f1b10eb66be54077"
+      }
+    }
+  ],
+  "data_provenance": {
+    "path": "/scratch1/seqproc-benchmark-data/full/full_data_provenance.json",
+    "sha256": "992edfcd5919c4c8c5cecaa3ed29abfde5ee409c9fe247581dd5277976275a40"
+  },
+  "provenance_note": "Outputs were generated from a working tree based on this commit. The recorded validator, whitelist, input, summary, and output content hashes are the authoritative identities; the changes are committed together with this provenance artifact.",
+  "repository_base_commit_at_run": "8f56bdd68b956fdb89c24d8fed6eb23428360d32",
+  "schema_version": "1.0.0",
+  "validator": {
+    "path": "scripts/edit_tolerant_validity.py",
+    "sha256": "6db3a15391424bceb2c541a2ae56a25c9909c2558abda9f525dc06d3a6aec9d6"
+  },
+  "whitelists": [
+    {
+      "path": "configs/seqproc/splitseq_bc8_whitelist.txt",
+      "sha256": "346ecc6bf50e72c91e0ec115ca22918abbfa8d3dae7be0dab9e602a1564de199"
+    },
+    {
+      "path": "configs/seqproc/splitseq_bc1_whitelist_6bp.txt",
+      "sha256": "d62002ac8469d79d45e8acda8f9b0fd3f194bec7e93345cb15a6ee1f3053279a"
+    }
+  ]
+}

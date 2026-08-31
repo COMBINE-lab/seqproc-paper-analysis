@@ -1,0 +1,4 @@
+dataset,left,right,intersection_records,union_records,left_only_records,right_only_records,jaccard
+tenx_v2,seqproc,matchbox,234382218,234382218,0,0,1.0
+tenx_v2,seqproc,splitcode,234382218,234382218,0,0,1.0
+tenx_v2,matchbox,splitcode,234382218,234382218,0,0,1.0

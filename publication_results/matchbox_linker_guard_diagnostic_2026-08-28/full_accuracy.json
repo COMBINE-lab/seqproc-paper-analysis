@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.0.0",
+  "input_records": 77621181,
+  "reference": {
+    "path": "/scratch1/seqproc-ecosystem/matchbox-linker-guard-diagnostic-2026-08-28/full/pe_reference.bitmap.raw",
+    "records": 57437503,
+    "interpretation": "conservative structural reference, not biological ground truth"
+  },
+  "tools": {
+    "matchbox_exact": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/splitseq_pe.matchbox.accepted.1.bitmap"
+      ],
+      "emitted_records": 35160366,
+      "intersection_records": 35160366,
+      "emitted_fraction": 0.45297386031784287,
+      "precision": 1.0,
+      "recall": 0.6121499745558229,
+      "f1": 0.7594206298635231
+    },
+    "matchbox_fuzzy_component": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/matchbox-linker-guard-diagnostic-2026-08-28/full/pe-canonical-component/r1.bitmap"
+      ],
+      "emitted_records": 50266141,
+      "intersection_records": 50154400,
+      "emitted_fraction": 0.6475827905787725,
+      "precision": 0.9977770125619948,
+      "recall": 0.8731995191364778,
+      "f1": 0.9313408188863136
+    },
+    "matchbox_fuzzy_span": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/matchbox-linker-guard-diagnostic-2026-08-28/full/pe-canonical-span/r1.bitmap"
+      ],
+      "emitted_records": 46835210,
+      "intersection_records": 46829916,
+      "emitted_fraction": 0.6033818269268539,
+      "precision": 0.9998869653835224,
+      "recall": 0.8153194960442482,
+      "f1": 0.8982199590414417
+    },
+    "seqproc": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/splitseq_pe.seqproc.accepted.1.bitmap"
+      ],
+      "emitted_records": 56991381,
+      "intersection_records": 56796243,
+      "emitted_fraction": 0.7342246055235877,
+      "precision": 0.9965760085722436,
+      "recall": 0.9888355174492874,
+      "f1": 0.9926906741483208
+    },
+    "splitcode": {
+      "sources": [
+        "/scratch1/seqproc-ecosystem/campaigns/journal-rerun-2026-08-17-r2/aggregates/accuracy/bitmaps/splitseq_pe.splitcode.accepted.1.bitmap"
+      ],
+      "emitted_records": 53495595,
+      "intersection_records": 53472550,
+      "emitted_fraction": 0.6891881096217797,
+      "precision": 0.9995692168672954,
+      "recall": 0.9309692658470895,
+      "f1": 0.9640504225348507
+    }
+  },
+  "pairwise": {
+    "matchbox_exact__matchbox_fuzzy_component": {
+      "intersection_records": 35160366,
+      "union_records": 50266141,
+      "jaccard": 0.6994840920849683,
+      "matchbox_exact_only": 0,
+      "matchbox_fuzzy_component_only": 15105775
+    },
+    "matchbox_exact__matchbox_fuzzy_span": {
+      "intersection_records": 35160366,
+      "union_records": 46835210,
+      "jaccard": 0.7507250634725455,
+      "matchbox_exact_only": 0,
+      "matchbox_fuzzy_span_only": 11674844
+    },
+    "matchbox_exact__seqproc": {
+      "intersection_records": 35160366,
+      "union_records": 56991381,
+      "jaccard": 0.6169418144122529,
+      "matchbox_exact_only": 0,
+      "seqproc_only": 21831015
+    },
+    "matchbox_exact__splitcode": {
+      "intersection_records": 35160366,
+      "union_records": 53495595,
+      "jaccard": 0.6572572190289686,
+      "matchbox_exact_only": 0,
+      "splitcode_only": 18335229
+    },
+    "matchbox_fuzzy_component__matchbox_fuzzy_span": {
+      "intersection_records": 46835210,
+      "union_records": 50266141,
+      "jaccard": 0.9317446907253135,
+      "matchbox_fuzzy_component_only": 3430931,
+      "matchbox_fuzzy_span_only": 0
+    },
+    "matchbox_fuzzy_component__seqproc": {
+      "intersection_records": 49907532,
+      "union_records": 57349990,
+      "jaccard": 0.8702273880082629,
+      "matchbox_fuzzy_component_only": 358609,
+      "seqproc_only": 7083849
+    },
+    "matchbox_fuzzy_component__splitcode": {
+      "intersection_records": 46828216,
+      "union_records": 56933520,
+      "jaccard": 0.822506951967839,
+      "matchbox_fuzzy_component_only": 3437925,
+      "splitcode_only": 6667379
+    },
+    "matchbox_fuzzy_span__seqproc": {
+      "intersection_records": 46801564,
+      "union_records": 57025027,
+      "jaccard": 0.8207197166254739,
+      "matchbox_fuzzy_span_only": 33646,
+      "seqproc_only": 10189817
+    },
+    "matchbox_fuzzy_span__splitcode": {
+      "intersection_records": 46828020,
+      "union_records": 53502785,
+      "jaccard": 0.8752445316631648,
+      "matchbox_fuzzy_span_only": 7190,
+      "splitcode_only": 6667575
+    },
+    "seqproc__splitcode": {
+      "intersection_records": 53232995,
+      "union_records": 57253981,
+      "jaccard": 0.929769320320276,
+      "seqproc_only": 3758386,
+      "splitcode_only": 262600
+    }
+  }
+}

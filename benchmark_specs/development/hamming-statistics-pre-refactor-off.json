@@ -1,0 +1,26 @@
+{
+  "name": "antisequence-hamming-statistics-pre-refactor-off",
+  "cwd": "/scratch1/seqproc-ecosystem/antisequence",
+  "command": [
+    "/tmp/antisequence-statistics-baseline-2f93076",
+    "--mode", "hamming",
+    "--reads", "5000000",
+    "--threads", "8",
+    "--repetitions", "30",
+    "--execution", "pipeline",
+    "--batch-size", "256",
+    "--output", "null"
+  ],
+  "metadata": {
+    "workload": "hamming-lookup",
+    "implementation_commit": "2f930767",
+    "statistics": false,
+    "statistics_level": "off",
+    "threads": 8,
+    "reads": 5000000,
+    "repetitions": 30,
+    "execution": "pipeline",
+    "batch_size": 256,
+    "stage": "development"
+  }
+}

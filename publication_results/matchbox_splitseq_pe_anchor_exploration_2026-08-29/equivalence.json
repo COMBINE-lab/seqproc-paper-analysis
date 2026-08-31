@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "dataset": "splitseq_pe",
+  "input_records": 77621181,
+  "matchbox_version": "0.3.2",
+  "baseline": {
+    "canonical": {
+      "emitted_records": 50266141,
+      "transformed_r2_sha256": "090ea4559e8157e8b773c3e86f588649b61b29f951bfc33e18cc092f8b9b7d03"
+    },
+    "hamming1_expanded": {
+      "emitted_records": 57252325,
+      "transformed_r2_sha256": "9d8c8f68e2c395454ee10f7d2c7fd9f1eab5aedd3c7b4ce10924214ace504aab",
+      "wall_seconds_32_threads_dev_null": 6312.330,
+      "peak_rss_mib": 12700.9
+    }
+  },
+  "adopted_expanded_terminal_bc1_anchor": {
+    "emitted_records": 57252325,
+    "transformed_r2_sha256": "9d8c8f68e2c395454ee10f7d2c7fd9f1eab5aedd3c7b4ce10924214ace504aab",
+    "byte_identical": true,
+    "diagnostic_materialized_wall_seconds_rounded": 4287,
+    "diagnostic_materialized_peak_rss_kib": 12970880,
+    "frozen_timing_run_id": "74c950bdb14b944032b7d6117bd3369d7fb3d168b95f1a1c8353bf17ffdc599d",
+    "wall_seconds_32_threads_dev_null": 4272.491561808,
+    "peak_rss_kib": 12969028,
+    "peak_rss_mib": 12665.06640625,
+    "runtime_reduction_percent": 32.3151425573758,
+    "speedup": 1.4774353345542468
+  },
+  "canonical_terminal_bc1_anchor": {
+    "emitted_records": 50266141,
+    "transformed_r2_sha256": "090ea4559e8157e8b773c3e86f588649b61b29f951bfc33e18cc092f8b9b7d03",
+    "byte_identical": true,
+    "adopted": false,
+    "reason": "full 32-thread runtime and peak memory were effectively neutral"
+  },
+  "rejected": {
+    "all_barcodes_post_membership_canonical_full": {
+      "emitted_records": 3420289,
+      "baseline_records": 50266141
+    },
+    "terminal_bc2_anchor_canonical_first_100000": {
+      "emitted_records": 4195,
+      "baseline_records": 63012
+    },
+    "nested_exact_membership_canonical_first_100000": {
+      "emitted_records": 63134,
+      "baseline_records": 63012
+    }
+  }
+}

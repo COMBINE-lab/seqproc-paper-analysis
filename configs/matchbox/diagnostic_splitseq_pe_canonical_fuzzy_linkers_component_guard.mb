@@ -1,0 +1,17 @@
+# Diagnostic: exact canonical barcodes, edit-distance-three linkers, and
+# explicit biological-component length guards.  This tests whether exact
+# barcode identity and span are sufficient to prevent boundary drift when
+# adjacent linker matches are approximate.
+l1 = GTGGCCGATGTTTCGCATCGGCGTACGACT
+l2 = ATCCACGTGCTTGAGAGGCCAGAGCATTCG
+bcs23 = csv('configs/matchbox/r2_r3.txt')
+
+if read.r2 matches {
+    [umi:|10| bc3_hit:bc3.round_23~0.0 l1~0.10 bc2_hit:bc2.round_23~0.0 l2~0.10 bc1_hit:bc1.round_23~0.0 _]
+        for bc1 in bcs23, bc2 in bcs23, bc3 in bcs23 => {
+            if umi.seq.len() == 10 and bc3_hit.seq.len() == 8 and bc2_hit.seq.len() == 8 and bc1_hit.seq.len() == 8 {
+                read.r1.out!('mb_r1.fq')
+                (umi.concat(bc3_hit)).concat(bc2_hit.concat(bc1_hit)).out!('mb_r2.fq')
+            }
+        }
+}

@@ -1,0 +1,86 @@
+{
+  "accepted_orientation": {
+    "both": 1960,
+    "forward": 292338,
+    "reverse": 279220
+  },
+  "anchor_edit_histogram": {},
+  "anchor_start_histogram": {},
+  "barcode_ambiguity_histogram": {
+    "0": 443199,
+    "1": 130319
+  },
+  "batch_size": 4096,
+  "chem": "lr",
+  "controller_peak_rss_kib": 47312,
+  "criteria": {
+    "ambiguous_barcode_membership": "accepted_and_reported",
+    "barcode_hamming_distance": 1,
+    "bc1_length": 6,
+    "bc23_length": 8,
+    "linker2_expected_immediately_after_bc2": true,
+    "max_linker1_candidates": null,
+    "max_linker1_edit": 5,
+    "max_linker2_edit": 4,
+    "orientation": "both",
+    "paired_fastq_integrity_checked": false,
+    "reference_kind": "conservative_structural_reference_not_ground_truth",
+    "umi_length": 10
+  },
+  "elapsed_seconds": 13.066807,
+  "fast_path_counts": {
+    "False": 554183,
+    "True": 19335
+  },
+  "fastq": "/scratch1/seqproc-benchmark-data/full/fastq/SRR13948564_full.fastq",
+  "forward_failure_counts": {
+    "incomplete_bc1": 907,
+    "incomplete_bc2": 35941,
+    "incomplete_umi_bc3_prefix": 229553,
+    "invalid_bc1": 828239,
+    "invalid_bc2": 106097,
+    "invalid_bc3": 99694,
+    "no_linker1": 4126386,
+    "no_linker2_at_expected_offset": 43306
+  },
+  "invalid": 5190903,
+  "linker1_edit_histogram": {
+    "0": 485464,
+    "1": 65520,
+    "2": 14505,
+    "3": 5096,
+    "4": 2029,
+    "5": 904
+  },
+  "linker2_edit_histogram": {
+    "0": 486398,
+    "1": 50284,
+    "2": 14644,
+    "3": 12008,
+    "4": 10184
+  },
+  "mate_fastq": null,
+  "maximum_worker_peak_rss_kib": 51160,
+  "outcome_counts": {
+    "accepted": 431814,
+    "accepted_ambiguous_barcode": 129895,
+    "accepted_ambiguous_cassette": 9849,
+    "accepted_both_orientations": 1960,
+    "incomplete_bc1": 862,
+    "incomplete_bc2": 41295,
+    "incomplete_umi_bc3_prefix": 215936,
+    "invalid_bc1": 799978,
+    "invalid_bc2": 116864,
+    "invalid_bc3": 103062,
+    "no_linker1": 3863275,
+    "no_linker2_at_expected_offset": 49631
+  },
+  "pct_of_scanned": 9.9493,
+  "reads_per_second": 441149.93,
+  "schema_version": "3.0.0",
+  "system_cpu_seconds": 3.373394,
+  "threads": 32,
+  "total": 5764421,
+  "user_cpu_seconds": 146.350915,
+  "valid": 573518
+}
