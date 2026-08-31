@@ -1,6 +1,6 @@
 # seqproc Paper Analysis
 
-> **Current journal campaigns (2026-08-17--29).** The revised manuscript uses
+> **Current campaigns (2026-08-17--29).** The revised manuscript uses
 > the frozen [`performance`](publication_results/journal_performance_2026-08-17/)
 > bundle, the final SPLiT-seq PE Matchbox
 > [`performance and downstream`](publication_results/splitseq_pe_matchbox_fuzzy_2026-08-29/)
